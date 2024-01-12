@@ -6,7 +6,7 @@ from django.utils.html import format_html
 from django.shortcuts import redirect
 from django_celery_results.models import TaskResult
 from .models import Local
-from .tasks import local_ingest_task
+from .tasks import local_ingest_task_ecds
 
 LOGGER = logging.getLogger(__name__)
 
@@ -21,9 +21,9 @@ class LocalAdmin(admin.ModelAdmin):
         obj.process()
         super().save_model(request, obj, form, change)
         if os.environ["DJANGO_ENV"] != 'test': # pragma: no cover
-            local_ingest_task.apply_async(args=[obj.id])
+            local_ingest_task_ecds.apply_async(args=[obj.id])
         else:
-            local_ingest_task(obj.id)
+            local_ingest_task_ecds(obj.id)
 
     def response_add(self, request, obj, post_url_continue=None):
         obj.refresh_from_db()
