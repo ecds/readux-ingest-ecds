@@ -24,8 +24,7 @@ INSTALLED_APPS += ['readux_ingest_ecds']
 Create and run the migrations.
 
 ~~~bash
-python manage.py makemigrations readux_ingest_ecds
-python manage.py migrate
+python manage.py migrate readux_ingest_ecds
 ~~~
 
 ## Settings
@@ -41,6 +40,7 @@ python manage.py migrate
 | INGEST_TMP_DIR | Absolute path where files will be temporarily stored. |
 | INGEST_PROCESSING_DIR | Absolute path where Lambda will look for images. |
 | INGEST_OCR_DIR | Absolute path where OCR files will be preserved. |
+| INGEST_TRIGGER_BUCKET | S3 bucket that will trigger the PTiff Lambda function. |
 
 ## Process
 
@@ -53,14 +53,14 @@ A person uploads a zip file with the following internal structure.
 ├──
 │   └── metadata.(csv|tsv|xlsx)
 │   └── images
-│   │   └── **.(tiff|jpg|png|gif|webp)
+│   │   └── 0000X.(tiff|jpg|png|gif|webp)
 │   └── ocr
-│   │   └── **.(txt|tsv|xml|hocr)
+│   │   └── 0000X.(txt|tsv|xml|hocr)
 ~~~
 
 #### Image Files
 
-The images directory should contain all images sequentially named with numbers. Images can be in any format (other than PDF). Non-pyramidal tiffs will be converted during the ingest process.
+The "images" directory should contain all images sequentially named with numbers. Images can be in any format (other than PDF). Non-pyramidal tiffs will be converted during the ingest process.
 
 #### OCR Files
 

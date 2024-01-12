@@ -16,8 +16,9 @@ class LocalAdmin(admin.ModelAdmin):
     show_save_and_add_another = False
 
     def save_model(self, request, obj, form, change):
-        LOGGER.info(f'INGEST: Local ingest - {obj.id} - started by {request.user.username}')
+        LOGGER.info(f'INGEST: Local ingest started by {request.user.username}')
         obj.creator = request.user
+        obj.process()
         super().save_model(request, obj, form, change)
         if os.environ["DJANGO_ENV"] != 'test': # pragma: no cover
             local_ingest_task.apply_async(args=[obj.id])
@@ -26,8 +27,8 @@ class LocalAdmin(admin.ModelAdmin):
 
     def response_add(self, request, obj, post_url_continue=None):
         obj.refresh_from_db()
-        manifest_id = obj.manifest.id
-        return redirect('/admin/manifests/manifest/{m}/change/'.format(m=manifest_id))
+        LOGGER.info(f'INGEST: Local ingest - {obj.id} - added for {obj.manifest.pid}')
+        return redirect('/admin/manifests/manifest/{m}/change/'.format(m=obj.manifest.pk))
 
     class Meta: # pylint: disable=too-few-public-methods, missing-class-docstring
         model = Local

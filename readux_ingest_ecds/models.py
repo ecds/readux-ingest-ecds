@@ -84,10 +84,17 @@ class Local(IngestAbstractModel):
         os.makedirs(settings.INGEST_TMP_DIR, exist_ok=True)
         os.makedirs(settings.INGEST_PROCESSING_DIR, exist_ok=True)
         os.makedirs(settings.INGEST_OCR_DIR, exist_ok=True)
+        self.save()
         self.open_metadata()
         self.manifest = create_manifest(self)
         self.save()
 
+    def ingest(self):
+        LOGGER.info(f'INGEST: Local ingest - {self.id} - saved for {self.manifest.pid}')
+        self.unzip_bundle()
+        self.create_canvases()
+        LOGGER.info(f'INGEST: Local ingest - {self.id} - finished for {self.manifest.pid}')
+        self.delete()
 
     def unzip_bundle(self):
         open(self.trigger_file, 'a').close()
@@ -179,11 +186,3 @@ class Local(IngestAbstractModel):
                 width=width,
                 height=height
             )
-
-    def ingest(self):
-        self.process()
-        LOGGER.info(f'INGEST: Local ingest - {self.id} - saved for {self.manifest.pid}')
-        self.unzip_bundle()
-        self.create_canvases()
-        self.delete()
-        LOGGER.info(f'INGEST: Local ingest - {self.id} - finished for {self.manifest.pid}')

@@ -1,10 +1,10 @@
 from os.path import join
 from django_celery_results.models import TaskResult
-from factory.django import DjangoModelFactory, FileField
+from factory.django import DjangoModelFactory, FileField, ImageField
 from factory import Faker, SubFactory
 from django.conf import settings
 from readux_ingest_ecds.models import Local
-from iiif.models import ImageServer, Manifest, User
+from iiif.models import ImageServer, Manifest, User, Collection
 
 class ImageServerFactory(DjangoModelFactory):
     server_base = 'http://images.ecds.emory.edu'
@@ -41,3 +41,10 @@ class LocalFactory(DjangoModelFactory):
     bundle = FileField(filename='bundle.zip', filepath=join(settings.FIXTURE_DIR, 'bundle.zip'))
     image_server = SubFactory(ImageServerFactory)
     manifest = None
+
+class CollectionFactory(DjangoModelFactory):
+    """
+    Factory for mocking :class:`apps.iiif.kollections.models.Collection` objects.
+    """
+    class Meta:
+        model = Collection
