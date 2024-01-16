@@ -1,11 +1,10 @@
 import os
 import logging
 from zipfile import ZipFile
-from shutil import move
 from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.conf import settings
-from .services import is_image, is_ocr, is_junk, metadata_from_file, create_manifest, move_image_file, move_ocr_file, canvas_dimensions
+from .services import is_image, is_ocr, is_junk, metadata_from_file, create_manifest, move_image_file, move_ocr_file, canvas_dimensions, upload_trigger_file
 from .helpers import get_iiif_models
 
 Manifest = get_iiif_models()['Manifest']
@@ -186,3 +185,5 @@ class Local(IngestAbstractModel):
                 width=width,
                 height=height
             )
+
+        upload_trigger_file(self.trigger_file)
