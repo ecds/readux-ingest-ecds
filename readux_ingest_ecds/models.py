@@ -72,7 +72,7 @@ class Local(IngestAbstractModel):
 
     @property
     def trigger_file(self):
-        return os.path.join(settings.INGEST_TMP_DIR, f'{self.manifest.pid}.csv')
+        return os.path.join(settings.INGEST_TMP_DIR, f'{self.manifest.pid}.txt')
 
     def process(self):
         """
