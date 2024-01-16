@@ -1,4 +1,5 @@
 from os.path import join
+import boto3
 from django.conf import settings
 from django.contrib.admin.sites import AdminSite
 from django.core import files
@@ -32,9 +33,8 @@ class IngestAdminTest(TestCase):
         self.user = UserFactory.create(is_superuser=True)
 
         # Create fake bucket for moto's mock S3 service.
-        # conn = boto3.resource('s3', region_name='us-east-1')
-        # conn.create_bucket(Bucket='readux')
-        # conn.create_bucket(Bucket='readux-ingest')
+        conn = boto3.resource('s3', region_name='us-east-1')
+        conn.create_bucket(Bucket=settings.INGEST_TRIGGER_BUCKET)
 
     def test_local_admin_save(self):
         """It should add a create a manifest and canvases and delete the Local object"""

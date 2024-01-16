@@ -29,7 +29,7 @@ IIIF_COLLECTION_MODEL = 'iiif.Collection'
 INGEST_TMP_DIR = os.path.join('tmp')
 INGEST_PROCESSING_DIR = os.path.join('tmp', 'processing')
 INGEST_OCR_DIR = os.path.join('tmp', 'ocr')
-INGEST_TRIGGER_BUCKET = 'readux-ingest'
+INGEST_TRIGGER_BUCKET = 'readux-ingest-ecds-test'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
