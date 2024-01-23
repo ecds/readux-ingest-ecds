@@ -20,10 +20,10 @@ class LocalAdmin(admin.ModelAdmin):
         obj.creator = request.user
         obj.process()
         super().save_model(request, obj, form, change)
-        if os.environ["DJANGO_ENV"] != 'test': # pragma: no cover
-            local_ingest_task_ecds.apply_async(args=[obj.id])
-        else:
-            local_ingest_task_ecds(obj.id)
+        # if os.environ["DJANGO_ENV"] != 'test': # pragma: no cover
+        #     local_ingest_task_ecds.apply_async(args=[obj.id])
+        # else:
+        local_ingest_task_ecds(obj.id)
 
     def response_add(self, request, obj, post_url_continue=None):
         obj.refresh_from_db()
