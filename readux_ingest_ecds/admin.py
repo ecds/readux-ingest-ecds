@@ -23,10 +23,10 @@ class LocalAdmin(admin.ModelAdmin):
 
     def response_add(self, request, obj, post_url_continue=None):
         obj.refresh_from_db()
-        # if os.environ["DJANGO_ENV"] != 'test': # pragma: no cover
-        #     local_ingest_task_ecds.apply_async(args=[obj.id])
-        # else:
-        local_ingest_task_ecds(obj.id)
+        if os.environ["DJANGO_ENV"] != 'test': # pragma: no cover
+            local_ingest_task_ecds.apply_async(args=[obj.id])
+        else:
+            local_ingest_task_ecds(obj.id)
         LOGGER.info(f'INGEST: Local ingest - {obj.id} - added for {obj.manifest.pid}')
         return redirect('/admin/manifests/manifest/{m}/change/'.format(m=obj.manifest.pk))
 
