@@ -200,6 +200,16 @@ class LocalTest(TestCase):
         assert Canvas.objects.get(pid=f'{pid}_00000010.tiff').width == 32
         assert Canvas.objects.get(pid=f'{pid}_00000010.tiff').height == 43
 
+        ocr_path = os.path.abspath(
+            os.path.join(
+                settings.INGEST_OCR_DIR,
+                pid,
+                f'{pid}_00000008.tsv'
+            )
+        )
+
+        assert Canvas.objects.get(pid=f'{pid}_00000008.tiff').ocr_file_path == ocr_path
+
     def test_it_creates_manifest_with_metadata_property(self):
         metadata = {
             'pid': '808',

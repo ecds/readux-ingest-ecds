@@ -40,6 +40,7 @@ def get_ocr(canvas):
         return parse_tei_ocr(result)
 
     result = fetch_positional_ocr(canvas)
+
     return add_positional_ocr(canvas, result)
 
 def fetch_tei_ocr(canvas):
@@ -126,7 +127,9 @@ def fetch_positional_ocr(canvas):
         if canvas.image_server.storage_service == 's3':
             return canvas.image_server.bucket.Object(canvas.ocr_file_path).get()['Body'].read()
 
-    return fetch_url(url, data_format='text/plain')
+        if canvas.image_server.storage_service == 'local':
+            with open(canvas.ocr_file_path, 'r') as ocr:
+                return ocr.read()
 
 def parse_alto_ocr(result):
     """Function to parse fetched ALTO OCR data for a given canvas.

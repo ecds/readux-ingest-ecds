@@ -7,7 +7,7 @@ from readux_ingest_ecds.models import Local
 from iiif.models import ImageServer, Manifest, User, Collection
 
 class ImageServerFactory(DjangoModelFactory):
-    server_base = 'http://images.ecds.emory.edu'
+    server_base = 'http://iiif.ecds.emory.edu'
 
     class Meta: # pylint: disable=too-few-public-methods, missing-class-docstring
         model = ImageServer

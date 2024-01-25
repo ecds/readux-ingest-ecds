@@ -41,7 +41,6 @@ def add_ocr_task(manifest_id, *args, **kwargs):
     manifest = Manifest.objects.get(pk=manifest_id)
     for canvas in manifest.canvas_set.all():
         ocr = get_ocr(canvas)
-
         if ocr is not None:
             add_ocr_annotations(canvas, ocr)
             canvas.save()  # trigger reindex

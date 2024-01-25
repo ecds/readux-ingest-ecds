@@ -7,6 +7,7 @@ class Collection(models.Model):
 
 class ImageServer(models.Model):
     server_base = models.CharField(max_length=255)
+    storage_service = models.CharField(max_length=25, default='local')
 
 class Manifest(models.Model):
     pid = models.CharField(max_length=255, primary_key=True, default=uuid4, editable=True)
@@ -28,6 +29,10 @@ class Canvas(models.Model):
     )
     # TODO: move this to the manifest level.
     default_ocr = models.CharField(max_length=30, choices=preferred_ocr, default="word")
+
+    @property
+    def image_server(self):
+        return self.manifest.image_server
 
 class OCR(models.Model):
     OCR = 'cnt:ContentAsText'

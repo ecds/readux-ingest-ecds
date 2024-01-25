@@ -62,7 +62,7 @@ class IngestAdminTest(TestCase):
         # in the ingest
         assert Manifest.objects.count() == original_manifest_count + 1
         assert Canvas.objects.count() == original_canvas_count + 10
-        assert OCR.objects.count() == original_ocr_count + 4630
+        assert OCR.objects.count() == original_ocr_count + 1073
 
     def test_local_admin_response_add(self):
         """It should redirect to new manifest"""

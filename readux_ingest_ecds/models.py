@@ -166,7 +166,7 @@ class Local(IngestAbstractModel):
         Canvas = get_iiif_models()['Canvas']
         images = None
         with open(self.trigger_file, 'r') as t_file:
-            images =t_file.read().splitlines()
+            images = t_file.read().splitlines()
         images.sort()
 
         for index, image in enumerate(images):
@@ -174,9 +174,10 @@ class Local(IngestAbstractModel):
             image_name = os.path.splitext(image)[0]
             canvas_pid = f'{image_name}.tiff'
             width, height = canvas_dimensions(image_name)
+            ocr_directory = os.path.join(settings.INGEST_OCR_DIR, self.manifest.pid)
             try:
-                ocr_file = [ocr for ocr in os.listdir(settings.INGEST_OCR_DIR) if image_name in ocr][0]
-                ocr_file_path = os.path.abspath(os.path.join(settings.INGEST_OCR_DIR, ocr_file))
+                ocr_file = [ocr for ocr in os.listdir(ocr_directory) if image_name in ocr][0]
+                ocr_file_path = os.path.abspath(os.path.join(ocr_directory, ocr_file))
             except IndexError:
                 ocr_file_path = None
 
