@@ -9,21 +9,14 @@ from django.test.client import RequestFactory
 # from django.urls.base import reverse
 # from django_celery_results.models import TaskResult
 from moto import mock_s3
-from iiif.models import Manifest, Canvas, Collection
+from iiif.models import Manifest, Canvas, Collection, OCR
 from .factories import ImageServerFactory, UserFactory, LocalFactory, ManifestFactory, CollectionFactory
 from readux_ingest_ecds.models import Local
 from readux_ingest_ecds.admin import LocalAdmin
 
 @mock_s3
 class IngestAdminTest(TestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     cls.sftp_server = MockSFTP()
-
-    # @classmethod
-    # def tearDownClass(cls):
-    #     cls.sftp_server.stop_server()
-
+    """ Tests Ingest Admin """
     def setUp(self):
         """ Set instance variables. """
         self.fixture_path = settings.FIXTURE_DIR
@@ -42,6 +35,7 @@ class IngestAdminTest(TestCase):
 
         original_manifest_count = Manifest.objects.count()
         original_canvas_count = Canvas.objects.count()
+        original_ocr_count = OCR.objects.count()
 
         request_factory = RequestFactory()
 
@@ -68,6 +62,7 @@ class IngestAdminTest(TestCase):
         # in the ingest
         assert Manifest.objects.count() == original_manifest_count + 1
         assert Canvas.objects.count() == original_canvas_count + 10
+        assert OCR.objects.count() == original_ocr_count + 4630
 
     def test_local_admin_response_add(self):
         """It should redirect to new manifest"""

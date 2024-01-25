@@ -1,0 +1,29 @@
+[{
+  "model": "canvases.canvas",
+  "pk": "7261fae2-a24e-4a1c-9743-516f6c4ea0c9",
+  "fields": {
+      "label": "",
+      "pid": "fedora:emory:5622",
+      "resource": "5622",
+      "summary": null,
+      "manifest": "464d82f6-6ae5-4503-9afc-8e3cdd92a3f1",
+      "position": 6,
+      "height": 3608,
+      "width": 1976
+    }
+},
+{
+  "model": "canvases.canvas",
+  "pk": "a7f1bd69-766c-4dd4-ab66-f4051fdd4cff",
+  "fields": {
+      "label": "",
+      "pid": "15210893.5622.emory.edu$95",
+      "resource": "15210893",
+      "summary": null,
+      "manifest": "464d82f6-6ae5-4503-9afc-8e3cdd92a3f1",
+      "position": 96,
+      "height": 1976,
+      "width": 3608,
+      "is_starting_page": true
+  }
+}]

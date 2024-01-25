@@ -21,6 +21,31 @@ class Canvas(models.Model):
     height = models.IntegerField(default=0)
     ocr_file_path = models.CharField(max_length=500, null=True, blank=True)
     manifest = models.ForeignKey(Manifest, on_delete=models.DO_NOTHING)
+    preferred_ocr = (
+        ('word', 'word'),
+        ('line', 'line'),
+        ('both', 'both')
+    )
+    # TODO: move this to the manifest level.
+    default_ocr = models.CharField(max_length=30, choices=preferred_ocr, default="word")
+
+class OCR(models.Model):
+    OCR = 'cnt:ContentAsText'
+    TEXT = 'dctypes:Text'
+    TYPE_CHOICES = (
+        (OCR, 'ocr'),
+        (TEXT, 'text')
+    )
+
+    canvas = models.ForeignKey(Canvas, on_delete=models.DO_NOTHING)
+    x = models.IntegerField(default=0)
+    y = models.IntegerField(default=0)
+    w = models.IntegerField(default=0)
+    h = models.IntegerField(default=0)
+    order = models.IntegerField(default=0)
+    content = models.TextField(blank=True, null=True, default=' ')
+    resource_type = models.CharField(max_length=50, choices=TYPE_CHOICES, default=TEXT)
+
 
 class RelatedLink(models.Model):
     """ Links to related resources """

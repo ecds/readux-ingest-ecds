@@ -26,10 +26,15 @@ IIIF_IMAGE_SERVER_MODEL = 'iiif.ImageServer'
 IIIF_RELATED_LINK_MODEL = 'iiif.RelatedLink'
 IIIF_CANVAS_MODEL = 'iiif.Canvas'
 IIIF_COLLECTION_MODEL = 'iiif.Collection'
+IIIF_OCR_MODEL = 'iiif.OCR'
 INGEST_TMP_DIR = os.path.join('tmp')
 INGEST_PROCESSING_DIR = os.path.join('tmp', 'processing')
 INGEST_OCR_DIR = os.path.join('tmp', 'ocr')
 INGEST_TRIGGER_BUCKET = 'readux-ingest-ecds-test'
+
+# Readux settings
+DATASTREAM_PREFIX = 'http://repo.library.emory.edu/fedora/objects/'
+DATASTREAM_SUFFIX = '/datastreams/position/content'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/

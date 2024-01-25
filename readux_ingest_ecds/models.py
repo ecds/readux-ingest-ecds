@@ -4,7 +4,9 @@ from zipfile import ZipFile
 from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.conf import settings
-from .services import is_image, is_ocr, is_junk, metadata_from_file, create_manifest, move_image_file, move_ocr_file, canvas_dimensions, upload_trigger_file
+from .services.file_services import is_image, is_ocr, is_junk, move_image_file, move_ocr_file, canvas_dimensions, upload_trigger_file
+from .services.iiif_services import create_manifest
+from .services.metadata_services import metadata_from_file
 from .helpers import get_iiif_models
 
 Manifest = get_iiif_models()['Manifest']
@@ -74,12 +76,13 @@ class Local(IngestAbstractModel):
     def trigger_file(self):
         return os.path.join(settings.INGEST_TMP_DIR, f'{self.manifest.pid}.txt')
 
-    def process(self):
+    def prep(self):
         """
         Open metadata
         Create manifest
         Unzip bundle
         """
+        LOGGER.info(f'INGEST: Local ingest - preparing new local ingest')
         os.makedirs(settings.INGEST_TMP_DIR, exist_ok=True)
         os.makedirs(settings.INGEST_PROCESSING_DIR, exist_ok=True)
         os.makedirs(settings.INGEST_OCR_DIR, exist_ok=True)

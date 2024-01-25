@@ -10,6 +10,7 @@ def get_iiif_models():
          'RelatedLink': apps.get_model(settings.IIIF_RELATED_LINK_MODEL),
          'Canvas': apps.get_model(settings.IIIF_CANVAS_MODEL),
          'Collection': apps.get_model(settings.IIIF_COLLECTION_MODEL),
+         'OCR': apps.get_model(settings.IIIF_OCR_MODEL),
       }
    except AppRegistryNotReady:
       return {
@@ -18,4 +19,5 @@ def get_iiif_models():
          'RelatedLink': settings.IIIF_RELATED_LINK_MODEL,
          'Canvas': settings.IIIF_CANVAS_MODEL,
          'Collection': settings.IIIF_COLLECTION_MODEL,
+         'OCR': settings.IIIF_OCR_MODEL,
       }

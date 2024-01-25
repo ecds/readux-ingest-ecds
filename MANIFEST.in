@@ -1,4 +1,5 @@
 include LICENSE
 include README.md
 recursive-include readux_ingest_ecds/templates *
+recursive-include readux_ingest_ecds/services *
 prune test*

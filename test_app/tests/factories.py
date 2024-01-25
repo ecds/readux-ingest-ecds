@@ -38,7 +38,7 @@ class LocalFactory(DjangoModelFactory):
     class Meta:
         model = Local
 
-    bundle = FileField(filename='bundle.zip', filepath=join(settings.FIXTURE_DIR, 'bundle.zip'))
+    bundle = FileField(from_path=join(settings.FIXTURE_DIR, 'bundle.zip'))
     image_server = SubFactory(ImageServerFactory)
     manifest = None
 

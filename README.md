@@ -37,6 +37,7 @@ python manage.py migrate readux_ingest_ecds
 | IIIF_RELATED_LINK_MODEL | Model reference, eg. 'iiif.RelatedLink' |
 | IIIF_CANVAS_MODEL | Model reference, eg. 'iiif.Canvas' |
 | IIIF_COLLECTION_MODEL | Model reference, eg. 'iiif.Collection' |
+| IIIF_OCR_MODEL | Model reference, eg. 'iiif.OCR' |
 | INGEST_TMP_DIR | Absolute path where files will be temporarily stored. |
 | INGEST_PROCESSING_DIR | Absolute path where Lambda will look for images. |
 | INGEST_OCR_DIR | Absolute path where OCR files will be preserved. |

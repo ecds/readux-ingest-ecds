@@ -1,18 +1,18 @@
 # pylint: disable = unused-argument
 
 """ Common tasks for ingest. """
+import os
 from celery import Celery
 from django.apps import apps
 from django.conf import settings
 from .helpers import get_iiif_models
+from .services.ocr_services import get_ocr, add_ocr_annotations
 
 # Use `apps.get_model` to avoid circular import error. Because the parameters used to
 # create a background task have to be serializable, we can't just pass in the model object.
 Local = apps.get_model('readux_ingest_ecds.local') # pylint: disable = invalid-name
-# Remote = apps.get_model('ingest.remote')
-# S3Ingest = apps.get_model('ingest.S3Ingest')
-Manifest = get_iiif_models()['Manifest']
 
+Manifest = get_iiif_models()['Manifest']
 Canvas = get_iiif_models()['Canvas']
 
 app = Celery('readux_ingest_ecds', result_extended=True)
@@ -29,3 +29,19 @@ def local_ingest_task_ecds(ingest_id):
     """
     local_ingest = Local.objects.get(pk=ingest_id)
     local_ingest.ingest()
+    if os.environ["DJANGO_ENV"] != 'test': # pragma: no cover
+        add_ocr_task.delay(local_ingest.manifest.pk)
+    else:
+        add_ocr_task(local_ingest.manifest.pk)
+
+
+@app.task(name='adding_ocr_to_canvas', autoretry_for=(Manifest.DoesNotExist,), retry_backoff=5)
+def add_ocr_task(manifest_id, *args, **kwargs):
+    """Function for parsing and adding OCR."""
+    manifest = Manifest.objects.get(pk=manifest_id)
+    for canvas in manifest.canvas_set.all():
+        ocr = get_ocr(canvas)
+
+        if ocr is not None:
+            add_ocr_annotations(canvas, ocr)
+            canvas.save()  # trigger reindex

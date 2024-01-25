@@ -11,8 +11,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 from .factories import ImageServerFactory
 from readux_ingest_ecds.models import Local
-from readux_ingest_ecds.services import create_manifest
-from iiif.models import Canvas
+from readux_ingest_ecds.services.iiif_services import create_manifest
+from iiif.models import Canvas, OCR
 
 pytestmark = pytest.mark.django_db(transaction=True) # pylint: disable = invalid-name
 
@@ -92,7 +92,7 @@ class LocalTest(TestCase):
     def test_metadata_from_excel(self):
         """ It should create a manifest with metadata supplied in an Excel file. """
         local = self.mock_local('bundle.zip')
-        local.process()
+        local.prep()
 
         assert 'pid' in local.metadata.keys()
 
@@ -102,7 +102,7 @@ class LocalTest(TestCase):
     def test_metadata_from_csv(self):
         """ It should create a manifest with metadata supplied in a CSV file. """
         local = self.mock_local('csv_meta.zip', with_manifest=True)
-        local.process()
+        local.prep()
 
         assert 'pid' in local.metadata.keys()
 
@@ -122,14 +122,14 @@ class LocalTest(TestCase):
     def test_no_metadata_file(self):
         """ It should create a Manifest even when no metadata file is supplied. """
         local = self.mock_local('no_meta_file.zip', with_manifest=True)
-        local.process()
+        local.prep()
 
         # New manifest should have a default pid - UUID in test app.
         assert UUID(local.manifest.pid, version=4)
 
     def test_unzip_bundle(self):
         local = self.mock_local('csv_meta.zip')
-        local.process()
+        local.prep()
         local.refresh_from_db()
         local.unzip_bundle()
 
@@ -138,7 +138,7 @@ class LocalTest(TestCase):
 
     def test_create_canvases(self):
         local = self.mock_local('csv_meta.zip')
-        local.process()
+        local.prep()
         local.refresh_from_db()
         local.unzip_bundle()
         local.create_canvases()
@@ -150,7 +150,7 @@ class LocalTest(TestCase):
         Any hidden files should not be uploaded.
         """
         local = self.mock_local('bundle_with_junk.zip')
-        local.process()
+        local.prep()
         local.unzip_bundle()
 
         with ZipFile(os.path.join(self.fixture_path, 'bundle_with_junk.zip'), 'r') as zip_ref:
@@ -180,7 +180,7 @@ class LocalTest(TestCase):
         every path.
         """
         local = self.mock_local('bundle.zip', with_manifest=True)
-        local.process()
+        local.prep()
         local.unzip_bundle()
         local.create_canvases()
 
@@ -207,6 +207,6 @@ class LocalTest(TestCase):
         }
         local = self.mock_local('no_meta_file.zip', metadata=metadata)
         local.manifest = create_manifest(local)
-        local.process()
+        local.prep()
         assert local.manifest.pid == '808'
         assert local.manifest.title == 'Goodie Mob'
