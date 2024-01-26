@@ -406,7 +406,7 @@ def add_ocr_annotations(canvas, ocr):
         word_order += 1
 
     print('saving')
-    OCR.bulk_create(annotations)
+    OCR.objects.bulk_create(annotations)
 
 def add_oa_annotations(annotation_list_url):
     data = fetch_url(annotation_list_url)
