@@ -376,6 +376,7 @@ def parse_xml_ocr(result):
 
 def add_ocr_annotations(canvas, ocr):
     word_order = 1
+    annotations = []
     for word in ocr:
         print(f'adding word {word}')
         # A quick check to make sure the header row didn't slip through.
@@ -400,10 +401,12 @@ def add_ocr_annotations(canvas, ocr):
         anno.resource_type = anno.OCR
         anno.content = word['content']
         anno.order = word_order
-        print(f'saving {word}')
-        anno.save()
-        print(f'saved {word}')
+        print(f'pushing {word}')
+        annotations.append(anno)
         word_order += 1
+
+    print('saving')
+    OCR.bulk_create(annotations)
 
 def add_oa_annotations(annotation_list_url):
     data = fetch_url(annotation_list_url)
