@@ -377,6 +377,7 @@ def parse_xml_ocr(result):
 def add_ocr_annotations(canvas, ocr):
     word_order = 1
     for word in ocr:
+        print(f'adding word {word}')
         # A quick check to make sure the header row didn't slip through.
         if word['x'] == 'x':
             continue
@@ -389,6 +390,7 @@ def add_ocr_annotations(canvas, ocr):
             word['content'].isspace()
         ):
             word['content'] = ' '
+        print(f'creating anno for {word}')
         anno = OCR()
         anno.canvas = canvas
         anno.x = word['x']
@@ -398,7 +400,9 @@ def add_ocr_annotations(canvas, ocr):
         anno.resource_type = anno.OCR
         anno.content = word['content']
         anno.order = word_order
+        print(f'saving {word}')
         anno.save()
+        print(f'saved {word}')
         word_order += 1
 
 def add_oa_annotations(annotation_list_url):
