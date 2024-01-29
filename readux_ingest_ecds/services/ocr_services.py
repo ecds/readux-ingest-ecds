@@ -378,7 +378,6 @@ def add_ocr_annotations(canvas, ocr):
     word_order = 1
     annotations = []
     for word in ocr:
-        print(f'adding word {word}')
         # A quick check to make sure the header row didn't slip through.
         if word['x'] == 'x':
             continue
@@ -391,7 +390,6 @@ def add_ocr_annotations(canvas, ocr):
             word['content'].isspace()
         ):
             word['content'] = ' '
-        print(f'creating anno for {word}')
         anno = OCR()
         anno.canvas = canvas
         anno.x = word['x']
@@ -401,11 +399,12 @@ def add_ocr_annotations(canvas, ocr):
         anno.resource_type = anno.OCR
         anno.content = word['content']
         anno.order = word_order
-        print(f'pushing {word}')
         annotations.append(anno)
         word_order += 1
 
-    print('saving')
+    # bulk_create does not call the model's save method. Saving the OCR annotation
+    # at the same time as creating it is very slow for unknown reasons. Once this
+    # method finishes, the next method that called will save all the new OCR annotations.
     OCR.objects.bulk_create(annotations)
 
 def add_oa_annotations(annotation_list_url):

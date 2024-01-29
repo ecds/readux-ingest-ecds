@@ -43,4 +43,8 @@ def add_ocr_task(manifest_id, *args, **kwargs):
         ocr = get_ocr(canvas)
         if ocr is not None:
             add_ocr_annotations(canvas, ocr)
+            # The add_ocr_annotations method uses bulk_create() which does not call save() on the model.
+            # Calling save() is really slow and I don't know why. Calling save() after the annotation
+            # has been created, calling save is as fast as expected.
+            [ocr.save() for ocr in canvas.annotation_set.all()]
             canvas.save()  # trigger reindex
