@@ -36,7 +36,7 @@ def local_ingest_task_ecds(ingest_id):
         add_ocr_task(local_ingest.manifest.pk)
 
 
-@app.task(name='adding_ocr_to_canvas', autoretry_for=(Manifest.DoesNotExist,), retry_backoff=5)
+@app.task(name='ingest_ocr_to_canvas', autoretry_for=(Manifest.DoesNotExist,), retry_backoff=5)
 def add_ocr_task(manifest_id, *args, **kwargs):
     """Function for parsing and adding OCR."""
     manifest = Manifest.objects.get(pk=manifest_id)
