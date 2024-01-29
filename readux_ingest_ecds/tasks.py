@@ -14,6 +14,7 @@ Local = apps.get_model('readux_ingest_ecds.local') # pylint: disable = invalid-n
 
 Manifest = get_iiif_models()['Manifest']
 Canvas = get_iiif_models()['Canvas']
+OCR = get_iiif_models()['OCR']
 
 app = Celery('readux_ingest_ecds', result_extended=True)
 app.config_from_object('django.conf:settings')
@@ -46,5 +47,5 @@ def add_ocr_task(manifest_id, *args, **kwargs):
             # The add_ocr_annotations method uses bulk_create() which does not call save() on the model.
             # Calling save() is really slow and I don't know why. Calling save() after the annotation
             # has been created, calling save is as fast as expected.
-            [ocr.save() for ocr in canvas.annotation_set.all()]
+            [ocr.save() for ocr in OCR.objects.filter(canvas=canvas)]
             canvas.save()  # trigger reindex
