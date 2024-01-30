@@ -1,4 +1,5 @@
 from os.path import join
+from shutil import rmtree
 import boto3
 from django.conf import settings
 from django.contrib.admin.sites import AdminSite
@@ -28,6 +29,9 @@ class IngestAdminTest(TestCase):
         # Create fake bucket for moto's mock S3 service.
         conn = boto3.resource('s3', region_name='us-east-1')
         conn.create_bucket(Bucket=settings.INGEST_TRIGGER_BUCKET)
+
+    def teardown_class():
+        rmtree(settings.INGEST_TMP_DIR, ignore_errors=True)
 
     def test_local_admin_save(self):
         """It should add a create a manifest and canvases and delete the Local object"""
