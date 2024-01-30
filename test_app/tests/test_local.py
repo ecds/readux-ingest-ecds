@@ -112,11 +112,13 @@ class LocalTest(TestCase):
 
     def test_metadata_from_tsv(self):
         """ It should create a manifest with metadata supplied in a TSV file. """
-        local = self.mock_local('tsv.zip', with_manifest=True)
+        local = self.mock_local('tsv.zip')
         local.open_metadata()
+        local.manifest = create_manifest(local)
 
         assert 'pid' in local.metadata.keys()
 
+        print(local.metadata)
         for key in local.metadata.keys():
             assert local.metadata[key] == getattr(local.manifest, key)
 
@@ -214,13 +216,14 @@ class LocalTest(TestCase):
     def test_it_creates_manifest_with_metadata_property(self):
         metadata = {
             'pid': '808',
-            'title': 'Goodie Mob'
+            'publisher': 'Goodie Mob'
         }
         local = self.mock_local('no_meta_file.zip', metadata=metadata)
+        local.open_metadata()
+        print(local.metadata)
         local.manifest = create_manifest(local)
-        local.prep()
         assert local.manifest.pid == '808'
-        assert local.manifest.title == 'Goodie Mob'
+        assert local.manifest.publisher == 'Goodie Mob'
 
     def test_create_related_links(self):
         metadata = {

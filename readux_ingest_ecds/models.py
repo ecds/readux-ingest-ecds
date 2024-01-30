@@ -6,7 +6,7 @@ from django.db import models
 from django.conf import settings
 from .services.file_services import is_image, is_ocr, is_junk, move_image_file, move_ocr_file, canvas_dimensions, upload_trigger_file
 from .services.iiif_services import create_manifest
-from .services.metadata_services import metadata_from_file
+from .services.metadata_services import metadata_from_file, clean_metadata
 from .helpers import get_iiif_models
 
 Manifest = get_iiif_models()['Manifest']
@@ -133,6 +133,7 @@ class Local(IngestAbstractModel):
 
     def open_metadata(self):
         if bool(self.metadata):
+            self.metadata = clean_metadata(self.metadata)
             return
 
         metadata_file = None

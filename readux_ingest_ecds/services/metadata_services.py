@@ -14,12 +14,19 @@ def clean_metadata(metadata):
     :return: Dictionary with keys matching Manifest fields
     :rtype: dict
     """
-    metadata = {key.casefold().replace(' ', '_'): value for key, value in metadata.items()}
     fields = [
         *(f.name for f in get_iiif_models()['Manifest']._meta.get_fields()),
-        'related', # used for related external links
+        'related'
     ]
-    invalid_keys = []
+    metadata = {
+        (
+            key.casefold().replace(" ", "_")
+            if key.casefold().replace(" ", "_") in fields
+            else key
+        ): value for key, value in metadata.items()
+    }
+    metadata['metadata'] = []
+    extra_keys = []
 
     for key in metadata.keys():
         if key != 'metadata' and isinstance(metadata[key], list):
@@ -30,11 +37,11 @@ def clean_metadata(metadata):
             else:
                 metadata[key] = ', '.join(metadata[key])
         if key not in fields:
-            invalid_keys.append(key)
+            extra_keys.append(key)
 
-    # TODO: Update this method to allow all "invalid" keys to populate Manifest.metadata JSONField
-    for invalid_key in invalid_keys:
-        metadata.pop(invalid_key)
+    for key in extra_keys:
+        metadata['metadata'].append({"label": key, "value": metadata[key]})
+        metadata.pop(key)
 
     return metadata
 
