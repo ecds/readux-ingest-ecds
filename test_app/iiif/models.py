@@ -14,6 +14,27 @@ class Manifest(models.Model):
     image_server = models.ForeignKey(ImageServer, on_delete=models.DO_NOTHING, null=True)
     collections = models.ManyToManyField(Collection, blank=True, related_name='manifests')
 
+    @property
+    def related_links(self):
+        """List of links for IIIF v2 'related' field.
+
+        :return: List of links related to Manifest
+        :rtype: list
+        """
+        links = [
+            {
+                "@id": link.link,
+                "format": link.format,
+            } if link.format else link.link
+            for link in self.relatedlink_set.all()
+        ]
+        links.append({
+            "@id": f'/volume/{self.pid}/page/all',
+            "format": "text/html"
+        })
+        return links
+
+
 class Canvas(models.Model):
     pid = models.CharField(max_length=255, primary_key=True, default=uuid4, editable=True)
     image_server = models.ForeignKey(ImageServer, on_delete=models.DO_NOTHING, null=True)
@@ -55,6 +76,9 @@ class OCR(models.Model):
 class RelatedLink(models.Model):
     """ Links to related resources """
     manifest = models.ForeignKey(Manifest, on_delete=models.CASCADE)
+    link = models.TextField(blank=True, null=True, default=' ')
+    format = models.TextField(blank=True, null=True, default='text/html')
+    is_structured_data = models.BooleanField(default=False)
 
 class User(AbstractUser):
     name = models.CharField(blank=True, max_length=255)

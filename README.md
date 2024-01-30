@@ -85,6 +85,7 @@ The optional metadata file should be a spreadsheet. CSV is best, but TSV and Exc
 | Scanned by | Usually "Emory Libraries" |
 | Identifier | The Library Call Number. |
 | Identifier uri | Link to the item in the Library database. |
+| Related | Semicolon-separated related URLs |
 
 #### How It Works
 

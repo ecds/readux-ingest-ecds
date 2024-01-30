@@ -15,7 +15,10 @@ def clean_metadata(metadata):
     :rtype: dict
     """
     metadata = {key.casefold().replace(' ', '_'): value for key, value in metadata.items()}
-    fields = [f.name for f in get_iiif_models()['Manifest']._meta.get_fields()]
+    fields = [
+        *(f.name for f in get_iiif_models()['Manifest']._meta.get_fields()),
+        'related', # used for related external links
+    ]
     invalid_keys = []
 
     for key in metadata.keys():
@@ -29,10 +32,30 @@ def clean_metadata(metadata):
         if key not in fields:
             invalid_keys.append(key)
 
+    # TODO: Update this method to allow all "invalid" keys to populate Manifest.metadata JSONField
     for invalid_key in invalid_keys:
         metadata.pop(invalid_key)
 
     return metadata
+
+def create_related_links(manifest, related_str):
+    """
+    Create RelatedLink objects from supplied related links string and associate each with supplied
+    Manifest. String should consist of semicolon-separated URLs.
+    :param manifest:
+    :type related_str: iiif.manifest.models.Manifest
+    :param related_str:
+    :type related_str: str
+    :rtype: None
+    """
+    for link in related_str.split(";"):
+        (format, _) = guess_type(link)
+        get_iiif_models()['RelatedLink'].objects.create(
+            manifest=manifest,
+            link=link,
+            format=format or "text/html",  # assume web page if MIME type cannot be determined
+            is_structured_data=False,  # assume this is not meant for seeAlso
+        )
 
 def get_metadata_from(files):
     """

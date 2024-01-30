@@ -82,7 +82,7 @@ class Local(IngestAbstractModel):
         Create manifest
         Unzip bundle
         """
-        LOGGER.info(f'INGEST: Local ingest - preparing new local ingest')
+        LOGGER.info(f'INGEST: Local ingest - preparing new local ingest!!!!')
         os.makedirs(settings.INGEST_TMP_DIR, exist_ok=True)
         os.makedirs(settings.INGEST_PROCESSING_DIR, exist_ok=True)
         os.makedirs(settings.INGEST_OCR_DIR, exist_ok=True)

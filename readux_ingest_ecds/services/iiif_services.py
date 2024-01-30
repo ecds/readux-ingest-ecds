@@ -1,5 +1,6 @@
 """ Module of service methods for IIIF objects. """
 from readux_ingest_ecds.helpers import get_iiif_models
+from .metadata_services import create_related_links
 
 Manifest = get_iiif_models()['Manifest']
 RelatedLink = get_iiif_models()['RelatedLink']
@@ -27,7 +28,13 @@ def create_manifest(ingest):
         else:
             manifest = Manifest.objects.create()
         for (key, value) in metadata.items():
-            setattr(manifest, key, value)
+            if key == 'related':
+                 # add RelatedLinks from metadata spreadsheet key "related"
+                create_related_links(manifest, value)
+            else:
+                # all other keys should exist as fields on Manifest (for now)
+                setattr(manifest, key, value)
+    # TODO: if the key doesn't exist on Manifest model, add it to Manifest.metadata
     else:
         manifest = Manifest()
 
