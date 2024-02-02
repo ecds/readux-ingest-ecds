@@ -57,7 +57,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.messages',
     'django_celery_results',
-    'django_extensions',
     'iiif.apps.IiifConfig',
     'readux_ingest_ecds',
     'test_app'
