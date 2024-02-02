@@ -45,7 +45,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Manifest',
             fields=[
-                ('pid', models.CharField(default=uuid.uuid4, max_length=255, primary_key=True, serialize=False)),
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('pid', models.CharField(default=uuid.uuid4, max_length=255, serialize=False)),
                 ('published_city', models.TextField(blank=True, null=True)),
                 ('publisher', models.TextField(blank=True, null=True)),
                 ('metadata', models.JSONField(blank=True, default=dict)),

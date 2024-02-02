@@ -2,8 +2,8 @@ import os
 import logging
 from django.contrib import admin
 from django.shortcuts import redirect
-from .models import Local
-from .tasks import local_ingest_task_ecds
+from .models import Local, Bulk
+from .tasks import local_ingest_task_ecds, bulk_ingest_task_ecds
 
 LOGGER = logging.getLogger(__name__)
 
@@ -30,4 +30,18 @@ class LocalAdmin(admin.ModelAdmin):
     class Meta: # pylint: disable=too-few-public-methods, missing-class-docstring
         model = Local
 
+class BulkAdmin(admin.ModelAdmin):
+    def save_model(self, request, obj, form, change):
+        LOGGER.info(f'INGEST: Bulk ingest started by {request.user.username}')
+        obj.creator = request.user
+        super().save_model(request, obj, form, change)
+        if os.environ["DJANGO_ENV"] != 'test': # pragma: no cover
+            bulk_ingest_task_ecds.apply_async(args=[obj.id])
+        else:
+            bulk_ingest_task_ecds(obj.id)
+
+    class Meta:
+        model = Bulk
+
 admin.site.register(Local, LocalAdmin)
+admin.site.register(Bulk, BulkAdmin)

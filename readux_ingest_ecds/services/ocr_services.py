@@ -375,6 +375,7 @@ def parse_xml_ocr(result):
     return None
 
 def add_ocr_annotations(canvas, ocr):
+    OCR = get_iiif_models()['OCR']
     word_order = 1
     annotations = []
     for word in ocr:
@@ -483,3 +484,15 @@ def is_tsv(to_test):
         if len(as_str.split('\t')) > 1:
             return True
     return False
+
+def add_ocr_to_canvases(manifest):
+    OCR = get_iiif_models()['OCR']
+    for canvas in manifest.canvas_set.all():
+        ocr = get_ocr(canvas)
+        if ocr is not None:
+            add_ocr_annotations(canvas, ocr)
+            # The add_ocr_annotations method uses bulk_create() which does not call save() on the model.
+            # Calling save() is really slow and I don't know why. Calling save() after the annotation
+            # has been created, calling save is as fast as expected.
+            [ocr.save() for ocr in OCR.objects.filter(canvas=canvas)]
+            canvas.save()  # trigger reindex

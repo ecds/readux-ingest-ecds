@@ -89,17 +89,19 @@ def metadata_from_file(metadata_file):
     if format is None:
         return
 
-    metadata = None
+    metadata = []
+    metadata_set = None
 
     if format == 'excel':
         with open(metadata_file, 'rb') as fh:
-            metadata = Dataset().load(fh.read(), format=metadata_file.split('.')[-1])
+            metadata_set = Dataset().load(fh.read(), format=metadata_file.split('.')[-1])
     else:
         with open(metadata_file, 'r', encoding="utf-8-sig") as fh:
-            metadata = Dataset().load(fh.read(), format=format)
+            metadata_set = Dataset().load(fh.read(), format=format)
 
-    if metadata is not None:
-        metadata = clean_metadata(metadata.dict[0])
+    if metadata_set is not None:
+        for row in metadata_set.dict:
+            metadata.append(clean_metadata(row))
 
     return metadata
 

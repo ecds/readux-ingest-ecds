@@ -10,7 +10,7 @@ class ImageServer(models.Model):
     storage_service = models.CharField(max_length=25, default='local')
 
 class Manifest(models.Model):
-    pid = models.CharField(max_length=255, primary_key=True, default=uuid4, editable=True)
+    pid = models.CharField(max_length=255, default=uuid4, editable=True)
     image_server = models.ForeignKey(ImageServer, on_delete=models.DO_NOTHING, null=True)
     collections = models.ManyToManyField(Collection, blank=True, related_name='manifests')
     published_city = models.TextField(null=True, blank=True)

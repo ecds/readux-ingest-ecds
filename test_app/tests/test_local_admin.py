@@ -16,7 +16,7 @@ from readux_ingest_ecds.models import Local
 from readux_ingest_ecds.admin import LocalAdmin
 
 @mock_s3
-class IngestAdminTest(TestCase):
+class LocalIngestAdminTest(TestCase):
     """ Tests Ingest Admin """
     def setUp(self):
         """ Set instance variables. """

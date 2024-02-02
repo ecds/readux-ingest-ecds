@@ -1,5 +1,6 @@
 import os
 import logging
+import uuid
 from zipfile import ZipFile
 from django.core.files.storage import FileSystemStorage
 from django.db import models
@@ -7,6 +8,7 @@ from django.conf import settings
 from .services.file_services import is_image, is_ocr, is_junk, move_image_file, move_ocr_file, canvas_dimensions, upload_trigger_file
 from .services.iiif_services import create_manifest
 from .services.metadata_services import metadata_from_file, clean_metadata
+from .services.ocr_services import add_ocr_to_canvases
 from .helpers import get_iiif_models
 
 Manifest = get_iiif_models()['Manifest']
@@ -18,6 +20,9 @@ LOGGER = logging.getLogger(__name__)
 tmp_storage = FileSystemStorage(
     location=settings.INGEST_TMP_DIR
 )
+
+def bulk_path(instance, filename):
+    return os.path.join(str(instance.id), filename )
 
 class IngestAbstractModel(models.Model):
     metadata = models.JSONField(default=dict, blank=True)
@@ -55,6 +60,8 @@ class Local(IngestAbstractModel):
         blank=True,
         storage=tmp_storage
     )
+
+    bundle_path = models.CharField(blank=True, max_length=1000)
 
     class Meta:
         verbose_name_plural = 'Local'
@@ -101,7 +108,9 @@ class Local(IngestAbstractModel):
     def unzip_bundle(self):
         open(self.trigger_file, 'a').close()
 
-        with ZipFile(self.bundle, 'r') as zip_ref:
+        bundle_to_unzip = self.bundle_path if self.bundle_path else self.bundle
+
+        with ZipFile(bundle_to_unzip, 'r') as zip_ref:
             for member in zip_ref.infolist():
                 file_name = member.filename
 
@@ -161,7 +170,7 @@ class Local(IngestAbstractModel):
         if metadata_file is None or os.path.exists(metadata_file) is False:
             return
 
-        self.metadata = metadata_from_file(metadata_file)
+        self.metadata = metadata_from_file(metadata_file)[0]
 
     def create_canvases(self):
         Canvas = get_iiif_models()['Canvas']
@@ -192,3 +201,59 @@ class Local(IngestAbstractModel):
             )
 
         upload_trigger_file(self.trigger_file)
+
+class VolumeFile(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    file = models.FileField(
+        blank=False,
+        storage=tmp_storage,
+        upload_to=bulk_path
+    )
+
+class Bulk(models.Model):
+    collections = models.ManyToManyField(
+        Collection,
+        blank=True,
+        help_text="Optional: Collections to attach to the volume ingested in this form.",
+        related_name='ecds_bulk_ingest_collections'
+    )
+    image_server = models.ForeignKey(
+        ImageServer,
+        on_delete=models.DO_NOTHING,
+        null=True,
+        related_name='ecds_bulk_ingest_image_server'
+    )
+    creator = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='ecds_bulk_ingest_created_locals'
+    )
+    volume_files = models.ManyToManyField(VolumeFile, blank=True)
+
+    class Meta:
+        verbose_name_plural = 'Bulk'
+
+    def ingest(self):
+        LOGGER.info('Ingesting Bulk')
+        for uploaded_file in self.volume_files.all():
+            if os.path.splitext(os.path.basename(uploaded_file.file.name))[0] == 'metadata':
+                metadata = metadata_from_file(uploaded_file.file.path)
+        for volume in metadata:
+            bundle_filename = [d['value'] for d in volume['metadata'] if d['label'].casefold() == 'filename'][0]
+            try:
+                bundle = self.volume_files.all().get(file__contains=bundle_filename)
+                if os.path.exists(bundle.file.path) and bundle.file.name.endswith('.zip'):
+                    local = Local.objects.create(
+                        metadata=volume,
+                        bundle_path=bundle.file.path,
+                        image_server=self.image_server,
+                        creator=self.creator
+                    )
+                    local.prep()
+                    local.ingest()
+                    add_ocr_to_canvases(local.manifest)
+            except VolumeFile.DoesNotExist:
+                pass
+        self.volume_files.all().delete()
+        self.delete()

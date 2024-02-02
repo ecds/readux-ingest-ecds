@@ -24,7 +24,7 @@ def create_manifest(ingest):
         metadata = None
     if metadata:
         if 'pid' in metadata:
-            manifest, _ = Manifest.objects.get_or_create(pid=metadata['pid'].replace('_', '-'))
+            manifest, _ = Manifest.objects.get_or_create(pid=metadata['pid'])
         else:
             manifest = Manifest.objects.create()
         for (key, value) in metadata.items():
@@ -34,7 +34,7 @@ def create_manifest(ingest):
             else:
                 # all other keys should exist as fields on Manifest (for now)
                 setattr(manifest, key, value)
-    # TODO: if the key doesn't exist on Manifest model, add it to Manifest.metadata
+    # If the key doesn't exist on Manifest model, add it to Manifest.metadata
     else:
         manifest = Manifest()
 
