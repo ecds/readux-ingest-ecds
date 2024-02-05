@@ -4,7 +4,6 @@ import boto3
 from moto import mock_s3
 from django.contrib.admin.sites import AdminSite
 from django.test import TestCase
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core import files
 from django.test.client import RequestFactory
 from django.conf import settings
@@ -30,7 +29,7 @@ class BulkIngestAdminTest(TestCase):
         rmtree(settings.INGEST_TMP_DIR, ignore_errors=True)
 
     def test_bulk_admin_save(self):
-        metadata_file_path = os.path.join(self.fixture_path, 'metadata.csv')
+        metadata_file_path = os.path.join(self.fixture_path, 'metadata_admin_test.csv')
         with open(metadata_file_path, 'rb') as f:
             metadata_content = files.base.ContentFile(f.read())
         metadata_file = files.File(metadata_content.file, 'metadata.csv')
