@@ -18,13 +18,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='VolumeFile',
-            fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
-                ('file', models.FileField(storage=django.core.files.storage.FileSystemStorage(location='tmp'), upload_to=readux_ingest_ecds.models.bulk_path)),
-            ],
-        ),
         migrations.AddField(
             model_name='local',
             name='bundle_path',
@@ -33,11 +26,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Bulk',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('collections', models.ManyToManyField(blank=True, help_text='Optional: Collections to attach to the volume ingested in this form.', related_name='ecds_bulk_ingest_collections', to=Collection)),
                 ('creator', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='ecds_bulk_ingest_created_locals', to=settings.AUTH_USER_MODEL)),
                 ('image_server', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='ecds_bulk_ingest_image_server', to=ImageServer)),
-                ('volume_files', models.ManyToManyField(blank=True, to='readux_ingest_ecds.VolumeFile')),
+                ('volume_files',  models.FileField(null=True, upload_to=readux_ingest_ecds.models.bulk_path)),
             ],
             options={
                 'verbose_name_plural': 'Bulk',
