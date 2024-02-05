@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.shortcuts import redirect
 from .models import Local, Bulk
 from .tasks import local_ingest_task_ecds, bulk_ingest_task_ecds
+from .forms import BulkVolumeUploadForm
 
 LOGGER = logging.getLogger(__name__)
 
@@ -31,10 +32,10 @@ class LocalAdmin(admin.ModelAdmin):
         model = Local
 
 class BulkAdmin(admin.ModelAdmin):
+    form = BulkVolumeUploadForm
+
     def save_model(self, request, obj, form, change):
         LOGGER.info(f'INGEST: Bulk ingest started by {request.user.username}')
-        LOGGER.info(request.FILES.getlist('volume_files'))
-        LOGGER.info('$$$$$')
         obj.upload_files(request.FILES.getlist('volume_files')[0])
         obj.creator = request.user
         super().save_model(request, obj, form, change)
