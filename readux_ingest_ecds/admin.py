@@ -33,6 +33,9 @@ class LocalAdmin(admin.ModelAdmin):
 class BulkAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         LOGGER.info(f'INGEST: Bulk ingest started by {request.user.username}')
+        LOGGER.info(request.FILES.getlist('volume_files'))
+        LOGGER.info('$$$$$')
+        obj.upload_files(request.FILES.getlist('volume_files')[0])
         obj.creator = request.user
         super().save_model(request, obj, form, change)
         if os.environ["DJANGO_ENV"] != 'test': # pragma: no cover

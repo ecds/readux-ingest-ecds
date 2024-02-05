@@ -22,6 +22,7 @@ tmp_storage = FileSystemStorage(
 )
 
 def bulk_path(instance, filename):
+    os.makedirs(os.path.join(settings.INGEST_TMP_DIR, str(instance.id)), exist_ok=True)
     return os.path.join(str(instance.id), filename )
 
 class IngestAbstractModel(models.Model):
@@ -202,15 +203,8 @@ class Local(IngestAbstractModel):
 
         upload_trigger_file(self.trigger_file)
 
-class VolumeFile(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    file = models.FileField(
-        blank=False,
-        storage=tmp_storage,
-        upload_to=bulk_path
-    )
-
 class Bulk(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     collections = models.ManyToManyField(
         Collection,
         blank=True,
@@ -229,31 +223,34 @@ class Bulk(models.Model):
         null=True,
         related_name='ecds_bulk_ingest_created_locals'
     )
-    volume_files = models.ManyToManyField(VolumeFile, blank=True)
+    volume_files = models.FileField(blank=False, null=True, upload_to=bulk_path)
+
+    def upload_files(self, files):
+        for uploaded_file in files:
+            with open(os.path.join(settings.INGEST_TMP_DIR, bulk_path(self, uploaded_file.name)), 'wb') as out_file:
+                out_file.write(uploaded_file.read())
 
     class Meta:
         verbose_name_plural = 'Bulk'
 
     def ingest(self):
         LOGGER.info('Ingesting Bulk')
-        for uploaded_file in self.volume_files.all():
-            if os.path.splitext(os.path.basename(uploaded_file.file.name))[0] == 'metadata':
-                metadata = metadata_from_file(uploaded_file.file.path)
+        ingest_directory = os.path.join(settings.INGEST_TMP_DIR, str(self.id))
+        ingest_files = os.listdir(ingest_directory)
+        for uploaded_file in ingest_files:
+            if os.path.splitext(os.path.basename(uploaded_file))[0] == 'metadata':
+                metadata = metadata_from_file(os.path.join(ingest_directory, uploaded_file))
         for volume in metadata:
             bundle_filename = [d['value'] for d in volume['metadata'] if d['label'].casefold() == 'filename'][0]
-            try:
-                bundle = self.volume_files.all().get(file__contains=bundle_filename)
-                if os.path.exists(bundle.file.path) and bundle.file.name.endswith('.zip'):
-                    local = Local.objects.create(
-                        metadata=volume,
-                        bundle_path=bundle.file.path,
-                        image_server=self.image_server,
-                        creator=self.creator
-                    )
-                    local.prep()
-                    local.ingest()
-                    add_ocr_to_canvases(local.manifest)
-            except VolumeFile.DoesNotExist:
-                pass
-        self.volume_files.all().delete()
+            bundle = os.path.join(settings.INGEST_TMP_DIR, str(self.id), bundle_filename)
+            if os.path.exists(bundle) and bundle.endswith('.zip'):
+                local = Local.objects.create(
+                    metadata=volume,
+                    bundle_path=bundle,
+                    image_server=self.image_server,
+                    creator=self.creator
+                )
+                local.prep()
+                local.ingest()
+                add_ocr_to_canvases(local.manifest)
         self.delete()
