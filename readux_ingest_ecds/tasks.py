@@ -76,9 +76,9 @@ def local_ingest_task_ecds(ingest_id):
     local_ingest = Local.objects.get(pk=ingest_id)
     local_ingest.ingest()
     if os.environ["DJANGO_ENV"] != 'test': # pragma: no cover
-        add_ocr_task.delay(local_ingest.pk)
+        add_ocr_task.delay(ingest_id)
     else:
-        add_ocr_task(local_ingest.pk)
+        add_ocr_task(ingest_id)
 
 @app.task(name='bulk_ingest_task_ecds', autoretry_for=(Exception,), retry_backoff=True, max_retries=20)
 def bulk_ingest_task_ecds(ingest_id):
