@@ -65,7 +65,7 @@ app = Celery('readux_ingest_ecds', result_extended=True)
 app.config_from_object('django.conf:settings')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
-@app.task(name='local_ingest_task_ecds', base=FinalTask, autoretry_for=(Exception,), retry_backoff=True, max_retries=20)
+@app.task(name='local_ingest_task_ecds', autoretry_for=(Exception,), retry_backoff=True, max_retries=20)
 def local_ingest_task_ecds(ingest_id):
     """Background task to start ingest process.
 
