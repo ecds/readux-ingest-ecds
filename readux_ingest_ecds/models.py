@@ -104,7 +104,6 @@ class Local(IngestAbstractModel):
         self.unzip_bundle()
         self.create_canvases()
         LOGGER.info(f'INGEST: Local ingest - {self.id} - finished for {self.manifest.pid}')
-        self.delete()
 
     def unzip_bundle(self):
         open(self.trigger_file, 'a').close()

@@ -1,0 +1,8 @@
+Readux
+-------
+
+Ingest complete: {{ manifest_pid }}
+
+- Manifest PID: {{ manifest_pid }}
+- Edit manifest: {{ manifest_url }}
+- Link to volume: {{ volume_url }}

@@ -59,7 +59,6 @@ class LocalTest(TestCase):
         local.refresh_from_db()
         return local
 
-
     def test_bundle_upload(self):
         """ It should upload the images using a fake S3 service from moto. """
         for bundle in ['bundle.zip', 'nested_volume.zip', 'csv_meta.zip']:

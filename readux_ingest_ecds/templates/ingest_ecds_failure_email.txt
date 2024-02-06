@@ -1,0 +1,7 @@
+Readux
+-------
+
+Ingest failed: {{ filename }}
+
+Details:
+{{ exception }}

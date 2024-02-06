@@ -2,11 +2,13 @@
 
 """ Common tasks for ingest. """
 import os
-from celery import Celery
+import logging
+from celery import Celery, Task
 from django.apps import apps
 from django.conf import settings
 from .helpers import get_iiif_models
 from .services.ocr_services import add_ocr_to_canvases
+from .mail import send_email_on_success, send_email_on_failure
 
 # Use `apps.get_model` to avoid circular import error. Because the parameters used to
 # create a background task have to be serializable, we can't just pass in the model object.
@@ -17,11 +19,53 @@ Manifest = get_iiif_models()['Manifest']
 Canvas = get_iiif_models()['Canvas']
 OCR = get_iiif_models()['OCR']
 
+LOGGER = logging.getLogger(__name__)
+
+class FinalTask(Task):
+    def on_success(self, retval, task_id, args, kwargs):
+        """Success handler.
+
+        Run by the worker if the task executes successfully.
+
+        Arguments:
+            retval (Any): The return value of the task.
+            task_id (str): Unique id of the executed task.
+            args (Tuple): Original arguments for the executed task.
+            kwargs (Dict): Original keyword arguments for the executed task.
+
+        Returns:
+            None: The return value of this handler is ignored.
+        """
+        ingest = Local.objects.get(id=args[0])
+        LOGGER.info(f'SUCCESS!!! {ingest.manifest.pid}')
+        send_email_on_success(creator=ingest.creator, manifest=ingest.manifest)
+        ingest.delete()
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        """Error handler.
+
+        This is run by the worker when the task fails.
+
+        Arguments:
+            exc (Exception): The exception raised by the task.
+            task_id (str): Unique id of the failed task.
+            args (Tuple): Original arguments for the task that failed.
+            kwargs (Dict): Original keyword arguments for the task that failed.
+            einfo (~billiard.einfo.ExceptionInfo): Exception information.
+
+        Returns:
+            None: The return value of this handler is ignored.
+        """
+        ingest = Local.objects.get(id=args[0])
+        LOGGER.info(f'FAIL!!! {ingest.manifest.pid}')
+        send_email_on_failure(bundle=ingest.bundle.filename, creator=ingest.creator, exception=str(exc))
+        ingest.delete()
+
 app = Celery('readux_ingest_ecds', result_extended=True)
 app.config_from_object('django.conf:settings')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
-@app.task(name='local_ingest_task_ecds', autoretry_for=(Exception,), retry_backoff=True, max_retries=20)
+@app.task(name='local_ingest_task_ecds', base=FinalTask, autoretry_for=(Exception,), retry_backoff=True, max_retries=20)
 def local_ingest_task_ecds(ingest_id):
     """Background task to start ingest process.
 
@@ -32,9 +76,9 @@ def local_ingest_task_ecds(ingest_id):
     local_ingest = Local.objects.get(pk=ingest_id)
     local_ingest.ingest()
     if os.environ["DJANGO_ENV"] != 'test': # pragma: no cover
-        add_ocr_task.delay(local_ingest.manifest.pk)
+        add_ocr_task.delay(local_ingest.pk)
     else:
-        add_ocr_task(local_ingest.manifest.pk)
+        add_ocr_task(local_ingest.pk)
 
 @app.task(name='bulk_ingest_task_ecds', autoretry_for=(Exception,), retry_backoff=True, max_retries=20)
 def bulk_ingest_task_ecds(ingest_id):
@@ -47,8 +91,10 @@ def bulk_ingest_task_ecds(ingest_id):
     bulk_ingest = Bulk.objects.get(pk=ingest_id)
     bulk_ingest.ingest()
 
-@app.task(name='ingest_ocr_to_canvas', autoretry_for=(Manifest.DoesNotExist,), retry_backoff=5)
-def add_ocr_task(manifest_id, *args, **kwargs):
+@app.task(name='ingest_ocr_to_canvas', base=FinalTask, autoretry_for=(Manifest.DoesNotExist,), retry_backoff=5)
+def add_ocr_task(ingest_id, *args, **kwargs):
     """Function for parsing and adding OCR."""
-    manifest = Manifest.objects.get(pk=manifest_id)
+    LOGGER.info('ADDING OCR')
+    local_ingest = Local.objects.get(pk=ingest_id)
+    manifest = Manifest.objects.get(pk=local_ingest.manifest.pk)
     add_ocr_to_canvases(manifest)
