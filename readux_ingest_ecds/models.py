@@ -2,7 +2,6 @@ import os
 import logging
 import uuid
 from zipfile import ZipFile
-from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.conf import settings
 from .services.file_services import is_image, is_ocr, is_junk, move_image_file, move_ocr_file, canvas_dimensions, upload_trigger_file
@@ -10,16 +9,13 @@ from .services.iiif_services import create_manifest
 from .services.metadata_services import metadata_from_file, clean_metadata
 from .services.ocr_services import add_ocr_to_canvases
 from .helpers import get_iiif_models
+from .storages import TmpStorage
 
 Manifest = get_iiif_models()['Manifest']
 ImageServer = get_iiif_models()['ImageServer']
 Collection = get_iiif_models()['Collection']
 
 LOGGER = logging.getLogger(__name__)
-
-tmp_storage = FileSystemStorage(
-    location=settings.INGEST_TMP_DIR
-)
 
 def bulk_path(instance, filename):
     os.makedirs(os.path.join(settings.INGEST_TMP_DIR, str(instance.id)), exist_ok=True)
@@ -59,7 +55,7 @@ class Local(IngestAbstractModel):
     bundle = models.FileField(
         null=True,
         blank=True,
-        storage=tmp_storage
+        storage=TmpStorage
     )
 
     bundle_path = models.CharField(blank=True, max_length=1000)

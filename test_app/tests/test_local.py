@@ -1,6 +1,7 @@
 """ Tests for local ingest """
 import os
 from shutil import rmtree
+from hashlib import md5
 import pytest
 import boto3
 from uuid import UUID
@@ -25,6 +26,7 @@ class LocalTest(TestCase):
         """ Set instance variables. """
         super().setUp()
         rmtree(settings.INGEST_TMP_DIR, ignore_errors=True)
+        os.mkdir(settings.INGEST_TMP_DIR)
         self.fixture_path = settings.FIXTURE_DIR
         self.image_server = ImageServerFactory()
 
@@ -240,3 +242,20 @@ class LocalTest(TestCase):
         # should get pdf format too
         assert any([link["@id"] == "https://archive.org/download/cherokeehymnbook00boud/cherokeehymnbook00boud.pdf" for link in related_links])
         assert any([link["format"] == "application/pdf" for link in related_links])
+
+    def test_upload_file_with_same_name(self):
+        """ Uploading a file should replace file if name matches existing file. """
+        file_one = 'bundle.zip'
+        file_two = os.path.join('dup_file', 'bundle.zip')
+        file_one_hash = md5(open(os.path.join(self.fixture_path, file_one), 'rb').read()).hexdigest()
+        file_two_hash = md5(open(os.path.join(self.fixture_path, file_two), 'rb').read()).hexdigest()
+        assert file_one_hash != file_two_hash
+        assert len(os.listdir(settings.INGEST_TMP_DIR)) == 0
+        self.mock_local(file_one)
+        assert len(os.listdir(settings.INGEST_TMP_DIR)) == 1
+        assert file_one_hash == md5(open(os.path.join(settings.INGEST_TMP_DIR, 'bundle.zip'), 'rb').read()).hexdigest()
+        assert file_two_hash != md5(open(os.path.join(settings.INGEST_TMP_DIR, 'bundle.zip'), 'rb').read()).hexdigest()
+        self.mock_local(file_two)
+        assert len(os.listdir(settings.INGEST_TMP_DIR)) == 1
+        assert file_two_hash == md5(open(os.path.join(settings.INGEST_TMP_DIR, 'bundle.zip'), 'rb').read()).hexdigest()
+        assert file_one_hash != md5(open(os.path.join(settings.INGEST_TMP_DIR, 'bundle.zip'), 'rb').read()).hexdigest()

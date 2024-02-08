@@ -1,8 +1,11 @@
-from storages.backends.s3boto3 import S3Boto3Storage
+import os
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
 
-class TmpStorage(S3Boto3Storage):
-    bucket_name = 'readux'
-    location = 'tmp'
+class TmpStorage(FileSystemStorage):
+    location = settings.INGEST_TMP_DIR
 
-class IngestStorage(S3Boto3Storage):
-    bucket_name = 'readux-ingest'
+    def get_available_name(self, name: str, max_length: int | None = ...) -> str:
+        if self.exists(name):
+            os.remove(os.path.join(settings.INGEST_TMP_DIR, name))
+        return name
