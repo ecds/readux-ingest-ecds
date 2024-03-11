@@ -58,7 +58,7 @@ class FinalTask(Task):
         """
         ingest = Local.objects.get(id=args[0])
         LOGGER.info(f'FAIL!!! {ingest.manifest.pid}')
-        send_email_on_failure(bundle=ingest.bundle.file_name, creator=ingest.creator, exception=str(exc))
+        send_email_on_failure(bundle=ingest.bundle.name, creator=ingest.creator, exception=str(exc))
         ingest.delete()
 
 app = Celery('readux_ingest_ecds', result_extended=True)
