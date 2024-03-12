@@ -128,7 +128,7 @@ def fetch_positional_ocr(canvas):
             return canvas.image_server.bucket.Object(canvas.ocr_file_path).get()['Body'].read()
 
         if canvas.image_server.storage_service == 'local':
-            with open(canvas.ocr_file_path, 'r') as ocr:
+            with open(canvas.ocr_file_path, 'rb') as ocr:
                 return ocr.read()
 
 def parse_alto_ocr(result):
