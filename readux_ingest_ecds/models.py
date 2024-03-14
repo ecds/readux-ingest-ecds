@@ -25,7 +25,7 @@ def bulk_path(instance, filename):
 def local_tmp(instance, filename):
     path = os.path.join(settings.INGEST_TMP_DIR, str(instance.id))
     os.makedirs(path, exist_ok=True)
-    return os.path.join(path, filename)
+    return os.path.join(str(instance.id), filename)
 
 class IngestAbstractModel(models.Model):
     metadata = models.JSONField(default=dict, blank=True)
@@ -62,6 +62,7 @@ class Local(IngestAbstractModel):
     bundle = models.FileField(
         null=True,
         blank=True,
+        storage=TmpStorage,
         upload_to=local_tmp
     )
 
@@ -225,7 +226,7 @@ class Bulk(models.Model):
         null=True,
         related_name='ecds_bulk_ingest_created_locals'
     )
-    volume_files = models.FileField(blank=False, null=True, upload_to=bulk_path)
+    volume_files = models.FileField(blank=False, null=True, upload_to=bulk_path, storage=TmpStorage)
 
     def upload_files(self, files):
         for uploaded_file in files:
