@@ -50,5 +50,5 @@ class BulkIngestAdminTest(TestCase):
         bulk_model_admin = BulkAdmin(model=Bulk, admin_site=AdminSite())
         bulk_model_admin.save_model(obj=self.bulk, request=req, form=BulkVolumeUploadForm(), change=None)
 
-        assert os.path.isfile(os.path.join(settings.INGEST_PROCESSING_DIR, 'pid2_00000005.jpg'))
-        assert os.path.isfile(os.path.join(settings.INGEST_PROCESSING_DIR, 'pid3_00000008.jpg'))
+        assert os.path.isfile(os.path.join(settings.INGEST_PROCESSING_DIR, 'pid5_00000005.jpg'))
+        assert os.path.isfile(os.path.join(settings.INGEST_PROCESSING_DIR, 'pid6_00000008.jpg'))

@@ -1,4 +1,5 @@
 import os
+import time
 import logging
 import uuid
 from zipfile import ZipFile
@@ -20,6 +21,11 @@ LOGGER = logging.getLogger(__name__)
 def bulk_path(instance, filename):
     os.makedirs(os.path.join(settings.INGEST_TMP_DIR, str(instance.id)), exist_ok=True)
     return os.path.join(str(instance.id), filename )
+
+def local_tmp(instance, filename):
+    path = os.path.join(settings.INGEST_TMP_DIR, str(instance.id))
+    os.makedirs(path, exist_ok=True)
+    return os.path.join(path, filename)
 
 class IngestAbstractModel(models.Model):
     metadata = models.JSONField(default=dict, blank=True)
@@ -52,10 +58,12 @@ class IngestAbstractModel(models.Model):
         abstract = True
 
 class Local(IngestAbstractModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     bundle = models.FileField(
         null=True,
         blank=True,
-        storage=TmpStorage
+        storage=TmpStorage,
+        upload_to=local_tmp
     )
 
     bundle_path = models.CharField(blank=True, max_length=1000)
@@ -63,12 +71,12 @@ class Local(IngestAbstractModel):
     class Meta:
         verbose_name_plural = 'Local'
 
-    @property
-    def tmp_directory(self):
-        return os.path.join(
-            settings.INGEST_TMP_DIR,
-            self.manifest.pid
-        )
+    # @property
+    # def tmp_directory(self):
+    #     return os.path.join(
+    #         settings.INGEST_TMP_DIR,
+    #         self.manifest.pid
+    #     )
 
     @property
     def ocr_directory(self):
@@ -78,7 +86,7 @@ class Local(IngestAbstractModel):
 
     @property
     def trigger_file(self):
-        return os.path.join(settings.INGEST_TMP_DIR, f'{self.manifest.pid}.txt')
+        return os.path.join(settings.INGEST_TMP_DIR, str(self.id), f'{self.manifest.pid}.txt')
 
     def prep(self):
         """
@@ -87,7 +95,7 @@ class Local(IngestAbstractModel):
         Unzip bundle
         """
         LOGGER.info(f'INGEST: Local ingest - preparing new local ingest!!!!')
-        os.makedirs(settings.INGEST_TMP_DIR, exist_ok=True)
+        os.makedirs(os.path.join(settings.INGEST_TMP_DIR, str(self.id)), exist_ok=True)
         os.makedirs(settings.INGEST_PROCESSING_DIR, exist_ok=True)
         os.makedirs(settings.INGEST_OCR_DIR, exist_ok=True)
         self.save()
@@ -218,7 +226,7 @@ class Bulk(models.Model):
         null=True,
         related_name='ecds_bulk_ingest_created_locals'
     )
-    volume_files = models.FileField(blank=False, null=True, upload_to=bulk_path)
+    volume_files = models.FileField(blank=False, null=True, upload_to=bulk_path, storage=TmpStorage)
 
     def upload_files(self, files):
         for uploaded_file in files:

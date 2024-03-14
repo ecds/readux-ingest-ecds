@@ -36,9 +36,10 @@ class BulkTest(TestCase):
                 os.path.join(settings.INGEST_TMP_DIR, str(self.bulk.id), bulk_file)
             )
 
-    # def teardown_class():
-    #     rmtree(settings.INGEST_TMP_DIR, ignore_errors=True)
+    def teardown_class():
+        rmtree(settings.INGEST_TMP_DIR, ignore_errors=True)
 
+    # TODO: How to test the multi file upload?
     # def test_bulk_upload(self):
     #     """ It should upload all files """
 
