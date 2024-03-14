@@ -62,7 +62,6 @@ class Local(IngestAbstractModel):
     bundle = models.FileField(
         null=True,
         blank=True,
-        storage=TmpStorage,
         upload_to=local_tmp
     )
 
@@ -226,7 +225,7 @@ class Bulk(models.Model):
         null=True,
         related_name='ecds_bulk_ingest_created_locals'
     )
-    volume_files = models.FileField(blank=False, null=True, upload_to=bulk_path, storage=TmpStorage)
+    volume_files = models.FileField(blank=False, null=True, upload_to=bulk_path)
 
     def upload_files(self, files):
         for uploaded_file in files:
