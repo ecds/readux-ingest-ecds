@@ -25,8 +25,8 @@ class LocalAdmin(admin.ModelAdmin):
 
     def response_add(self, request, obj, post_url_continue=None):
         obj.refresh_from_db()
-        LOGGER.info(f'INGEST: Local ingest - {obj.id} - added for {obj.manifest.pid}')
-        return redirect('/admin/manifests/manifest/{m}/change/'.format(m=obj.manifest.pk))
+        LOGGER.info(f'INGEST: Local ingest - {obj.id} - added for {str(obj.manifest.pid)}')
+        return redirect(f'/admin/manifests/manifest/{str(obj.manifest.pk)}/change/')
 
     class Meta: # pylint: disable=too-few-public-methods, missing-class-docstring
         model = Local
