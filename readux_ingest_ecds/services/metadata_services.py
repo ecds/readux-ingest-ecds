@@ -18,6 +18,7 @@ def clean_metadata(metadata):
         *(f.name for f in get_iiif_models()['Manifest']._meta.get_fields()),
         'related'
     ]
+
     metadata = {
         (
             key.casefold().replace(" ", "_")
@@ -25,8 +26,22 @@ def clean_metadata(metadata):
             else key
         ): value for key, value in metadata.items()
     }
-    metadata['metadata'] = []
+
+    if 'metadata' not in metadata.keys():
+        metadata['metadata'] = []
+
     extra_keys = []
+
+    # for key in metadata.keys():
+    #     if key != 'metadata' and key not in fields:
+    #         metadata['metadata'][key] = metadata[key]
+
+    # for key in metadata['metadata']:
+    #     try:
+    #         metadata.pop(key)
+    #     except KeyError:
+    #         # Just making sure.
+    #         pass
 
     for key in metadata.keys():
         if key != 'metadata' and isinstance(metadata[key], list):

@@ -5,7 +5,7 @@ class MetadataServiceTest(TestCase):
     def test_cleaning_metadata(self):
         """ It should normalize keys that match a Manifest field. """
         fake_metadata = {
-            'pid': 'blm',
+            'PID': 'blm',
             'Special': 'coffee',
             'summary': 'idk',
             'PUBLISHER': 'ecds',
@@ -18,5 +18,4 @@ class MetadataServiceTest(TestCase):
         assert 'PUBLISHER' not in cleaned_metadata.keys()
         assert cleaned_metadata['published_city'] == fake_metadata['Published City']
         assert cleaned_metadata['publisher'] == fake_metadata['PUBLISHER']
-        print(cleaned_metadata)
         assert 'Special' in [m['label'] for m in cleaned_metadata['metadata']]

@@ -11,13 +11,18 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='local',
-            name='uuid',
-        ),
         migrations.AlterField(
             model_name='local',
-            name='id',
+            name='uuid',
             field=models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False),
+        ),
+        migrations.RemoveField(
+            model_name='local',
+            name='id',
+        ),
+        migrations.RenameField(
+            model_name='local',
+            old_name='uuid',
+            new_name='id',
         ),
     ]

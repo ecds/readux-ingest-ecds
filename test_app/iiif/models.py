@@ -13,6 +13,8 @@ class Manifest(models.Model):
     pid = models.CharField(max_length=255, default=uuid4, editable=True)
     image_server = models.ForeignKey(ImageServer, on_delete=models.DO_NOTHING, null=True)
     collections = models.ManyToManyField(Collection, blank=True, related_name='manifests')
+    label = models.TextField(null=True, blank=True)
+    author = models.TextField(null=True, blank=True)
     published_city = models.TextField(null=True, blank=True)
     publisher = models.TextField(null=True, blank=True)
     metadata = models.JSONField(default=dict, blank=True)
@@ -40,7 +42,7 @@ class Manifest(models.Model):
 
 class Canvas(models.Model):
     pid = models.CharField(max_length=255, primary_key=True, default=uuid4, editable=True)
-    image_server = models.ForeignKey(ImageServer, on_delete=models.DO_NOTHING, null=True)
+    # image_server = models.ForeignKey(ImageServer, on_delete=models.DO_NOTHING, null=True)
     position = models.IntegerField()
     width = models.IntegerField(default=0)
     height = models.IntegerField(default=0)

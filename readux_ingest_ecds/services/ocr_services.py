@@ -109,7 +109,7 @@ def fetch_positional_ocr(canvas):
 
     url = "{p}{c}{s}".format(
         p=settings.DATASTREAM_PREFIX,
-        c=canvas.pid.replace('fedora:', ''),
+        c=str(canvas.pid).replace('fedora:', ''),
         s=settings.DATASTREAM_SUFFIX
     )
 

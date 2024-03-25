@@ -255,5 +255,5 @@ class Bulk(models.Model):
                 )
                 local.prep()
                 local.ingest()
-                add_ocr_to_canvases(local.manifest)
+                # add_ocr_to_canvases(local.manifest)
         self.delete()

@@ -121,7 +121,6 @@ class LocalTest(TestCase):
 
         assert 'pid' in local.metadata.keys()
 
-        print(local.metadata)
         for key in local.metadata.keys():
             assert local.metadata[key] == getattr(local.manifest, key)
 
@@ -223,7 +222,6 @@ class LocalTest(TestCase):
         }
         local = self.mock_local('no_meta_file.zip', metadata=metadata)
         local.open_metadata()
-        print(local.metadata)
         local.manifest = create_manifest(local)
         assert local.manifest.pid == '808'
         assert local.manifest.publisher == 'Goodie Mob'

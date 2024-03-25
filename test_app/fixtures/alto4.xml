@@ -1,0 +1,1238 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<alto xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.loc.gov/standards/alto/ns-v4#" xsi:schemaLocation="http://www.loc.gov/standards/alto/ns-v4# http://www.loc.gov/standards/alto/v4/alto-4-2.xsd" SCHEMAVERSION="4.2">
+  <Description>
+    <MeasurementUnit>pixel</MeasurementUnit>
+    <sourceImageInformation>
+      <fileName>/tmp/textract_2023-12-19_03-24.23/1875-Gospel-UTL-0035.jpg</fileName>
+    </sourceImageInformation>
+  </Description>
+  <Styles/>
+  <Tags/>
+  <Layout>
+    <Page ID="None" PHYSICAL_IMG_NR="0" WIDTH="2013" HEIGHT="3338">
+      <PrintSpace VPOS="0" HPOS="0" HEIGHT="3338" WIDTH="2013">
+        <TextBlock ID="region-4856d04a-ca7a-4067-b1d2-526b833c6964" HEIGHT="3212" WIDTH="1876" HPOS="72" VPOS="70">
+          <Shape>
+            <Polygon POINTS="74,70 1922,80 1948,3265 72,3282"/>
+          </Shape>
+          <TextLine ID="line-a99a54b9-3124-4326-9dad-f57e2b44ab38" HEIGHT="54" WIDTH="88" HPOS="916" VPOS="331">
+            <Shape>
+              <Polygon POINTS="916,331 1003,331 1004,385 916,384"/>
+            </Shape>
+            <String ID="word-ca3fd2df-af91-42b9-a5dd-c856d5d3a8e9" HEIGHT="54" WIDTH="88" HPOS="916" VPOS="331" CONTENT="31">
+              <Shape>
+                <Polygon POINTS="916,331 1003,331 1004,385 916,384"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-1c86b867-b0c1-4f5b-b423-5b97e178a7f5" HEIGHT="53" WIDTH="181" HPOS="176" VPOS="437">
+            <Shape>
+              <Polygon POINTS="176,437 357,437 357,490 176,490"/>
+            </Shape>
+            <String ID="word-54c1b538-f79c-42fd-8fa2-638832ab9c26" HEIGHT="52" WIDTH="85" HPOS="176" VPOS="438" CONTENT="No.">
+              <Shape>
+                <Polygon POINTS="176,438 261,438 261,490 176,490"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-6e04af13-13ac-4303-a63d-46655b64049d" HEIGHT="52" WIDTH="86" HPOS="271" VPOS="437" CONTENT="30.">
+              <Shape>
+                <Polygon POINTS="271,437 357,437 357,489 271,489"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-8bff69b8-3146-4326-be64-1b71d4a0c819" HEIGHT="93" WIDTH="559" HPOS="672" VPOS="410">
+            <Shape>
+              <Polygon POINTS="672,410 1231,412 1231,503 672,501"/>
+            </Shape>
+            <String ID="word-feb74bdc-5a9d-404d-80b3-ce6bc1b5fa41" HEIGHT="79" WIDTH="329" HPOS="672" VPOS="411" CONTENT="Wondrous">
+              <Shape>
+                <Polygon POINTS="672,411 1000,412 1001,490 672,488"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-3eb83ae7-f73d-4c81-a212-39a7f1786758" HEIGHT="92" WIDTH="184" HPOS="1047" VPOS="411" CONTENT="Love.">
+              <Shape>
+                <Polygon POINTS="1047,411 1231,412 1231,503 1047,502"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-640254b4-44d7-4129-9c9f-e68867634d20" HEIGHT="34" WIDTH="653" HPOS="627" VPOS="533">
+            <Shape>
+              <Polygon POINTS="627,533 1280,535 1280,567 627,565"/>
+            </Shape>
+            <String ID="word-84ceebeb-d8b0-4a2a-8494-cc53f298eede" HEIGHT="31" WIDTH="89" HPOS="627" VPOS="534" CONTENT="&quot;God">
+              <Shape>
+                <Polygon POINTS="627,534 716,534 716,565 627,565"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-0788a664-dc6b-404b-a825-2394d6b11f50" HEIGHT="23" WIDTH="35" HPOS="726" VPOS="541" CONTENT="so">
+              <Shape>
+                <Polygon POINTS="726,541 761,542 761,564 726,564"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-18aa1e98-6504-4367-a3db-053e5bd966fa" HEIGHT="30" WIDTH="92" HPOS="771" VPOS="534" CONTENT="loved">
+              <Shape>
+                <Polygon POINTS="771,534 862,534 863,564 771,564"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-92bc3036-1d0e-420e-b9aa-4021927328df" HEIGHT="29" WIDTH="55" HPOS="871" VPOS="535" CONTENT="the">
+              <Shape>
+                <Polygon POINTS="871,535 926,535 926,564 871,563"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-a40fd203-6642-4c1b-a179-84518efd989c" HEIGHT="30" WIDTH="240" HPOS="937" VPOS="534" CONTENT="world.&quot;-JOHN">
+              <Shape>
+                <Polygon POINTS="937,534 1177,535 1177,564 937,563"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-1c4bf280-b78c-406d-8ffb-4542eb4e9f4a" HEIGHT="28" WIDTH="27" HPOS="1194" VPOS="536" CONTENT="3:">
+              <Shape>
+                <Polygon POINTS="1194,536 1221,536 1221,564 1194,564"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-08073f91-1368-4aa1-a6c1-6cc648a0b10c" HEIGHT="29" WIDTH="43" HPOS="1237" VPOS="535" CONTENT="16.">
+              <Shape>
+                <Polygon POINTS="1237,535 1280,535 1280,564 1237,563"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-c2232298-aa7e-41f4-80f4-c7d1fba6d705" HEIGHT="32" WIDTH="318" HPOS="211" VPOS="600">
+            <Shape>
+              <Polygon POINTS="211,600 529,601 529,632 211,631"/>
+            </Shape>
+            <String ID="word-6fc3eb31-152b-45f9-ae9a-0a13bac95e85" HEIGHT="30" WIDTH="78" HPOS="211" VPOS="601" CONTENT="Mrs.">
+              <Shape>
+                <Polygon POINTS="211,601 289,601 289,631 211,631"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-7020e3ba-488b-45f5-b0f6-add2039aa336" HEIGHT="29" WIDTH="45" HPOS="300" VPOS="601" CONTENT="M.">
+              <Shape>
+                <Polygon POINTS="300,601 345,601 345,630 300,630"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-9dd67dec-8fc0-40e2-95fa-3485e4bc1a54" HEIGHT="31" WIDTH="174" HPOS="355" VPOS="600" CONTENT="STOCKTON.">
+              <Shape>
+                <Polygon POINTS="355,600 529,601 529,631 355,630"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-fe14378c-042b-47d3-b17d-ef10ccdfb994" HEIGHT="39" WIDTH="419" HPOS="1288" VPOS="597">
+            <Shape>
+              <Polygon POINTS="1288,597 1706,598 1707,636 1288,635"/>
+            </Shape>
+            <String ID="word-7601fdbc-3b61-4a27-bff3-126900bb33e3" HEIGHT="30" WIDTH="78" HPOS="1288" VPOS="598" CONTENT="WM.">
+              <Shape>
+                <Polygon POINTS="1288,598 1366,598 1366,628 1288,628"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-78ca13cc-b94b-40e2-ac74-fc06e3d7a922" HEIGHT="31" WIDTH="40" HPOS="1377" VPOS="597" CONTENT="G.">
+              <Shape>
+                <Polygon POINTS="1377,597 1416,597 1417,628 1377,628"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-d91bc99d-ccaf-4ae4-810b-de6253750ab1" HEIGHT="34" WIDTH="151" HPOS="1426" VPOS="599" CONTENT="FISCHER,">
+              <Shape>
+                <Polygon POINTS="1426,599 1576,599 1577,633 1426,632"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-b3a37f1c-f096-47b5-8a07-810a16c9f2d9" HEIGHT="38" WIDTH="41" HPOS="1590" VPOS="598" CONTENT="by">
+              <Shape>
+                <Polygon POINTS="1590,598 1631,598 1631,636 1590,635"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-570f148d-1816-451f-a070-79c01f26eab7" HEIGHT="31" WIDTH="66" HPOS="1641" VPOS="605" CONTENT="per.">
+              <Shape>
+                <Polygon POINTS="1641,605 1706,606 1707,636 1642,635"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-1706344d-bf5d-4c8f-9fe3-c49822bb2624" HEIGHT="39" WIDTH="521" HPOS="309" VPOS="831">
+            <Shape>
+              <Polygon POINTS="309,831 830,832 830,870 309,869"/>
+            </Shape>
+            <String ID="word-0b4d4839-c04c-4cdd-b86f-a971b929db7f" HEIGHT="33" WIDTH="32" HPOS="309" VPOS="835" CONTENT="1.">
+              <Shape>
+                <Polygon POINTS="309,835 340,835 341,868 309,868"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-2ab436f8-3c19-44a0-8d62-22ddaaea60c4" HEIGHT="34" WIDTH="82" HPOS="367" VPOS="835" CONTENT="God">
+              <Shape>
+                <Polygon POINTS="367,835 449,835 449,869 367,869"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-e1c9ac7a-d22d-4d42-91c5-6336f0d4e1a0" HEIGHT="34" WIDTH="104" HPOS="467" VPOS="834" CONTENT="loved">
+              <Shape>
+                <Polygon POINTS="467,834 571,834 571,868 467,868"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-4ca001d8-f4ad-4aa4-b1e2-8eb5288788cf" HEIGHT="34" WIDTH="60" HPOS="585" VPOS="833" CONTENT="the">
+              <Shape>
+                <Polygon POINTS="585,833 645,833 645,867 585,867"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-5970f6b4-0101-4dcd-b5cd-a5e1421ae1d2" HEIGHT="35" WIDTH="110" HPOS="659" VPOS="832" CONTENT="world">
+              <Shape>
+                <Polygon POINTS="659,832 769,832 769,867 659,866"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-6c519db8-222f-4dfa-877a-7b9dd98568c4" HEIGHT="33" WIDTH="42" HPOS="788" VPOS="832" CONTENT="of">
+              <Shape>
+                <Polygon POINTS="788,832 830,832 830,865 789,865"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-d4bffe17-088d-40d1-a209-db12d40f8335" HEIGHT="46" WIDTH="822" HPOS="909" VPOS="831">
+            <Shape>
+              <Polygon POINTS="909,831 1731,833 1731,877 909,875"/>
+            </Shape>
+            <String ID="word-a4940ba9-42a7-4b37-9f10-42d6b3bf0ffd" HEIGHT="32" WIDTH="58" HPOS="909" VPOS="833" CONTENT="sin">
+              <Shape>
+                <Polygon POINTS="909,833 967,833 967,865 909,865"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-c36d8b72-3ce2-42e9-a1b2-886c994dc97b" HEIGHT="10" WIDTH="16" HPOS="1004" VPOS="850" CONTENT="-">
+              <Shape>
+                <Polygon POINTS="1004,850 1020,850 1020,860 1004,860"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-08911f25-5576-485d-b220-4db359acfaa9" HEIGHT="24" WIDTH="82" HPOS="1039" VPOS="841" CONTENT="ners">
+              <Shape>
+                <Polygon POINTS="1039,841 1121,841 1121,865 1040,865"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-1ca3056a-9324-413d-90b9-61278b16d76d" HEIGHT="34" WIDTH="71" HPOS="1141" VPOS="832" CONTENT="lost">
+              <Shape>
+                <Polygon POINTS="1141,832 1212,833 1212,866 1141,866"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-993ef0d2-a8d8-4e6d-a27b-f09821c24401" HEIGHT="34" WIDTH="80" HPOS="1246" VPOS="832" CONTENT="And">
+              <Shape>
+                <Polygon POINTS="1246,832 1326,832 1326,866 1246,865"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-d22d6314-4ba4-4c8b-bcfa-beabb04db138" HEIGHT="25" WIDTH="45" HPOS="1366" VPOS="841" CONTENT="ru">
+              <Shape>
+                <Polygon POINTS="1366,841 1411,841 1411,866 1366,866"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-3a4190d9-3912-43c2-b3f1-a69152fa611e" HEIGHT="9" WIDTH="16" HPOS="1425" VPOS="851" CONTENT="-">
+              <Shape>
+                <Polygon POINTS="1425,851 1440,851 1441,860 1425,860"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-e2cae2a5-462e-45cf-9f80-796d9936d865" HEIGHT="34" WIDTH="86" HPOS="1453" VPOS="833" CONTENT="ined">
+              <Shape>
+                <Polygon POINTS="1453,833 1539,833 1539,867 1453,867"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-7c8286f8-8656-4e21-b9aa-45f205481c76" HEIGHT="43" WIDTH="48" HPOS="1564" VPOS="833" CONTENT="by">
+              <Shape>
+                <Polygon POINTS="1564,833 1612,833 1612,876 1564,876"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-b2c99952-47e4-4dab-871a-854f3cbb9ace" HEIGHT="33" WIDTH="62" HPOS="1669" VPOS="834" CONTENT="the">
+              <Shape>
+                <Polygon POINTS="1669,834 1731,834 1731,867 1669,867"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-335e4b7e-198f-4c69-9a36-18373b52ade2" HEIGHT="44" WIDTH="1370" HPOS="335" VPOS="1344">
+            <Shape>
+              <Polygon POINTS="335,1345 1705,1344 1705,1387 335,1388"/>
+            </Shape>
+            <String ID="word-eed9c9ce-b968-4b9d-8e52-f97137baf66e" HEIGHT="34" WIDTH="62" HPOS="335" VPOS="1348" CONTENT="fall">
+              <Shape>
+                <Polygon POINTS="335,1348 397,1348 397,1382 335,1382"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-f18737ef-db26-421b-b5c0-3196c70d8478" HEIGHT="34" WIDTH="61" HPOS="461" VPOS="1348" CONTENT="Sal">
+              <Shape>
+                <Polygon POINTS="461,1348 522,1348 522,1382 461,1382"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-811edf0a-77ca-4ea8-9d9a-b0b08adfc1da" HEIGHT="9" WIDTH="14" HPOS="530" VPOS="1366" CONTENT="-">
+              <Shape>
+                <Polygon POINTS="530,1366 544,1366 544,1375 530,1375"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-bcb676a5-8f8b-40b4-a0ab-7b8d85a3a91f" HEIGHT="28" WIDTH="47" HPOS="553" VPOS="1357" CONTENT="va">
+              <Shape>
+                <Polygon POINTS="553,1357 600,1357 600,1385 553,1385"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-8d034dd9-138b-4d87-896b-7234a4413228" HEIGHT="10" WIDTH="16" HPOS="613" VPOS="1365" CONTENT="-">
+              <Shape>
+                <Polygon POINTS="613,1365 629,1365 629,1375 613,1375"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-320f0b69-c5be-444d-b87a-6628a9825813" HEIGHT="36" WIDTH="83" HPOS="639" VPOS="1347" CONTENT="tion">
+              <Shape>
+                <Polygon POINTS="639,1347 722,1347 722,1383 639,1383"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-f988cd05-6e44-48c8-8446-a051b201ba05" HEIGHT="41" WIDTH="79" HPOS="733" VPOS="1345" CONTENT="full,">
+              <Shape>
+                <Polygon POINTS="733,1346 812,1345 812,1386 733,1386"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-60f5c803-de8f-4505-82d4-5c75573ca183" HEIGHT="33" WIDTH="41" HPOS="835" VPOS="1347" CONTENT="at">
+              <Shape>
+                <Polygon POINTS="835,1347 876,1347 876,1380 835,1380"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-0e9aa036-052d-4948-9f8f-39af9cdee16a" HEIGHT="44" WIDTH="145" HPOS="923" VPOS="1344" CONTENT="highest">
+              <Shape>
+                <Polygon POINTS="923,1344 1068,1344 1068,1388 923,1388"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-3bc95d5c-d0e6-4426-a673-59976506a429" HEIGHT="39" WIDTH="84" HPOS="1090" VPOS="1347" CONTENT="cost,">
+              <Shape>
+                <Polygon POINTS="1090,1347 1174,1347 1174,1385 1090,1386"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-53d205bd-6ee4-45bb-ac69-e9c6edfd4bb3" HEIGHT="33" WIDTH="57" HPOS="1192" VPOS="1346" CONTENT="He">
+              <Shape>
+                <Polygon POINTS="1192,1346 1249,1346 1249,1379 1192,1379"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-237f4641-422e-4a61-b0cb-c5d57ed62106" HEIGHT="33" WIDTH="43" HPOS="1275" VPOS="1346" CONTENT="of">
+              <Shape>
+                <Polygon POINTS="1275,1346 1318,1346 1318,1379 1275,1379"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-70dfc7bc-da3c-4203-a187-2fb990edf44a" HEIGHT="9" WIDTH="17" HPOS="1327" VPOS="1364" CONTENT="-">
+              <Shape>
+                <Polygon POINTS="1327,1364 1344,1364 1344,1373 1327,1373"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-2c122081-de9e-413b-8c73-f26aec29fa68" HEIGHT="33" WIDTH="70" HPOS="1357" VPOS="1347" CONTENT="fers">
+              <Shape>
+                <Polygon POINTS="1357,1347 1427,1347 1427,1380 1357,1380"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-d6cedec4-50b3-46cd-8209-9cb77a365a52" HEIGHT="34" WIDTH="73" HPOS="1448" VPOS="1346" CONTENT="free">
+              <Shape>
+                <Polygon POINTS="1448,1346 1521,1346 1521,1380 1448,1380"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-ad961a72-2ae6-46f8-a8b8-968442679dc5" HEIGHT="32" WIDTH="39" HPOS="1554" VPOS="1348" CONTENT="to">
+              <Shape>
+                <Polygon POINTS="1554,1348 1593,1348 1593,1379 1555,1380"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-4271d85a-6fe9-4ab9-a8d1-3444d8fb4497" HEIGHT="32" WIDTH="57" HPOS="1648" VPOS="1347" CONTENT="all.">
+              <Shape>
+                <Polygon POINTS="1648,1347 1705,1347 1705,1379 1648,1379"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-3a1fe59a-2242-406e-84af-b66f5370b901" HEIGHT="31" WIDTH="174" HPOS="329" VPOS="1683">
+            <Shape>
+              <Polygon POINTS="329,1683 503,1683 503,1713 329,1714"/>
+            </Shape>
+            <String ID="word-62bd4b0d-cae8-4637-8666-436f789a5688" HEIGHT="31" WIDTH="174" HPOS="329" VPOS="1683" CONTENT="CHORUS.">
+              <Shape>
+                <Polygon POINTS="329,1683 503,1683 503,1713 329,1714"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-513ef401-0280-4628-9471-2c370e9fcaa0" HEIGHT="44" WIDTH="1068" HPOS="321" VPOS="1893">
+            <Shape>
+              <Polygon POINTS="321,1896 1389,1893 1389,1934 321,1937"/>
+            </Shape>
+            <String ID="word-1527ea18-5ad2-42ae-8bd7-adc85ba56910" HEIGHT="40" WIDTH="66" HPOS="321" VPOS="1896" CONTENT="Oh,">
+              <Shape>
+                <Polygon POINTS="321,1896 387,1896 387,1936 321,1936"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-3e691cfd-149d-42d5-a5de-42d82d1a7224" HEIGHT="35" WIDTH="101" HPOS="409" VPOS="1897" CONTENT="'twas">
+              <Shape>
+                <Polygon POINTS="409,1897 510,1897 510,1931 409,1932"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-b527eb00-9e51-4038-82d6-03bc5353a2d2" HEIGHT="39" WIDTH="89" HPOS="521" VPOS="1897" CONTENT="love,">
+              <Shape>
+                <Polygon POINTS="521,1897 610,1897 610,1936 521,1936"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-104af6ef-8b68-4d28-a7f5-4e3ed043204a" HEIGHT="34" WIDTH="97" HPOS="626" VPOS="1897" CONTENT="'twas">
+              <Shape>
+                <Polygon POINTS="626,1897 723,1897 723,1931 627,1931"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-2fc0305e-56b6-444a-8ce0-0ecb23a148a4" HEIGHT="35" WIDTH="189" HPOS="738" VPOS="1896" CONTENT="wondrous">
+              <Shape>
+                <Polygon POINTS="738,1897 927,1896 927,1931 738,1931"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-4479bad5-0a44-4325-9c83-c54c0121ac38" HEIGHT="34" WIDTH="82" HPOS="938" VPOS="1896" CONTENT="love">
+              <Shape>
+                <Polygon POINTS="938,1896 1020,1896 1020,1930 938,1930"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-c8ed1133-80fe-4024-a007-321a2455ba6e" HEIGHT="33" WIDTH="12" HPOS="1029" VPOS="1896" CONTENT="!">
+              <Shape>
+                <Polygon POINTS="1029,1896 1041,1896 1041,1929 1029,1929"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-f79c6c8c-8eb8-4221-a193-b5b786dc6754" HEIGHT="34" WIDTH="76" HPOS="1047" VPOS="1895" CONTENT="The">
+              <Shape>
+                <Polygon POINTS="1047,1896 1123,1895 1123,1929 1047,1929"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-bb2294f4-e0f8-457f-a3e9-1f8e4187cd75" HEIGHT="34" WIDTH="81" HPOS="1134" VPOS="1895" CONTENT="love">
+              <Shape>
+                <Polygon POINTS="1134,1895 1214,1895 1215,1929 1134,1929"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-8cd30249-1018-4699-8a42-4eed070cde89" HEIGHT="33" WIDTH="43" HPOS="1227" VPOS="1896" CONTENT="of">
+              <Shape>
+                <Polygon POINTS="1227,1896 1270,1896 1270,1929 1227,1929"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-f6363702-a06e-427b-81de-95c53e4893c9" HEIGHT="35" WIDTH="81" HPOS="1308" VPOS="1895" CONTENT="God">
+              <Shape>
+                <Polygon POINTS="1308,1895 1389,1895 1389,1930 1308,1930"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-06251701-0e94-4b97-8c1c-83a459f9cab4" HEIGHT="33" WIDTH="39" HPOS="1429" VPOS="1897">
+            <Shape>
+              <Polygon POINTS="1429,1897 1468,1897 1468,1930 1429,1930"/>
+            </Shape>
+            <String ID="word-860e43cf-f78b-4526-9b29-6bcb77a8b15f" HEIGHT="33" WIDTH="39" HPOS="1429" VPOS="1897" CONTENT="to">
+              <Shape>
+                <Polygon POINTS="1429,1897 1468,1897 1468,1930 1429,1930"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-65d9fcaf-f482-4b4a-b373-6c50a19266bc" HEIGHT="28" WIDTH="62" HPOS="1524" VPOS="1904">
+            <Shape>
+              <Polygon POINTS="1524,1904 1586,1904 1586,1931 1524,1932"/>
+            </Shape>
+            <String ID="word-dbe04127-c539-46ad-a08f-2c77a9f4770c" HEIGHT="28" WIDTH="62" HPOS="1524" VPOS="1904" CONTENT="me">
+              <Shape>
+                <Polygon POINTS="1524,1904 1586,1904 1586,1931 1524,1932"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-f3089d20-e837-4e10-bb32-63182924cac0" HEIGHT="34" WIDTH="38" HPOS="1660" VPOS="1896">
+            <Shape>
+              <Polygon POINTS="1660,1896 1698,1896 1698,1930 1660,1930"/>
+            </Shape>
+            <String ID="word-5374416d-abf5-4aea-96fc-6a452829b470" HEIGHT="34" WIDTH="38" HPOS="1660" VPOS="1896" CONTENT="It">
+              <Shape>
+                <Polygon POINTS="1660,1896 1698,1896 1698,1930 1660,1930"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-916f1aec-0890-491b-abe8-c1993c516c59" HEIGHT="48" WIDTH="915" HPOS="285" VPOS="2452">
+            <Shape>
+              <Polygon POINTS="285,2456 1200,2452 1200,2496 285,2500"/>
+            </Shape>
+            <String ID="word-0e0b7a46-9ae6-4ce1-b178-a8ee35627163" HEIGHT="44" WIDTH="153" HPOS="285" VPOS="2456" CONTENT="brought">
+              <Shape>
+                <Polygon POINTS="285,2456 438,2456 438,2499 285,2500"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-37a058f7-f46c-4551-ab49-e4f8063ad2b5" HEIGHT="34" WIDTH="60" HPOS="448" VPOS="2466" CONTENT="my">
+              <Shape>
+                <Polygon POINTS="448,2467 508,2466 508,2499 448,2500"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-2a4908be-cab9-4764-a8fb-29d6b8a85501" HEIGHT="36" WIDTH="153" HPOS="521" VPOS="2456" CONTENT="Saviour">
+              <Shape>
+                <Polygon POINTS="521,2457 674,2456 674,2491 521,2492"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-af21e914-1082-4095-ac5e-2be67f69c79e" HEIGHT="35" WIDTH="94" HPOS="713" VPOS="2456" CONTENT="from">
+              <Shape>
+                <Polygon POINTS="713,2457 807,2456 807,2490 713,2491"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-0258bb43-3f17-4259-89a0-bc32afb4ea17" HEIGHT="24" WIDTH="23" HPOS="827" VPOS="2466" CONTENT="a">
+              <Shape>
+                <Polygon POINTS="827,2466 849,2466 850,2490 827,2490"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-da9f7530-7c88-4c5f-92e9-9e17eb57fbf4" HEIGHT="11" WIDTH="17" HPOS="869" VPOS="2474" CONTENT="-">
+              <Shape>
+                <Polygon POINTS="869,2474 886,2474 886,2485 869,2485"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-4cdc49d9-71bd-4274-87c3-5f72f013059e" HEIGHT="40" WIDTH="100" HPOS="906" VPOS="2457" CONTENT="bove,">
+              <Shape>
+                <Polygon POINTS="906,2458 1006,2457 1006,2496 907,2497"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-f337c289-6dc0-4400-8df9-7f5ee1ef5068" HEIGHT="35" WIDTH="54" HPOS="1050" VPOS="2457" CONTENT="To">
+              <Shape>
+                <Polygon POINTS="1050,2457 1104,2457 1104,2491 1050,2492"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-7aaf54d2-0b1d-4983-982a-790032d8229b" HEIGHT="34" WIDTH="59" HPOS="1141" VPOS="2457" CONTENT="die">
+              <Shape>
+                <Polygon POINTS="1141,2457 1200,2457 1200,2491 1141,2491"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-6a226634-9316-4bdb-b78d-51ac570b23a2" HEIGHT="25" WIDTH="48" HPOS="1256" VPOS="2467">
+            <Shape>
+              <Polygon POINTS="1256,2467 1304,2467 1304,2491 1256,2492"/>
+            </Shape>
+            <String ID="word-6ea5dad8-67ca-497a-a3bf-572ce83d89e1" HEIGHT="25" WIDTH="48" HPOS="1256" VPOS="2467" CONTENT="on">
+              <Shape>
+                <Polygon POINTS="1256,2467 1304,2467 1304,2491 1256,2492"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-7ccbea71-ce1c-42cb-8327-fd31c9e2275e" HEIGHT="35" WIDTH="64" HPOS="1346" VPOS="2457">
+            <Shape>
+              <Polygon POINTS="1346,2457 1410,2457 1410,2492 1347,2492"/>
+            </Shape>
+            <String ID="word-c6884b71-39c5-4749-858c-a334915fe8b2" HEIGHT="35" WIDTH="64" HPOS="1346" VPOS="2457" CONTENT="Cal">
+              <Shape>
+                <Polygon POINTS="1346,2457 1410,2457 1410,2492 1347,2492"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-e50aebef-e01c-41a6-a1ce-6dc8cc2c977b" HEIGHT="12" WIDTH="19" HPOS="1449" VPOS="2475">
+            <Shape>
+              <Polygon POINTS="1449,2475 1467,2475 1468,2487 1449,2487"/>
+            </Shape>
+            <String ID="word-13fba08d-f498-4c81-b36e-689184856e28" HEIGHT="12" WIDTH="19" HPOS="1449" VPOS="2475" CONTENT="-">
+              <Shape>
+                <Polygon POINTS="1449,2475 1467,2475 1468,2487 1449,2487"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-0b00b220-a138-4c7c-9e79-217ccd85aeb4" HEIGHT="25" WIDTH="46" HPOS="1507" VPOS="2467">
+            <Shape>
+              <Polygon POINTS="1507,2467 1553,2467 1553,2492 1507,2492"/>
+            </Shape>
+            <String ID="word-1db66662-df8a-4cf5-b72f-3d65c02f4d9f" HEIGHT="25" WIDTH="46" HPOS="1507" VPOS="2467" CONTENT="va">
+              <Shape>
+                <Polygon POINTS="1507,2467 1553,2467 1553,2492 1507,2492"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-3f765a5b-df5b-49b6-9b7a-0b3e757c9e5f" HEIGHT="11" WIDTH="18" HPOS="1571" VPOS="2476">
+            <Shape>
+              <Polygon POINTS="1571,2476 1589,2476 1589,2487 1571,2487"/>
+            </Shape>
+            <String ID="word-d36d41e4-fe71-4d86-9ae4-2513cb51de0d" HEIGHT="11" WIDTH="18" HPOS="1571" VPOS="2476" CONTENT="-">
+              <Shape>
+                <Polygon POINTS="1571,2476 1589,2476 1589,2487 1571,2487"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-70859ffa-3607-4dbf-b3cf-3ec80613eb8e" HEIGHT="35" WIDTH="52" HPOS="1607" VPOS="2466">
+            <Shape>
+              <Polygon POINTS="1607,2466 1659,2466 1659,2500 1607,2501"/>
+            </Shape>
+            <String ID="word-f648595b-3a79-4287-be2c-53602a9af59c" HEIGHT="35" WIDTH="52" HPOS="1607" VPOS="2466" CONTENT="ry.">
+              <Shape>
+                <Polygon POINTS="1607,2466 1659,2466 1659,2500 1607,2501"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-0194e260-1e80-4820-9060-987ca0cbe353" HEIGHT="55" WIDTH="720" HPOS="156" VPOS="2730">
+            <Shape>
+              <Polygon POINTS="156,2735 876,2730 876,2780 156,2785"/>
+            </Shape>
+            <String ID="word-d36c1f07-589b-4e65-a1df-654735360534" HEIGHT="32" WIDTH="24" HPOS="156" VPOS="2735" CONTENT="2">
+              <Shape>
+                <Polygon POINTS="156,2735 180,2735 180,2767 156,2767"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-7a4dfc8b-6155-4459-ab0f-b5f99b915355" HEIGHT="35" WIDTH="84" HPOS="195" VPOS="2736" CONTENT="E'en">
+              <Shape>
+                <Polygon POINTS="195,2737 279,2736 279,2770 195,2771"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-f72c04d0-43cc-4f5b-9b07-6ee335edec9a" HEIGHT="25" WIDTH="76" HPOS="289" VPOS="2747" CONTENT="now">
+              <Shape>
+                <Polygon POINTS="289,2748 365,2747 365,2772 289,2772"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-74387a8e-d129-440e-809c-b7c597cfd929" HEIGHT="40" WIDTH="49" HPOS="376" VPOS="2740" CONTENT="by">
+              <Shape>
+                <Polygon POINTS="376,2740 425,2740 425,2779 376,2780"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-af933b93-ab3c-4400-bd1b-8db6b93a37ca" HEIGHT="35" WIDTH="89" HPOS="435" VPOS="2738" CONTENT="faith">
+              <Shape>
+                <Polygon POINTS="435,2739 524,2738 524,2772 435,2773"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-476fca45-94ca-4e48-8179-6ae27aaa97c1" HEIGHT="32" WIDTH="21" HPOS="535" VPOS="2740" CONTENT="I">
+              <Shape>
+                <Polygon POINTS="535,2740 556,2740 556,2772 535,2772"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-cbcd0e64-218a-4a8e-a263-30a2ffd2955b" HEIGHT="30" WIDTH="103" HPOS="565" VPOS="2742" CONTENT="claim">
+              <Shape>
+                <Polygon POINTS="565,2742 668,2742 668,2771 565,2772"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-c34a4e6f-c6a8-4df8-893c-01efa9daf88c" HEIGHT="33" WIDTH="81" HPOS="681" VPOS="2740" CONTENT="Him">
+              <Shape>
+                <Polygon POINTS="681,2741 762,2740 762,2772 681,2773"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-55a047c8-5116-4696-81f4-94e3d3863dd3" HEIGHT="41" WIDTH="101" HPOS="775" VPOS="2740" CONTENT="mine,">
+              <Shape>
+                <Polygon POINTS="775,2741 876,2740 876,2780 775,2781"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-8c871fd6-d71a-44f3-9f71-dc3cd50fa8d0" HEIGHT="49" WIDTH="576" HPOS="1002" VPOS="2737">
+            <Shape>
+              <Polygon POINTS="1002,2741 1577,2737 1578,2782 1002,2786"/>
+            </Shape>
+            <String ID="word-7c22e4f6-2203-4781-8981-82c1d4617a8c" HEIGHT="31" WIDTH="22" HPOS="1002" VPOS="2741" CONTENT="4">
+              <Shape>
+                <Polygon POINTS="1002,2742 1024,2741 1024,2772 1002,2772"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-9dc1425f-b5bb-44e3-93f6-08bd5cc97083" HEIGHT="43" WIDTH="178" HPOS="1041" VPOS="2740" CONTENT="Believing">
+              <Shape>
+                <Polygon POINTS="1041,2741 1219,2740 1219,2782 1041,2783"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-a5cfc20b-06df-463f-add5-1aeab302d2a2" HEIGHT="40" WIDTH="104" HPOS="1230" VPOS="2740" CONTENT="souls,">
+              <Shape>
+                <Polygon POINTS="1230,2741 1334,2740 1334,2779 1230,2780"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-a5f9b577-3a25-4ae3-a1b0-b03d413351ef" HEIGHT="42" WIDTH="163" HPOS="1345" VPOS="2740" CONTENT="rejoicing">
+              <Shape>
+                <Polygon POINTS="1345,2741 1508,2740 1508,2781 1345,2782"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-34757616-322b-4c26-b8d2-1dfad02ce92e" HEIGHT="33" WIDTH="61" HPOS="1517" VPOS="2749" CONTENT="go;">
+              <Shape>
+                <Polygon POINTS="1517,2749 1577,2749 1578,2782 1517,2782"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-decf74d3-75b2-495b-a8e6-0baf26862c78" HEIGHT="49" WIDTH="418" HPOS="232" VPOS="2784">
+            <Shape>
+              <Polygon POINTS="232,2787 650,2784 650,2830 232,2833"/>
+            </Shape>
+            <String ID="word-d23bb6ab-def1-413d-b20f-46f23da537c7" HEIGHT="34" WIDTH="72" HPOS="232" VPOS="2786" CONTENT="The">
+              <Shape>
+                <Polygon POINTS="232,2787 304,2786 304,2820 232,2820"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-f8ac2c6b-e7c3-471a-930c-1e3a1a40be61" HEIGHT="33" WIDTH="92" HPOS="313" VPOS="2788" CONTENT="risen">
+              <Shape>
+                <Polygon POINTS="313,2789 405,2788 405,2820 314,2821"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-6acef4ee-8d1f-4ea5-b1a8-3e61bec516b0" HEIGHT="34" WIDTH="68" HPOS="417" VPOS="2788" CONTENT="Son">
+              <Shape>
+                <Polygon POINTS="417,2789 485,2788 485,2822 417,2822"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-3b0eb566-3736-434a-bf93-d9ffb3037db7" HEIGHT="33" WIDTH="40" HPOS="498" VPOS="2789" CONTENT="of">
+              <Shape>
+                <Polygon POINTS="498,2790 538,2789 538,2822 498,2822"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-554077ad-4442-485b-bb28-01a11579cf14" HEIGHT="38" WIDTH="89" HPOS="551" VPOS="2789" CONTENT="God">
+              <Shape>
+                <Polygon POINTS="551,2790 640,2789 640,2826 551,2827"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-4fc484ea-bb15-44bb-a53a-7c47045b37ce" HEIGHT="30" WIDTH="11" HPOS="639" VPOS="2800" CONTENT=";">
+              <Shape>
+                <Polygon POINTS="639,2801 650,2800 650,2830 639,2830"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-4f965f6d-f16e-4f2c-9766-57f1faca712a" HEIGHT="47" WIDTH="507" HPOS="1076" VPOS="2787">
+            <Shape>
+              <Polygon POINTS="1076,2790 1583,2787 1583,2830 1076,2834"/>
+            </Shape>
+            <String ID="word-ed881000-ad50-473a-931e-9a6a5856a6c7" HEIGHT="34" WIDTH="109" HPOS="1076" VPOS="2789" CONTENT="There">
+              <Shape>
+                <Polygon POINTS="1076,2790 1185,2789 1185,2823 1076,2823"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-adfef58f-1f6d-45fc-81ca-550272397834" HEIGHT="34" WIDTH="91" HPOS="1195" VPOS="2789" CONTENT="shall">
+              <Shape>
+                <Polygon POINTS="1195,2790 1285,2789 1286,2823 1195,2823"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-b71da391-f25f-4ff4-988b-cf4af24d0521" HEIGHT="31" WIDTH="37" HPOS="1298" VPOS="2792" CONTENT="to">
+              <Shape>
+                <Polygon POINTS="1298,2793 1335,2792 1335,2822 1298,2823"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-9b74c4b2-0c64-4655-87e1-05e38b69b617" HEIGHT="35" WIDTH="73" HPOS="1345" VPOS="2797" CONTENT="you">
+              <Shape>
+                <Polygon POINTS="1345,2798 1417,2797 1418,2831 1345,2832"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-3841aa1f-67eb-4784-af24-a618afa7310a" HEIGHT="33" WIDTH="44" HPOS="1426" VPOS="2790" CONTENT="be">
+              <Shape>
+                <Polygon POINTS="1426,2790 1470,2790 1470,2823 1426,2823"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-c450d73a-b309-4008-a303-f76c6dddb4bf" HEIGHT="41" WIDTH="101" HPOS="1482" VPOS="2790" CONTENT="given">
+              <Shape>
+                <Polygon POINTS="1482,2791 1583,2790 1583,2830 1483,2831"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-fc5cd295-2df1-496f-905a-dab63debf248" HEIGHT="51" WIDTH="600" HPOS="195" VPOS="2831">
+            <Shape>
+              <Polygon POINTS="195,2835 795,2831 795,2877 195,2882"/>
+            </Shape>
+            <String ID="word-7855d0c8-66f6-433e-8aa2-10f3a597b266" HEIGHT="44" WIDTH="224" HPOS="195" VPOS="2834" CONTENT="Redemption">
+              <Shape>
+                <Polygon POINTS="195,2835 419,2834 419,2877 195,2878"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-1ab420bd-3221-4800-a432-0b319a967cec" HEIGHT="42" WIDTH="47" HPOS="431" VPOS="2837" CONTENT="by">
+              <Shape>
+                <Polygon POINTS="431,2838 478,2837 478,2879 431,2879"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-c4ef95bc-74b5-4bda-b438-5451f6a0150f" HEIGHT="33" WIDTH="65" HPOS="492" VPOS="2838" CONTENT="His">
+              <Shape>
+                <Polygon POINTS="492,2838 557,2838 557,2871 492,2871"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-06c3e184-ffbd-48a6-9f9f-7388eea13558" HEIGHT="33" WIDTH="106" HPOS="569" VPOS="2838" CONTENT="death">
+              <Shape>
+                <Polygon POINTS="569,2839 675,2838 675,2870 569,2871"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-c6933d62-4dac-478f-b477-32d4b467d0da" HEIGHT="33" WIDTH="21" HPOS="682" VPOS="2838" CONTENT="I">
+              <Shape>
+                <Polygon POINTS="682,2838 703,2838 703,2870 682,2871"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-73fbbdf6-d130-4e0b-880e-d2875d077852" HEIGHT="40" WIDTH="82" HPOS="713" VPOS="2838" CONTENT="find,">
+              <Shape>
+                <Polygon POINTS="713,2838 795,2838 795,2877 714,2878"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-305c2be1-92fa-4abd-a766-ab02e96b5ad5" HEIGHT="47" WIDTH="599" HPOS="1040" VPOS="2835">
+            <Shape>
+              <Polygon POINTS="1040,2839 1639,2835 1639,2878 1040,2882"/>
+            </Shape>
+            <String ID="word-e6689667-d781-4d29-bbe7-6644b56a6d52" HEIGHT="32" WIDTH="31" HPOS="1040" VPOS="2840" CONTENT="A">
+              <Shape>
+                <Polygon POINTS="1040,2840 1071,2840 1071,2872 1040,2872"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-29e839c9-a411-4338-9dbc-47fadd421f96" HEIGHT="41" WIDTH="149" HPOS="1083" VPOS="2838" CONTENT="glorious">
+              <Shape>
+                <Polygon POINTS="1083,2839 1232,2838 1232,2878 1083,2879"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-f71fa595-4747-46aa-8eea-fc73ae5857c7" HEIGHT="42" WIDTH="172" HPOS="1244" VPOS="2837" CONTENT="foretaste,">
+              <Shape>
+                <Polygon POINTS="1244,2838 1416,2837 1416,2878 1244,2879"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-7e67f4a6-ac4b-4bf0-800e-0344a4b520ed" HEIGHT="34" WIDTH="82" HPOS="1428" VPOS="2839" CONTENT="here">
+              <Shape>
+                <Polygon POINTS="1428,2839 1509,2839 1510,2872 1428,2873"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-f6826b03-eac8-495e-88c5-5d442347fa26" HEIGHT="40" WIDTH="118" HPOS="1521" VPOS="2839" CONTENT="below,">
+              <Shape>
+                <Polygon POINTS="1521,2840 1639,2839 1639,2878 1521,2879"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-4e56e736-49f6-4c63-947e-2dbc797032dd" HEIGHT="51" WIDTH="618" HPOS="232" VPOS="2881">
+            <Shape>
+              <Polygon POINTS="232,2885 850,2881 850,2927 232,2932"/>
+            </Shape>
+            <String ID="word-cadf797a-2a8b-46e1-9e6b-14da1ff51982" HEIGHT="33" WIDTH="79" HPOS="232" VPOS="2885" CONTENT="And">
+              <Shape>
+                <Polygon POINTS="232,2885 311,2885 311,2917 232,2918"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-6582d6ab-7391-4066-98f6-f5cd4053b8ec" HEIGHT="42" WIDTH="174" HPOS="323" VPOS="2886" CONTENT="cleansing">
+              <Shape>
+                <Polygon POINTS="323,2887 497,2886 497,2927 323,2928"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-0373a253-0348-4221-a12a-139f7ce2f020" HEIGHT="44" WIDTH="147" HPOS="510" VPOS="2886" CONTENT="through">
+              <Shape>
+                <Polygon POINTS="510,2887 657,2886 657,2929 510,2930"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-28bb8fc1-5297-42b7-ad29-9368c45d6450" HEIGHT="34" WIDTH="58" HPOS="671" VPOS="2887" CONTENT="the">
+              <Shape>
+                <Polygon POINTS="671,2888 729,2887 729,2920 671,2921"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-742bfbd7-8ab4-4931-aa34-aa34097baeb8" HEIGHT="34" WIDTH="111" HPOS="739" VPOS="2887" CONTENT="blood.">
+              <Shape>
+                <Polygon POINTS="739,2887 850,2887 850,2920 739,2921"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-41f23875-4754-492b-8086-accce0068fc9" HEIGHT="41" WIDTH="473" HPOS="1079" VPOS="2884">
+            <Shape>
+              <Polygon POINTS="1079,2888 1551,2884 1552,2921 1079,2925"/>
+            </Shape>
+            <String ID="word-5996f35f-3e11-4f83-aeb7-b304977176f3" HEIGHT="34" WIDTH="51" HPOS="1079" VPOS="2887" CONTENT="Of">
+              <Shape>
+                <Polygon POINTS="1079,2888 1129,2887 1130,2920 1079,2921"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-adcd425c-6a09-45be-8f47-243389e270fa" HEIGHT="35" WIDTH="136" HPOS="1144" VPOS="2887" CONTENT="endless">
+              <Shape>
+                <Polygon POINTS="1144,2888 1280,2887 1280,2921 1144,2922"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-22735d1b-7854-400f-85d5-019fa4c9c850" HEIGHT="34" WIDTH="63" HPOS="1291" VPOS="2887" CONTENT="life">
+              <Shape>
+                <Polygon POINTS="1291,2888 1353,2887 1354,2921 1291,2921"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-0c6c378c-4b62-46aa-903f-4b0e61b80255" HEIGHT="33" WIDTH="38" HPOS="1363" VPOS="2888" CONTENT="in">
+              <Shape>
+                <Polygon POINTS="1363,2889 1401,2888 1401,2920 1364,2921"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-775f70df-9e06-4410-a19d-9889355f2b74" HEIGHT="35" WIDTH="141" HPOS="1411" VPOS="2887" CONTENT="heaven.">
+              <Shape>
+                <Polygon POINTS="1411,2888 1551,2887 1552,2921 1411,2922"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-fa18f825-f9cc-482b-8738-2eee91b5935c" HEIGHT="55" WIDTH="694" HPOS="153" VPOS="2945">
+            <Shape>
+              <Polygon POINTS="153,2950 847,2945 847,2995 153,3000"/>
+            </Shape>
+            <String ID="word-382282f2-9973-40fc-91ba-1387ebcab0a7" HEIGHT="34" WIDTH="26" HPOS="153" VPOS="2950" CONTENT="3">
+              <Shape>
+                <Polygon POINTS="153,2950 179,2950 179,2983 153,2984"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-a34f6078-494b-4dce-8252-fe2af56fa535" HEIGHT="35" WIDTH="94" HPOS="194" VPOS="2951" CONTENT="Love">
+              <Shape>
+                <Polygon POINTS="194,2951 288,2951 288,2985 194,2986"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-553dbcbc-14b7-40c7-96b7-5059efbd8a3c" HEIGHT="45" WIDTH="117" HPOS="299" VPOS="2952" CONTENT="brings">
+              <Shape>
+                <Polygon POINTS="299,2953 416,2952 416,2996 299,2997"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-714e4a05-00b3-4adb-b61f-c6b1a51046cf" HEIGHT="33" WIDTH="60" HPOS="429" VPOS="2955" CONTENT="the">
+              <Shape>
+                <Polygon POINTS="429,2955 489,2955 489,2988 429,2988"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-b76cd7ad-b4b3-485d-8e12-f9acc5131731" HEIGHT="42" WIDTH="148" HPOS="501" VPOS="2954" CONTENT="glorious">
+              <Shape>
+                <Polygon POINTS="501,2955 649,2954 649,2995 501,2996"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-57c39735-d853-47f8-b452-5844ab19f4f9" HEIGHT="35" WIDTH="131" HPOS="660" VPOS="2955" CONTENT="fulness">
+              <Shape>
+                <Polygon POINTS="660,2956 791,2955 791,2989 660,2990"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-284d2f4b-917e-42ee-9ce6-b1e3108e80ee" HEIGHT="39" WIDTH="46" HPOS="801" VPOS="2956" CONTENT="in,">
+              <Shape>
+                <Polygon POINTS="801,2957 847,2956 847,2995 802,2995"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-c9d39981-f335-4f9d-9676-e9ce6194dffb" HEIGHT="51" WIDTH="671" HPOS="1002" VPOS="2948">
+            <Shape>
+              <Polygon POINTS="1002,2953 1672,2948 1673,2994 1002,2999"/>
+            </Shape>
+            <String ID="word-1921e86c-318e-4d72-a012-74ae68161787" HEIGHT="32" WIDTH="21" HPOS="1002" VPOS="2953" CONTENT="5">
+              <Shape>
+                <Polygon POINTS="1002,2954 1023,2953 1023,2985 1002,2985"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-940c46e8-c204-4bb8-8145-b45b3ea12490" HEIGHT="33" WIDTH="50" HPOS="1043" VPOS="2953" CONTENT="Of">
+              <Shape>
+                <Polygon POINTS="1043,2953 1093,2953 1093,2986 1043,2986"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-a88300fe-1829-4a3a-816a-a16b4608b3e0" HEIGHT="41" WIDTH="133" HPOS="1106" VPOS="2954" CONTENT="victory">
+              <Shape>
+                <Polygon POINTS="1106,2955 1239,2954 1239,2994 1106,2995"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-dce20d89-e5ed-4fdf-92cc-d39071c40182" HEIGHT="26" WIDTH="76" HPOS="1249" VPOS="2961" CONTENT="now">
+              <Shape>
+                <Polygon POINTS="1249,2962 1325,2961 1325,2987 1249,2987"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-554b3e67-d565-4dae-bb2b-21529eecdade" HEIGHT="33" WIDTH="70" HPOS="1336" VPOS="2955" CONTENT="o'er">
+              <Shape>
+                <Polygon POINTS="1336,2956 1405,2955 1406,2988 1336,2988"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-36074cec-296c-45be-9923-0665f9402ba6" HEIGHT="35" WIDTH="133" HPOS="1416" VPOS="2953" CONTENT="Satan's">
+              <Shape>
+                <Polygon POINTS="1416,2954 1549,2953 1549,2987 1416,2988"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-502afeec-303a-49fd-b5c4-6624b6fa8d5b" HEIGHT="32" WIDTH="114" HPOS="1559" VPOS="2963" CONTENT="power">
+              <Shape>
+                <Polygon POINTS="1559,2964 1672,2963 1673,2994 1560,2995"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-20a8835a-4fe2-402f-b02f-075c92e98739" HEIGHT="44" WIDTH="588" HPOS="234" VPOS="2998">
+            <Shape>
+              <Polygon POINTS="234,3003 822,2998 822,3038 234,3042"/>
+            </Shape>
+            <String ID="word-a6a53640-67e4-427b-974f-d10411afe411" HEIGHT="34" WIDTH="77" HPOS="234" VPOS="3002" CONTENT="And">
+              <Shape>
+                <Polygon POINTS="234,3003 311,3002 311,3036 234,3036"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-dde7d18b-8c85-48e6-a57f-038b3e6616a5" HEIGHT="30" WIDTH="38" HPOS="322" VPOS="3006" CONTENT="to">
+              <Shape>
+                <Polygon POINTS="322,3006 360,3006 360,3036 323,3036"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-8411ad86-6641-4a3e-9742-664470ffe51c" HEIGHT="33" WIDTH="63" HPOS="373" VPOS="3004" CONTENT="His">
+              <Shape>
+                <Polygon POINTS="373,3004 436,3004 436,3037 373,3037"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-88a01ef5-6691-4a3c-a83d-6c4f481b7bca" HEIGHT="33" WIDTH="108" HPOS="447" VPOS="3005" CONTENT="saints">
+              <Shape>
+                <Polygon POINTS="447,3006 555,3005 555,3037 447,3038"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-86ce4a89-fc5a-45e2-ae69-3fae1838dea8" HEIGHT="31" WIDTH="123" HPOS="563" VPOS="3007" CONTENT="makes">
+              <Shape>
+                <Polygon POINTS="563,3008 686,3007 686,3037 563,3038"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-7fc3ee68-ca6f-49f7-b721-e0fc681a0fe2" HEIGHT="35" WIDTH="127" HPOS="695" VPOS="3004" CONTENT="known">
+              <Shape>
+                <Polygon POINTS="695,3005 822,3004 822,3038 695,3039"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-8dacebc8-39eb-48fb-ac4b-59fcb8d709aa" HEIGHT="49" WIDTH="482" HPOS="1080" VPOS="3000">
+            <Shape>
+              <Polygon POINTS="1080,3004 1562,3000 1562,3045 1080,3049"/>
+            </Shape>
+            <String ID="word-b565517c-d8cb-41c7-ab78-cb8ea5ce25df" HEIGHT="33" WIDTH="66" HPOS="1080" VPOS="3004" CONTENT="Let">
+              <Shape>
+                <Polygon POINTS="1080,3004 1146,3004 1146,3036 1080,3037"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-144558c1-d3c0-4eac-8a44-e0d1f308c62c" HEIGHT="33" WIDTH="49" HPOS="1156" VPOS="3003" CONTENT="all">
+              <Shape>
+                <Polygon POINTS="1156,3004 1205,3003 1205,3036 1156,3036"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-16294613-6a19-4f80-8c97-ea5e37e64473" HEIGHT="34" WIDTH="60" HPOS="1215" VPOS="3003" CONTENT="the">
+              <Shape>
+                <Polygon POINTS="1215,3004 1275,3003 1275,3036 1215,3037"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-76b43cca-c230-4e68-9fef-56ae539a4c62" HEIGHT="35" WIDTH="180" HPOS="1285" VPOS="3003" CONTENT="ransomed">
+              <Shape>
+                <Polygon POINTS="1285,3005 1465,3003 1465,3037 1285,3038"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-5b0e38a5-e4c7-4ac5-af5c-dd24dd2f75d7" HEIGHT="42" WIDTH="86" HPOS="1476" VPOS="3004" CONTENT="sing,">
+              <Shape>
+                <Polygon POINTS="1476,3005 1562,3004 1562,3045 1476,3046"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-3895e4b9-7861-48cb-837e-3d57319f75f7" HEIGHT="51" WIDTH="612" HPOS="193" VPOS="3047">
+            <Shape>
+              <Polygon POINTS="193,3052 805,3047 805,3093 193,3098"/>
+            </Shape>
+            <String ID="word-e6e188d7-ed43-4212-8850-c0063bb1d237" HEIGHT="34" WIDTH="74" HPOS="193" VPOS="3051" CONTENT="The">
+              <Shape>
+                <Polygon POINTS="193,3052 267,3051 267,3085 193,3085"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-c913dd55-d6a2-4c42-a227-e1b738d6968f" HEIGHT="36" WIDTH="137" HPOS="278" VPOS="3051" CONTENT="blessed">
+              <Shape>
+                <Polygon POINTS="278,3052 415,3051 415,3086 278,3087"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-618da4f3-1032-4a9d-a897-1f6e102e4f9b" HEIGHT="30" WIDTH="73" HPOS="426" VPOS="3057" CONTENT="rest">
+              <Shape>
+                <Polygon POINTS="426,3058 499,3057 499,3086 427,3087"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-e6a927cc-e7f5-49dd-a2d6-197a1b760701" HEIGHT="37" WIDTH="92" HPOS="506" VPOS="3052" CONTENT="from">
+              <Shape>
+                <Polygon POINTS="506,3053 598,3052 598,3089 506,3089"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-6800bd4b-e6c6-47bf-b50e-571ca9924ca1" HEIGHT="34" WIDTH="120" HPOS="609" VPOS="3053" CONTENT="inbred">
+              <Shape>
+                <Polygon POINTS="609,3054 729,3053 729,3086 609,3087"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-25a0a6ce-7d70-4c2f-b894-07adafccb672" HEIGHT="38" WIDTH="64" HPOS="741" VPOS="3055" CONTENT="sin,">
+              <Shape>
+                <Polygon POINTS="741,3055 805,3055 805,3093 741,3093"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-62b5082a-f7a9-4201-a9d2-17dcd275928f" HEIGHT="49" WIDTH="581" HPOS="1043" VPOS="3049">
+            <Shape>
+              <Polygon POINTS="1043,3053 1624,3049 1624,3093 1043,3098"/>
+            </Shape>
+            <String ID="word-0597cf97-0862-4335-a94d-64e926a89602" HEIGHT="33" WIDTH="80" HPOS="1043" VPOS="3053" CONTENT="And">
+              <Shape>
+                <Polygon POINTS="1043,3053 1123,3053 1123,3086 1043,3086"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-c627788a-9746-41ec-8cfd-9e1d7196f5e3" HEIGHT="42" WIDTH="152" HPOS="1136" VPOS="3052" CONTENT="triumph">
+              <Shape>
+                <Polygon POINTS="1136,3053 1287,3052 1288,3093 1136,3094"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-7a176bfb-8645-413b-bc0f-51a450e3339e" HEIGHT="32" WIDTH="37" HPOS="1299" VPOS="3053" CONTENT="in">
+              <Shape>
+                <Polygon POINTS="1299,3053 1336,3053 1336,3085 1299,3085"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-2206152b-244e-4b9d-a33e-2f56b73a2cba" HEIGHT="33" WIDTH="60" HPOS="1348" VPOS="3053" CONTENT="the">
+              <Shape>
+                <Polygon POINTS="1348,3053 1408,3053 1408,3085 1348,3086"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-10fa3583-a6b7-40ec-a48b-7b6cd149947d" HEIGHT="44" WIDTH="107" HPOS="1420" VPOS="3051" CONTENT="dying">
+              <Shape>
+                <Polygon POINTS="1420,3052 1527,3051 1527,3094 1420,3095"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-8850650c-5691-48e2-9137-3443479f6bc8" HEIGHT="34" WIDTH="87" HPOS="1537" VPOS="3052" CONTENT="hour">
+              <Shape>
+                <Polygon POINTS="1537,3053 1624,3052 1624,3085 1537,3086"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-138b40f6-df6d-4619-bd01-14f707b0aefa" HEIGHT="48" WIDTH="554" HPOS="233" VPOS="3096">
+            <Shape>
+              <Polygon POINTS="233,3101 787,3096 787,3140 233,3144"/>
+            </Shape>
+            <String ID="word-abf6c0df-73dd-4888-9379-baeb5d458c9a" HEIGHT="44" WIDTH="158" HPOS="233" VPOS="3100" CONTENT="Through">
+              <Shape>
+                <Polygon POINTS="233,3101 391,3100 391,3143 233,3144"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-55b2adda-3295-45cd-8946-849b4492c0e5" HEIGHT="34" WIDTH="87" HPOS="404" VPOS="3102" CONTENT="faith">
+              <Shape>
+                <Polygon POINTS="404,3103 491,3102 491,3135 404,3136"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-1aa22dd0-cadb-4fde-9c01-39c3b0294b75" HEIGHT="32" WIDTH="36" HPOS="501" VPOS="3103" CONTENT="in">
+              <Shape>
+                <Polygon POINTS="501,3103 537,3103 537,3134 501,3135"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-6a4e3174-4146-41b4-ac4c-29c86b5e182f" HEIGHT="36" WIDTH="114" HPOS="552" VPOS="3101" CONTENT="Christ">
+              <Shape>
+                <Polygon POINTS="552,3102 666,3101 666,3136 552,3137"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-182d3ae4-6191-40ac-9dad-e995954dd979" HEIGHT="33" WIDTH="109" HPOS="678" VPOS="3103" CONTENT="alone.">
+              <Shape>
+                <Polygon POINTS="678,3104 787,3103 787,3136 678,3136"/>
+              </Shape>
+            </String>
+          </TextLine>
+          <TextLine ID="line-8540c97d-9706-49be-8882-63af70d3c1cc" HEIGHT="52" WIDTH="649" HPOS="1078" VPOS="3097">
+            <Shape>
+              <Polygon POINTS="1078,3102 1727,3097 1727,3144 1078,3149"/>
+            </Shape>
+            <String ID="word-d5bf8784-a327-436c-ad60-8a3ed624046c" HEIGHT="43" WIDTH="159" HPOS="1078" VPOS="3101" CONTENT="Through">
+              <Shape>
+                <Polygon POINTS="1078,3102 1237,3101 1237,3143 1078,3144"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-3512e5f5-81d8-4ab2-a0be-d66f41d21d15" HEIGHT="36" WIDTH="115" HPOS="1252" VPOS="3100" CONTENT="Christ">
+              <Shape>
+                <Polygon POINTS="1252,3101 1367,3100 1367,3135 1252,3136"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-bf978550-2b05-4881-b4f2-55bc6bb06912" HEIGHT="34" WIDTH="59" HPOS="1379" VPOS="3101" CONTENT="the">
+              <Shape>
+                <Polygon POINTS="1379,3102 1438,3101 1438,3134 1379,3135"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-3b96b6a0-9698-4fa8-9d2e-68da16486421" HEIGHT="34" WIDTH="90" HPOS="1451" VPOS="3101" CONTENT="Lord">
+              <Shape>
+                <Polygon POINTS="1451,3101 1541,3101 1541,3135 1451,3135"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-8d9ace70-08b5-497c-a218-92c198090b37" HEIGHT="24" WIDTH="63" HPOS="1551" VPOS="3111" CONTENT="our">
+              <Shape>
+                <Polygon POINTS="1551,3111 1614,3111 1614,3135 1551,3135"/>
+              </Shape>
+            </String>
+            <SP/>
+            <String ID="word-2b969a93-ced1-4dad-bcde-105a5f9bcd27" HEIGHT="43" WIDTH="102" HPOS="1625" VPOS="3102" CONTENT="King.">
+              <Shape>
+                <Polygon POINTS="1625,3102 1727,3102 1727,3144 1626,3145"/>
+              </Shape>
+            </String>
+          </TextLine>
+        </TextBlock>
+      </PrintSpace>
+    </Page>
+  </Layout>
+</alto>
