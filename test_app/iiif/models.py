@@ -55,10 +55,7 @@ class Canvas(models.Model):
     )
     # TODO: move this to the manifest level.
     default_ocr = models.CharField(max_length=30, choices=preferred_ocr, default="word")
-
-    @property
-    def image_server(self):
-        return self.manifest.image_server
+    image_server = models.ForeignKey(ImageServer, on_delete=models.DO_NOTHING, null=True)
 
 class OCR(models.Model):
     OCR = 'cnt:ContentAsText'

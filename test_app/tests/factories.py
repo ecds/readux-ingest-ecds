@@ -22,6 +22,7 @@ class CanvasFactory(DjangoModelFactory):
     """Creates a Canvas object for testing."""
     manifest = SubFactory(ManifestFactory)
     position = 1
+    image_server = SubFactory(ImageServerFactory)
     class Meta:
         model = Canvas
 

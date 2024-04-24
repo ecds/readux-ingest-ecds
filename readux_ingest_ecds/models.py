@@ -1,5 +1,4 @@
 import os
-import time
 import logging
 import uuid
 from zipfile import ZipFile
@@ -8,7 +7,6 @@ from django.conf import settings
 from .services.file_services import is_image, is_ocr, is_junk, move_image_file, move_ocr_file, canvas_dimensions, upload_trigger_file
 from .services.iiif_services import create_manifest
 from .services.metadata_services import metadata_from_file, clean_metadata
-from .services.ocr_services import add_ocr_to_canvases
 from .helpers import get_iiif_models
 from .storages import TmpStorage
 
@@ -178,7 +176,6 @@ class Local(IngestAbstractModel):
 
     def create_canvases(self):
         Canvas = get_iiif_models()['Canvas']
-        new_canvases = []
         images = None
         with open(self.trigger_file, 'r') as t_file:
             images = t_file.read().splitlines()
@@ -196,16 +193,15 @@ class Local(IngestAbstractModel):
             except IndexError:
                 ocr_file_path = None
 
-            new_canvases.append(Canvas(
+            Canvas.objects.get_or_create(
                 manifest=self.manifest,
+                image_server=self.image_server,
                 pid=canvas_pid,
                 ocr_file_path=ocr_file_path,
                 position=position,
                 width=width,
                 height=height
-            ))
-
-        Canvas.objects.bulk_create(new_canvases)
+            )
 
         upload_trigger_file(self.trigger_file)
 
