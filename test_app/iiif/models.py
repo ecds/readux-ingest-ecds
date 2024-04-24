@@ -57,6 +57,9 @@ class Canvas(models.Model):
     default_ocr = models.CharField(max_length=30, choices=preferred_ocr, default="word")
     image_server = models.ForeignKey(ImageServer, on_delete=models.DO_NOTHING, null=True)
 
+    def before_save(self):
+        return True
+
 class OCR(models.Model):
     OCR = 'cnt:ContentAsText'
     TEXT = 'dctypes:Text'
