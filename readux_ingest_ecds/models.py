@@ -176,6 +176,7 @@ class Local(IngestAbstractModel):
 
     def create_canvases(self):
         Canvas = get_iiif_models()['Canvas']
+        new_canvases = []
         images = None
         with open(self.trigger_file, 'r') as t_file:
             images = t_file.read().splitlines()
@@ -193,7 +194,7 @@ class Local(IngestAbstractModel):
             except IndexError:
                 ocr_file_path = None
 
-            Canvas.objects.get_or_create(
+            new_canvases.append(Canvas(
                 manifest=self.manifest,
                 image_server=self.image_server,
                 pid=canvas_pid,
@@ -201,7 +202,9 @@ class Local(IngestAbstractModel):
                 position=position,
                 width=width,
                 height=height
-            )
+            ))
+
+        Canvas.objects.bulk_create(new_canvases)
 
         upload_trigger_file(self.trigger_file)
 

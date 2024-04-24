@@ -491,4 +491,3 @@ def add_ocr_to_canvases(manifest):
             new_ocr_annotations += add_ocr_annotations(canvas, ocr)
 
     OCR.objects.bulk_create(new_ocr_annotations)
-    list(map(lambda canvas: canvas.save(), manifest.canvas_set.all()))
