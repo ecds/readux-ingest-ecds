@@ -74,6 +74,8 @@ class OCR(models.Model):
     content = models.TextField(blank=True, null=True, default=' ')
     resource_type = models.CharField(max_length=50, choices=TYPE_CHOICES, default=TEXT)
 
+    def set_span(self):
+        return True
 
 class RelatedLink(models.Model):
     """ Links to related resources """

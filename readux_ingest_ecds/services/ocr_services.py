@@ -400,6 +400,7 @@ def add_ocr_annotations(canvas, ocr):
         anno.resource_type = anno.OCR
         anno.content = word['content']
         anno.order = word_order
+        anno.set_span()
         annotations.append(anno)
         word_order += 1
 
