@@ -201,7 +201,8 @@ class Local(IngestAbstractModel):
                 ocr_file_path=ocr_file_path,
                 position=position,
                 width=width,
-                height=height
+                height=height,
+                resource=canvas_pid
             )
 
             new_canvas.before_save()
