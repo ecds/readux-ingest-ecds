@@ -69,12 +69,12 @@ class Local(IngestAbstractModel):
     class Meta:
         verbose_name_plural = 'Local'
 
-    # @property
-    # def tmp_directory(self):
-    #     return os.path.join(
-    #         settings.INGEST_TMP_DIR,
-    #         self.manifest.pid
-    #     )
+    @property
+    def tmp_directory(self):
+        return os.path.join(
+            settings.INGEST_TMP_DIR,
+            str(self.id),
+        )
 
     @property
     def ocr_directory(self):
@@ -120,14 +120,14 @@ class Local(IngestAbstractModel):
                     continue
 
                 file_path = os.path.join(
-                    settings.INGEST_TMP_DIR,
+                    self.tmp_directory,
                     file_name
                 )
 
                 if is_image(file_name):
                     zip_ref.extract(
                         member=member,
-                        path=settings.INGEST_TMP_DIR
+                        path=os.path.join(self.tmp_directory)
                     )
 
                     file_to_process = move_image_file(self, file_path)
@@ -137,7 +137,7 @@ class Local(IngestAbstractModel):
                 elif is_ocr(file_name):
                     zip_ref.extract(
                         member=member,
-                        path=settings.INGEST_TMP_DIR
+                        path=self.tmp_directory
                     )
 
                     move_ocr_file(self, file_path)
@@ -161,12 +161,12 @@ class Local(IngestAbstractModel):
 
                 if os.path.splitext(os.path.basename(file_name))[0] == 'metadata':
                     metadata_file = os.path.join(
-                        settings.INGEST_TMP_DIR,
+                        self.tmp_directory,
                         file_name
                     )
                     zip_ref.extract(
                         member=member,
-                        path=settings.INGEST_TMP_DIR
+                        path=self.tmp_directory
                     )
 
         if metadata_file is None or os.path.exists(metadata_file) is False:

@@ -56,6 +56,7 @@ class Canvas(models.Model):
     # TODO: move this to the manifest level.
     default_ocr = models.CharField(max_length=30, choices=preferred_ocr, default="word")
     image_server = models.ForeignKey(ImageServer, on_delete=models.DO_NOTHING, null=True)
+    resource = models.TextField(blank=True, null=True)
 
     def before_save(self):
         return True
