@@ -37,10 +37,7 @@ class FinalTask(Task):
             None: The return value of this handler is ignored.
         """
         ingest = Local.objects.get(id=args[0])
-        LOGGER.info(f'SUCCESS!!! {ingest.manifest.pid}')
-        send_email_on_success(creator=ingest.creator, manifest=ingest.manifest)
-        ingest.manifest.save()
-        ingest.delete()
+        ingest.success()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         """Error handler.
@@ -58,9 +55,7 @@ class FinalTask(Task):
             None: The return value of this handler is ignored.
         """
         ingest = Local.objects.get(id=args[0])
-        LOGGER.info(f'FAIL!!! {ingest.manifest.pid}')
-        send_email_on_failure(bundle=ingest.bundle.name, creator=ingest.creator, exception=str(exc))
-        ingest.delete()
+        ingest.failure(exc)
 
 app = Celery('readux_ingest_ecds', result_extended=True)
 app.config_from_object('django.conf:settings')

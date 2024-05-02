@@ -9,6 +9,7 @@ from .services.iiif_services import create_manifest
 from .services.metadata_services import metadata_from_file, clean_metadata
 from .helpers import get_iiif_models
 from .storages import TmpStorage
+from .mail import send_email_on_success, send_email_on_failure
 
 Manifest = get_iiif_models()['Manifest']
 ImageServer = get_iiif_models()['ImageServer']
@@ -212,6 +213,22 @@ class Local(IngestAbstractModel):
         Canvas.objects.bulk_create(new_canvases)
 
         upload_trigger_file(self.trigger_file)
+
+    def success(self):
+        LOGGER.info(f'SUCCESS!!! {self.manifest.pid}')
+        send_email_on_success(creator=self.creator, manifest=self.manifest)
+        self.manifest.save()
+        if os.environ["DJANGO_ENV"] != 'test':
+            from apps.iiif.manifests.documents import ManifestDocument
+            index = ManifestDocument()
+            index.update(self.manifest, True, 'index')
+        self.delete()
+
+    def failure(self, exc):
+        LOGGER.info(f'FAIL!!! {self.manifest.pid}')
+        send_email_on_failure(bundle=self.bundle.name, creator=self.creator, exception=str(exc))
+        self.delete()
+
 
 class Bulk(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
