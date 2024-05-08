@@ -7,6 +7,9 @@ import readux_ingest_ecds.models
 import readux_ingest_ecds.storages
 import uuid
 
+Manifest = settings.IIIF_MANIFEST_MODEL
+ImageServer = settings.IIIF_IMAGE_SERVER_MODEL
+Collection = settings.IIIF_COLLECTION_MODEL
 
 class Migration(migrations.Migration):
 
@@ -21,10 +24,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('metadata', models.JSONField(blank=True, default=dict)),
                 ('bundle', models.FileField(blank=True, null=True, storage=readux_ingest_ecds.storages.TmpStorage, upload_to=readux_ingest_ecds.models.local_tmp)),
-                ('collections', models.ManyToManyField(blank=True, help_text='Optional: Collections to attach to the volume ingested in this form.', related_name='ecds_ingest_collections', to='iiif.Collection')),
+                ('collections', models.ManyToManyField(blank=True, help_text='Optional: Collections to attach to the volume ingested in this form.', related_name='ecds_ingest_collections', to=Collection)),
                 ('creator', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='ecds_ingest_created_locals', to=settings.AUTH_USER_MODEL)),
-                ('image_server', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='ecds_ingest_image_server', to='iiif.imageserver')),
-                ('manifest', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='ecds_ingest_manifest', to='iiif.manifest')),
+                ('image_server', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='ecds_ingest_image_server', to=ImageServer)),
+                ('manifest', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='ecds_ingest_manifest', to=Manifest)),
                 ('bundle_path', models.CharField(blank=True, max_length=1000)),
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
             ],
@@ -36,9 +39,9 @@ class Migration(migrations.Migration):
             name='Bulk',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('collections', models.ManyToManyField(blank=True, help_text='Optional: Collections to attach to the volume ingested in this form.', related_name='ecds_bulk_ingest_collections', to='iiif.Collection')),
+                ('collections', models.ManyToManyField(blank=True, help_text='Optional: Collections to attach to the volume ingested in this form.', related_name='ecds_bulk_ingest_collections', to=Collection)),
                 ('creator', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='ecds_bulk_ingest_created_locals', to=settings.AUTH_USER_MODEL)),
-                ('image_server', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='ecds_bulk_ingest_image_server', to='iiif.imageserver')),
+                ('image_server', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='ecds_bulk_ingest_image_server', to=ImageServer)),
                 ('volume_files', models.FileField(null=True, storage=readux_ingest_ecds.storages.TmpStorage, upload_to=readux_ingest_ecds.models.bulk_path)),
             ],
             options={
