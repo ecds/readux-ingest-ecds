@@ -1,0 +1,18 @@
+[MAIN]
+load-plugins=
+    pylint_django
+
+disable=
+    no-method-argument,
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+    invalid-name,
+    too-many-locals,
+    unspecified-encoding,
+    too-few-public-methods
+
+[LOGGING]
+disable=
+    logging-fstring-interpolation,
+    f-string-without-interpolation
