@@ -101,15 +101,15 @@
     xhr.addEventListener("abort", handleError);
     xhr.addEventListener("error", handleError);
 
-    xhr.onreadystatechange = (e) => {
-      if (xhr.readyState == XMLHttpRequest.DONE) {
-        if (buttonUsed === "start_upload") {
-          location.href = "/admin/";
-        } else {
-          location.reload();
-        }
-      }
-    };
+    // xhr.onreadystatechange = (e) => {
+    //   if (xhr.readyState == XMLHttpRequest.DONE) {
+    //     if (buttonUsed === "start_upload") {
+    //       location.href = "/admin/";
+    //     } else {
+    //       location.reload();
+    //     }
+    //   }
+    // };
 
     // Send POST req
     xhr.open("POST", url, true);
