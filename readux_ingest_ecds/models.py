@@ -326,4 +326,4 @@ class Bulk(models.Model):
                 )
                 local.prep()
                 local.ingest()
-        self.delete()
+        # self.delete()
