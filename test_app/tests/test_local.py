@@ -37,8 +37,8 @@ class LocalTest(TestCase):
         conn = boto3.resource("s3", region_name="us-east-1")
         conn.create_bucket(Bucket=settings.INGEST_TRIGGER_BUCKET)
 
-    # def teardown_class():
-    #     rmtree(settings.INGEST_TMP_DIR, ignore_errors=True)
+    def teardown_class():
+        rmtree(settings.INGEST_TMP_DIR, ignore_errors=True)
 
     def mock_local(self, bundle, with_manifest=False, metadata={}, from_bulk=False):
         # Note, I tried to use the factory here, but could not get it to override the file for bundle.

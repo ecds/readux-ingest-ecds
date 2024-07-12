@@ -4,6 +4,8 @@ import uuid
 from zipfile import ZipFile
 from django.db import models
 from django.conf import settings
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.files.storage import FileSystemStorage
 from .services.file_services import (
     is_image,
     is_ocr,
@@ -284,14 +286,21 @@ class Bulk(models.Model):
         :param files: _description_
         :type files: _type_
         """
-        for uploaded_file in files:
-            with open(
-                os.path.join(
-                    settings.INGEST_TMP_DIR, bulk_path(self, uploaded_file.name)
-                ),
-                "wb",
-            ) as out_file:
-                out_file.write(uploaded_file.read())
+        print(files)
+        print(str(files))
+        if isinstance(files, InMemoryUploadedFile):
+            FileSystemStorage(
+                location=os.path.join(settings.INGEST_TMP_DIR, str(self.id))
+            ).save(files.name, files)
+        else:
+            for uploaded_file in files:
+                with open(
+                    os.path.join(
+                        settings.INGEST_TMP_DIR, bulk_path(self, uploaded_file.name)
+                    ),
+                    "wb",
+                ) as out_file:
+                    out_file.write(uploaded_file.read())
 
     class Meta:
         """Model Meta"""

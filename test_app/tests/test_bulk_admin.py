@@ -29,9 +29,9 @@ class BulkIngestAdminTest(TestCase):
         self.user = UserFactory.create(is_superuser=True)
         self.bulk = BulkFactory.create()
 
-    # def teardown_class():
-    #     """Clean up files when done"""
-    #     rmtree(settings.INGEST_TMP_DIR, ignore_errors=True)
+    def teardown_class():
+        """Clean up files when done"""
+        rmtree(settings.INGEST_TMP_DIR, ignore_errors=True)
 
     def test_bulk_admin_save(self):
         """Uploaded multiple files should put files in correct places."""
@@ -76,41 +76,41 @@ class BulkIngestAdminTest(TestCase):
             os.path.join(settings.INGEST_PROCESSING_DIR, "pid6_00000008.jpg")
         )
 
-    # def test_bulk_admin_save_multiple(self):
-    #     """It should add three Local objects to this Bulk object"""
-    #     bulk = BulkFactory.create()
+    def test_bulk_admin_save_multiple(self):
+        """It should add three Local objects to this Bulk object"""
+        bulk = BulkFactory.create()
 
-    #     assert Local.objects.all().count() == 0
+        assert Local.objects.all().count() == 0
 
-    #     # Add 3 files to POST request
-    #     data = {}
-    #     metadata_file_path = os.path.join(self.fixture_path, "metadata.csv")
-    #     with open(metadata_file_path, "rb") as f:
-    #         metadata_content = files.base.ContentFile(f.read())
-    #     metadata_file = files.File(metadata_content.file, "metadata.csv")
+        # Add 3 files to POST request
+        data = {}
+        metadata_file_path = os.path.join(self.fixture_path, "metadata.csv")
+        with open(metadata_file_path, "rb") as f:
+            metadata_content = files.base.ContentFile(f.read())
+        metadata_file = files.File(metadata_content.file, "metadata.csv")
 
-    #     bundle_file_one_path = os.path.join(
-    #         os.path.join(self.fixture_path, "volume2.zip")
-    #     )
-    #     with open(bundle_file_one_path, "rb") as f:
-    #         bundle_file_one_content = files.base.ContentFile(f.read())
-    #     bundle_file_one = files.File(bundle_file_one_content.file, "volume2.zip")
+        bundle_file_one_path = os.path.join(
+            os.path.join(self.fixture_path, "volume2.zip")
+        )
+        with open(bundle_file_one_path, "rb") as f:
+            bundle_file_one_content = files.base.ContentFile(f.read())
+        bundle_file_one = files.File(bundle_file_one_content.file, "volume2.zip")
 
-    #     bundle_file_two_path = os.path.join(
-    #         os.path.join(self.fixture_path, "volume3.zip")
-    #     )
-    #     with open(bundle_file_two_path, "rb") as f:
-    #         bundle_file_two_content = files.base.ContentFile(f.read())
-    #     bundle_file_two = files.File(bundle_file_two_content.file, "volume3.zip")
-    #     data["volume_files"] = [metadata_file, bundle_file_one, bundle_file_two]
+        bundle_file_two_path = os.path.join(
+            os.path.join(self.fixture_path, "volume3.zip")
+        )
+        with open(bundle_file_two_path, "rb") as f:
+            bundle_file_two_content = files.base.ContentFile(f.read())
+        bundle_file_two = files.File(bundle_file_two_content.file, "volume3.zip")
+        data["volume_files"] = [metadata_file, bundle_file_one, bundle_file_two]
 
-    #     request_factory = RequestFactory()
-    #     req = request_factory.post("/admin/ingest/bulk/add/", data=data)
-    #     req.user = self.user
+        request_factory = RequestFactory()
+        req = request_factory.post("/admin/ingest/bulk/add/", data=data)
+        req.user = self.user
 
-    #     bulk_model_admin = BulkAdmin(model=Bulk, admin_site=AdminSite())
-    #     mock_form = BulkVolumeUploadForm()
-    #     bulk_model_admin.save_model(obj=bulk, request=req, form=mock_form, change=None)
+        bulk_model_admin = BulkAdmin(model=Bulk, admin_site=AdminSite())
+        mock_form = BulkVolumeUploadForm()
+        bulk_model_admin.save_model(obj=bulk, request=req, form=mock_form, change=None)
 
-    #     bulk.refresh_from_db()
-    #     assert len(bulk.local_uploads.all()) == 3
+        bulk.refresh_from_db()
+        assert Local.objects.all().count() == 2
