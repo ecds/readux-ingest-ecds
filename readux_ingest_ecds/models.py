@@ -2,10 +2,12 @@ import os
 import logging
 import uuid
 from zipfile import ZipFile
+from mimetypes import guess_type
 from django.db import models
 from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.storage import FileSystemStorage
+from django.core.files.base import ContentFile
 from .services.file_services import (
     is_image,
     is_ocr,
@@ -84,6 +86,7 @@ class IngestAbstractModel(models.Model):
         help_text="Optional: Collections to attach to the volume ingested in this form.",
         related_name="ecds_ingest_collections",
     )
+    bulk = models.ForeignKey("Bulk", on_delete=models.CASCADE, null=True)
 
     class Meta:  # pylint: disable=too-few-public-methods, missing-class-docstring
         abstract = True
@@ -279,28 +282,47 @@ class Bulk(models.Model):
     volume_files = models.FileField(
         blank=False, null=True, upload_to=bulk_path, storage=TmpStorage
     )
+    metadata_file = models.FileField(
+        blank=False, null=True, upload_to=bulk_path, storage=TmpStorage
+    )
 
-    def upload_files(self, files):
+    def upload_files(self, files, creator):
         """_summary_
 
         :param files: _description_
         :type files: _type_
         """
-        print(files)
-        print(str(files))
-        if isinstance(files, InMemoryUploadedFile):
-            FileSystemStorage(
-                location=os.path.join(settings.INGEST_TMP_DIR, str(self.id))
-            ).save(files.name, files)
-        else:
-            for uploaded_file in files:
-                with open(
-                    os.path.join(
-                        settings.INGEST_TMP_DIR, bulk_path(self, uploaded_file.name)
-                    ),
-                    "wb",
-                ) as out_file:
-                    out_file.write(uploaded_file.read())
+        # print(files)
+        # print(str(files))
+        # if isinstance(files, InMemoryUploadedFile):
+        #     FileSystemStorage(
+        #         location=os.path.join(settings.INGEST_TMP_DIR, str(self.id))
+        #     ).save(files.name, files)
+        # else:
+        #     for uploaded_file in files:
+        #         with open(
+        #             os.path.join(
+        #                 settings.INGEST_TMP_DIR, bulk_path(self, uploaded_file.name)
+        #             ),
+        #             "wb",
+        #         ) as out_file:
+        #             out_file.write(uploaded_file.read())
+        for uploaded_file in files:
+            if (
+                "metadata" in uploaded_file.name.casefold()
+                and "zip" not in guess_type(uploaded_file.name)[0]
+            ):
+                with ContentFile(uploaded_file.read()) as file_content:
+                    self.metadata_file.save(uploaded_file.name, file_content)
+            else:
+                local_ingest = Local.objects.create(
+                    bulk=self, image_server=self.image_server, creator=creator
+                )
+
+                local_ingest.collections.set(self.collections.all())
+                with ContentFile(uploaded_file.read()) as file_content:
+                    local_ingest.bundle.save(uploaded_file.name, file_content)
+                local_ingest.save()
 
     class Meta:
         """Model Meta"""
@@ -310,29 +332,43 @@ class Bulk(models.Model):
     def ingest(self):
         """Doc"""
         LOGGER.info("Ingesting Bulk")
-        ingest_directory = os.path.join(settings.INGEST_TMP_DIR, str(self.id))
-        ingest_files = os.listdir(ingest_directory)
-        for uploaded_file in ingest_files:
-            if os.path.splitext(os.path.basename(uploaded_file))[0] == "metadata":
-                metadata = metadata_from_file(
-                    os.path.join(ingest_directory, uploaded_file)
-                )
-        for volume in metadata:
-            bundle_filename = [
-                d["value"]
-                for d in volume["metadata"]
-                if d["label"].casefold() == "filename"
-            ][0]
-            bundle = os.path.join(
-                settings.INGEST_TMP_DIR, str(self.id), bundle_filename
+        metadata = metadata_from_file(
+            os.path.join(
+                bulk_path(self, self.metadata_file.filename),
+                self.metadata_file.filename,
             )
-            if os.path.exists(bundle) and bundle.endswith(".zip"):
-                local = Local.objects.create(
-                    metadata=volume,
-                    bundle_path=bundle,
-                    image_server=self.image_server,
-                    creator=self.creator,
-                )
-                local.prep()
-                local.ingest()
+        )
+
+        for volume in metadata:
+            local_ingest = Local.objects.get(bundle=volume["filename"])
+            local_ingest.metadata = volume
+            local_ingest.save()
+            local_ingest.prep()
+            local_ingest.ingest()
+
+        # ingest_directory = os.path.join(settings.INGEST_TMP_DIR, str(self.id))
+        # ingest_files = os.listdir(ingest_directory)
+        # for uploaded_file in ingest_files:
+        #     if os.path.splitext(os.path.basename(uploaded_file))[0] == "metadata":
+        #         metadata = metadata_from_file(
+        #             os.path.join(ingest_directory, uploaded_file)
+        #         )
+        # for volume in metadata:
+        #     bundle_filename = [
+        #         d["value"]
+        #         for d in volume["metadata"]
+        #         if d["label"].casefold() == "filename"
+        #     ][0]
+        #     bundle = os.path.join(
+        #         settings.INGEST_TMP_DIR, str(self.id), bundle_filename
+        #     )
+        #     if os.path.exists(bundle) and bundle.endswith(".zip"):
+        #         local = Local.objects.create(
+        #             metadata=volume,
+        #             bundle_path=bundle,
+        #             image_server=self.image_server,
+        #             creator=self.creator,
+        #         )
+        #         local.prep()
+        #         local.ingest()
         # self.delete()

@@ -52,7 +52,7 @@ class BulkAdmin(admin.ModelAdmin):
         ingest_files = request.FILES.getlist("volume_files")
 
         for ingest_file in ingest_files:
-            obj.upload_files(ingest_file)
+            obj.upload_files(ingest_file, request.user)
 
         obj.creator = request.user
         super().save_model(request, obj, form, change)

@@ -1,10 +1,12 @@
 """ Module of service methods for ingest files. """
+
 from readux_ingest_ecds.helpers import get_iiif_models
 from mimetypes import guess_type
 from tablib.core import Dataset
 
-Manifest = get_iiif_models()['Manifest']
-RelatedLink = get_iiif_models()['RelatedLink']
+Manifest = get_iiif_models()["Manifest"]
+RelatedLink = get_iiif_models()["RelatedLink"]
+
 
 def clean_metadata(metadata):
     """Remove keys that do not align with Manifest fields.
@@ -15,8 +17,8 @@ def clean_metadata(metadata):
     :rtype: dict
     """
     fields = [
-        *(f.name for f in get_iiif_models()['Manifest']._meta.get_fields()),
-        'related'
+        *(f.name for f in get_iiif_models()["Manifest"]._meta.get_fields()),
+        "related",
     ]
 
     metadata = {
@@ -24,11 +26,12 @@ def clean_metadata(metadata):
             key.casefold().replace(" ", "_")
             if key.casefold().replace(" ", "_") in fields
             else key
-        ): value for key, value in metadata.items()
+        ): value
+        for key, value in metadata.items()
     }
 
-    if 'metadata' not in metadata.keys():
-        metadata['metadata'] = []
+    if "metadata" not in metadata.keys():
+        metadata["metadata"] = []
 
     extra_keys = []
 
@@ -44,21 +47,22 @@ def clean_metadata(metadata):
     #         pass
 
     for key in metadata.keys():
-        if key != 'metadata' and isinstance(metadata[key], list):
+        if key != "metadata" and isinstance(metadata[key], list):
             if isinstance(metadata[key][0], dict):
                 for meta_key in metadata[key][0].keys():
-                    if 'value' in meta_key:
+                    if "value" in meta_key:
                         metadata[key] = metadata[key][0][meta_key]
             else:
-                metadata[key] = ', '.join(metadata[key])
+                metadata[key] = ", ".join(metadata[key])
         if key not in fields:
             extra_keys.append(key)
 
     for key in extra_keys:
-        metadata['metadata'].append({"label": key, "value": metadata[key]})
+        metadata["metadata"].append({"label": key, "value": metadata[key]})
         metadata.pop(key)
 
     return metadata
+
 
 def create_related_links(manifest, related_str):
     """
@@ -72,12 +76,14 @@ def create_related_links(manifest, related_str):
     """
     for link in related_str.split(";"):
         (format, _) = guess_type(link)
-        get_iiif_models()['RelatedLink'].objects.create(
+        get_iiif_models()["RelatedLink"].objects.create(
             manifest=manifest,
             link=link,
-            format=format or "text/html",  # assume web page if MIME type cannot be determined
+            format=format
+            or "text/html",  # assume web page if MIME type cannot be determined
             is_structured_data=False,  # assume this is not meant for seeAlso
         )
+
 
 def get_metadata_from(files):
     """
@@ -89,15 +95,19 @@ def get_metadata_from(files):
     for file in files:
         if metadata is not None:
             continue
-        if 'zip' in guess_type(file.name)[0]:
+        if "zip" in guess_type(file.name)[0]:
             continue
-        if 'metadata' in file.name.casefold():
+        if "metadata" in file.name.casefold():
             stream = file.read()
-            if 'csv' in guess_type(file.name)[0] or 'tab-separated' in guess_type(file.name)[0]:
-                metadata = Dataset().load(stream.decode('utf-8-sig'), format='csv').dict
+            if (
+                "csv" in guess_type(file.name)[0]
+                or "tab-separated" in guess_type(file.name)[0]
+            ):
+                metadata = Dataset().load(stream.decode("utf-8-sig"), format="csv").dict
             else:
                 metadata = Dataset().load(stream).dict
     return metadata
+
 
 def metadata_from_file(metadata_file):
     format = metadata_file_format(metadata_file)
@@ -107,18 +117,25 @@ def metadata_from_file(metadata_file):
     metadata = []
     metadata_set = None
 
-    if format == 'excel':
-        with open(metadata_file, 'rb') as fh:
-            metadata_set = Dataset().load(fh.read(), format=metadata_file.split('.')[-1])
+    if format == "excel":
+        with open(metadata_file, "rb") as fh:
+            metadata_set = Dataset().load(
+                fh.read(), format=metadata_file.split(".")[-1]
+            )
     else:
-        with open(metadata_file, 'r', encoding="utf-8-sig") as fh:
+        with open(metadata_file, "r", encoding="utf-8-sig") as fh:
             metadata_set = Dataset().load(fh.read(), format=format)
 
     if metadata_set is not None:
+        metadata_set.headers = [
+            header.casefold() if header.casefold() == "filename" else header
+            for header in metadata_set.headers
+        ]
         for row in metadata_set.dict:
             metadata.append(clean_metadata(row))
 
     return metadata
+
 
 def metadata_file_format(file_path):
     """Get format used to read the metadata file
@@ -133,11 +150,11 @@ def metadata_file_format(file_path):
 
     file_type = guess_type(file_path)[0]
 
-    if 'csv' in file_type:
-        return 'csv'
-    elif 'tab-separated' in file_type:
-        return 'tsv'
-    elif 'officedocument' in file_type:
-        return 'excel'
+    if "csv" in file_type:
+        return "csv"
+    elif "tab-separated" in file_type:
+        return "tsv"
+    elif "officedocument" in file_type:
+        return "excel"
 
     return None
