@@ -334,17 +334,20 @@ class Bulk(models.Model):
         LOGGER.info("Ingesting Bulk")
         metadata = metadata_from_file(
             os.path.join(
-                bulk_path(self, self.metadata_file.filename),
-                self.metadata_file.filename,
+                settings.INGEST_TMP_DIR,
+                self.metadata_file.name,
             )
         )
 
-        for volume in metadata:
-            local_ingest = Local.objects.get(bundle=volume["filename"])
-            local_ingest.metadata = volume
-            local_ingest.save()
-            local_ingest.prep()
-            local_ingest.ingest()
+        print(["volume3" in str(local.bundle) for local in self.local_set.all()])
+
+        for index, volume in enumerate(metadata):
+            for local_ingest in self.local_set.all():
+                if volume["filename"] in str(local_ingest.bundle):
+                    local_ingest.metadata = metadata[index]
+                    local_ingest.save()
+                    local_ingest.prep()
+                    local_ingest.ingest()
 
         # ingest_directory = os.path.join(settings.INGEST_TMP_DIR, str(self.id))
         # ingest_files = os.listdir(ingest_directory)

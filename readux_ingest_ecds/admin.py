@@ -1,5 +1,7 @@
 import os
 import logging
+from mimetypes import guess_type
+from django.core.files.base import ContentFile
 from django.contrib import admin
 from django.shortcuts import redirect
 from .models import Local, Bulk
@@ -52,7 +54,21 @@ class BulkAdmin(admin.ModelAdmin):
         ingest_files = request.FILES.getlist("volume_files")
 
         for ingest_file in ingest_files:
-            obj.upload_files(ingest_file, request.user)
+            if (
+                "metadata" in ingest_file.name.casefold()
+                and "zip" not in guess_type(ingest_file.name)[0]
+            ):
+                with ContentFile(ingest_file.read()) as file_content:
+                    obj.metadata_file.save(ingest_file.name, file_content)
+            else:
+                local_ingest = Local.objects.create(
+                    bulk=obj, image_server=obj.image_server, creator=request.user
+                )
+
+                local_ingest.collections.set(obj.collections.all())
+                with ContentFile(ingest_file.read()) as file_content:
+                    local_ingest.bundle.save(ingest_file.name, file_content)
+                local_ingest.save()
 
         obj.creator = request.user
         super().save_model(request, obj, form, change)
