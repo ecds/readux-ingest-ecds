@@ -102,10 +102,10 @@ class BulkIngestAdminTest(TestCase):
         with open(bundle_file_two_path, "rb") as f:
             bundle_file_two_content = files.base.ContentFile(f.read())
         bundle_file_two = files.File(bundle_file_two_content.file, "volume3.zip")
-        data["volume_files"] = [metadata_file, bundle_file_one, bundle_file_two]
 
         request_factory = RequestFactory()
         req = request_factory.post("/admin/ingest/bulk/add/", data=data)
+        req.FILES["volume_files"] = [metadata_file, bundle_file_one, bundle_file_two]
         req.user = self.user
 
         bulk_model_admin = BulkAdmin(model=Bulk, admin_site=AdminSite())
