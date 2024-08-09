@@ -25,7 +25,7 @@ jobs:
         run: |
           cd test_app
           wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb
-          sudo apt install -y ./wkhtmltox_0.12.6-1.bionic_amd64.deb
+          sudo apt install -y ./wkhtmltox_0.12.6.1-2.jammy_amd64.deb
           pip install --upgrade pip
           pip install -r requirements.txt
 
