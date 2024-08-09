@@ -4,8 +4,8 @@ from mimetypes import guess_type
 from django.core.files.base import ContentFile
 from django.contrib import admin
 from django.shortcuts import redirect
-from .models import Local, Bulk
-from .tasks import local_ingest_task_ecds, bulk_ingest_task_ecds
+from .models import Local, Bulk, S3Ingest
+from .tasks import local_ingest_task_ecds, bulk_ingest_task_ecds, s3_ingest_task
 from .forms import BulkVolumeUploadForm
 
 LOGGER = logging.getLogger(__name__)
@@ -82,5 +82,21 @@ class BulkAdmin(admin.ModelAdmin):
         model = Bulk
 
 
+class S3IngestAdmin(admin.ModelAdmin):
+    def save_model(self, request, obj, form, change):
+        LOGGER.info(f"INGEST: S3 ingest started by {request.user.username}")
+        obj.creator = request.user
+
+        super().save_model(request, obj, form, change)
+        if os.environ["DJANGO_ENV"] != "test":  # pragma: no cover
+            s3_ingest_task.apply_async(args=[obj.id])
+        else:
+            s3_ingest_task(obj.id)
+
+    class Meta:
+        model = S3Ingest
+
+
 admin.site.register(Local, LocalAdmin)
 admin.site.register(Bulk, BulkAdmin)
+admin.site.register(S3Ingest, S3IngestAdmin)

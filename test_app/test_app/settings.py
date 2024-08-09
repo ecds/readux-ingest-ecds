@@ -31,6 +31,9 @@ INGEST_TMP_DIR = os.path.join("tmp")
 INGEST_PROCESSING_DIR = os.path.join("tmp", "processing")
 INGEST_OCR_DIR = os.path.join("tmp", "ocr")
 INGEST_TRIGGER_BUCKET = "readux-ingest-ecds-test"
+INGEST_BUCKET = "ingest-test"
+INGEST_STAGING_PREFIX = "incoming"
+INGEST_OCR_PREFIX = "ocr"
 
 # Readux settings
 DATASTREAM_PREFIX = "http://repo.library.emory.edu/fedora/objects/"

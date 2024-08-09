@@ -7,19 +7,28 @@ from django.core import files
 from django.http import HttpResponseRedirect
 from django.test import TestCase
 from django.test.client import RequestFactory
+
 # from django.urls.base import reverse
 # from django_celery_results.models import TaskResult
-from moto import mock_s3
+from moto import mock_aws
 from iiif.models import Manifest, Canvas, Collection, OCR
-from .factories import ImageServerFactory, UserFactory, LocalFactory, ManifestFactory, CollectionFactory
+from .factories import (
+    ImageServerFactory,
+    UserFactory,
+    LocalFactory,
+    ManifestFactory,
+    CollectionFactory,
+)
 from readux_ingest_ecds.models import Local
 from readux_ingest_ecds.admin import LocalAdmin
 
-@mock_s3
+
+@mock_aws
 class LocalIngestAdminTest(TestCase):
-    """ Tests Ingest Admin """
+    """Tests Ingest Admin"""
+
     def setUp(self):
-        """ Set instance variables. """
+        """Set instance variables."""
         self.fixture_path = settings.FIXTURE_DIR
 
         self.image_server = ImageServerFactory.create()
@@ -27,7 +36,7 @@ class LocalIngestAdminTest(TestCase):
         self.user = UserFactory.create(is_superuser=True)
 
         # Create fake bucket for moto's mock S3 service.
-        conn = boto3.resource('s3', region_name='us-east-1')
+        conn = boto3.resource("s3", region_name="us-east-1")
         conn.create_bucket(Bucket=settings.INGEST_TRIGGER_BUCKET)
 
     def teardown_class():
@@ -43,12 +52,12 @@ class LocalIngestAdminTest(TestCase):
 
         request_factory = RequestFactory()
 
-        with open(join(self.fixture_path, 'no_meta_file.zip'), 'rb') as f:
+        with open(join(self.fixture_path, "no_meta_file.zip"), "rb") as f:
             content = files.base.ContentFile(f.read())
 
-        local.bundle = files.File(content.file, 'no_meta_file.zip')
+        local.bundle = files.File(content.file, "no_meta_file.zip")
 
-        req = request_factory.post('/admin/readux_ingest_ecds/local/add/', data={})
+        req = request_factory.post("/admin/readux_ingest_ecds/local/add/", data={})
         req.user = self.user
 
         local_model_admin = LocalAdmin(model=Local, admin_site=AdminSite())
@@ -75,7 +84,7 @@ class LocalIngestAdminTest(TestCase):
         response = local_model_admin.response_add(obj=local, request=None)
 
         assert isinstance(response, HttpResponseRedirect)
-        assert response.url == f'/admin/manifests/manifest/{local.manifest.pk}/change/'
+        assert response.url == f"/admin/manifests/manifest/{local.manifest.pk}/change/"
 
     def test_local_ingest_with_collections(self):
         """It should add chosen collections to the Local's manifests"""
@@ -94,10 +103,10 @@ class LocalIngestAdminTest(TestCase):
 
         # Make a local ingest
         request_factory = RequestFactory()
-        with open(join(self.fixture_path, 'no_meta_file.zip'), 'rb') as f:
+        with open(join(self.fixture_path, "no_meta_file.zip"), "rb") as f:
             content = files.base.ContentFile(f.read())
-        local.bundle = files.File(content.file, 'no_meta_file.zip')
-        req = request_factory.post('/admin/ingest/local/add/', data={})
+        local.bundle = files.File(content.file, "no_meta_file.zip")
+        req = request_factory.post("/admin/ingest/local/add/", data={})
         req.user = self.user
         local_model_admin = LocalAdmin(model=Local, admin_site=AdminSite())
         local_model_admin.save_model(obj=local, request=req, form=None, change=None)

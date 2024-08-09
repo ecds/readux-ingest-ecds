@@ -3,7 +3,7 @@
 import os
 from shutil import rmtree
 import boto3
-from moto import mock_s3
+from moto import mock_aws
 from django.contrib.admin.sites import AdminSite
 from django.test import TestCase
 from django.core import files
@@ -15,7 +15,7 @@ from readux_ingest_ecds.forms import BulkVolumeUploadForm
 from .factories import BulkFactory, UserFactory
 
 
-@mock_s3
+@mock_aws
 class BulkIngestAdminTest(TestCase):
     """Tests Ingest Admin"""
 

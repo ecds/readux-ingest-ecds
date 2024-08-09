@@ -1,6 +1,8 @@
 """ Module of service methods for ingest files. """
 
 import os
+import boto3
+from moto import mock_aws
 from shutil import move
 from mimetypes import guess_type
 from PIL import Image
@@ -37,7 +39,7 @@ def is_ocr(file_path):
     :return: Bool if file type matches OCR file types.
     :rtype: bool
     """
-    ocr_file_types = ["text", "xml", "json", "html", "hocr", "tsv"]
+    ocr_file_types = ["text", "txt", "xml", "json", "html", "hocr", "tsv"]
     return (
         file_path is not None
         and "ocr" in file_path
@@ -100,7 +102,7 @@ def divide_chunks(file_list):
     :param file_list: List of images to ingest.
     :type file_list: list of str
     """
-    chunk_size = settings.CHUNK_SIZE if settings.CHUNK_SIZE else 10
+    chunk_size = 10
     for filename in range(0, len(file_list), chunk_size):
         yield file_list[filename : filename + chunk_size]
 
@@ -146,3 +148,47 @@ def canvas_dimensions(image_name):
             os.path.join(settings.INGEST_PROCESSING_DIR, original_image[0])
         ).size
     return (0, 0)
+
+
+def s3_copy(source, pid):
+    """Copy S3 objects to ingest
+
+    Args:
+        source (str): Source bucket name
+        pid (str): PID for volume being ingested
+
+    Returns:
+        list[str]: List of copied image files for volume
+    """
+    # if os.environ["DJANGO_ENV"] != "test":
+    #     mock = mock_aws()
+    #     mock.start()
+    s3 = boto3.resource("s3")
+    destination_bucket = s3.Bucket(settings.INGEST_BUCKET)
+    source_bucket = s3.Bucket(source)
+
+    keys_to_copy = [
+        str(obj.key) for obj in source_bucket.objects.all() if pid in obj.key
+    ]
+
+    images = []
+    ocr = []
+    for key in keys_to_copy:
+        copy_source = {"Bucket": source, "Key": key}
+        filename = os.path.basename(key)
+        if pid not in filename:
+            filename = f"{pid}_{filename}"
+        if "image" in guess_type(key)[0]:
+            images.append(filename)
+            destination_bucket.copy(
+                copy_source, f"{settings.INGEST_STAGING_PREFIX}/{filename}"
+            )
+        else:
+            ocr_path = f"{settings.INGEST_OCR_PREFIX}/{pid}/{filename}"
+            ocr.append(ocr_path)
+            destination_bucket.copy(copy_source, ocr_path)
+
+    # if os.environ["DJANGO_ENV"] != "test":
+    #     mock.stop()
+    images.sort()
+    return (images, ocr)

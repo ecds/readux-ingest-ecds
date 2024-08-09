@@ -8,7 +8,7 @@ import pytest
 import boto3
 from uuid import UUID
 from zipfile import ZipFile
-from moto import mock_s3
+from moto import mock_aws
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
@@ -22,7 +22,7 @@ from iiif.models import Canvas, OCR
 pytestmark = pytest.mark.django_db(transaction=True)  # pylint: disable = invalid-name
 
 
-@mock_s3
+@mock_aws
 class LocalTest(TestCase):
     """Tests for ingest.models.Local"""
 

@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.storage import FileSystemStorage
 from django.core.files.base import ContentFile
+from django.core.validators import FileExtensionValidator
 from .services.file_services import (
     is_image,
     is_ocr,
@@ -16,8 +17,9 @@ from .services.file_services import (
     move_ocr_file,
     canvas_dimensions,
     upload_trigger_file,
+    s3_copy,
 )
-from .services.iiif_services import create_manifest
+from .services.iiif_services import create_manifest, create_manifest_from_pid
 from .services.metadata_services import metadata_from_file, clean_metadata
 from .helpers import get_iiif_models
 from .storages import TmpStorage
@@ -339,8 +341,6 @@ class Bulk(models.Model):
             )
         )
 
-        print(["volume3" in str(local.bundle) for local in self.local_set.all()])
-
         for index, volume in enumerate(metadata):
             for local_ingest in self.local_set.all():
                 if volume["filename"] in str(local_ingest.bundle):
@@ -375,3 +375,84 @@ class Bulk(models.Model):
         #         local.prep()
         #         local.ingest()
         # self.delete()
+
+
+class S3Ingest(models.Model):
+    """Model class for bulk ingesting volumes from an Amazon AWS S3 bucket."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    s3_bucket = models.CharField(
+        null=False,
+        blank=False,
+        max_length=255,
+        help_text="""The name of a publicly-accessible S3 bucket containing volumes to
+        ingest, either at the bucket root or within subfolder(s). Each volume should have its own
+        subfolder, with the volume's PID as its name.
+        <br />
+        <strong>Example:</strong> if the bucket's URL is
+        https://my-bucket.s3.us-east-1.amazonaws.com/, its name is <strong>my-bucket</strong>.""",
+    )
+    metadata_spreadsheet = models.FileField(
+        null=False,
+        blank=False,
+        help_text="""A spreadsheet file with a row for each volume, including the
+        volume PID (column name <strong>pid</strong>).""",
+        validators=[FileExtensionValidator(allowed_extensions=["csv", "xlsx"])],
+    )
+    image_server = models.ForeignKey(
+        ImageServer,
+        on_delete=models.DO_NOTHING,
+        null=True,
+        related_name="ecds_s3_ingest_image_server",
+    )
+    collections = models.ManyToManyField(
+        Collection,
+        blank=True,
+        help_text="Optional: Collections to attach to ALL volumes ingested in this form.",
+    )
+    creator = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="ecds_ingest_created_s3",
+    )
+
+    class Meta:
+        verbose_name_plural = "Amazon S3 Ingests"
+
+    def ingest(self):
+        metadata = metadata_from_file(self.metadata_spreadsheet.path)
+
+        for pid in [row["pid"] for row in metadata]:
+            manifest = create_manifest_from_pid(pid, self.image_server)
+            manifest.collections.set(self.collections.all())
+            manifest.save()
+            local_ingest = Local.objects.create(
+                manifest=manifest, image_server=self.image_server, creator=self.creator
+            )
+
+            trigger_file = os.path.join(
+                settings.INGEST_TMP_DIR, str(local_ingest.id), f"{pid}.txt"
+            )
+
+            os.makedirs(
+                os.path.join(settings.INGEST_TMP_DIR, str(local_ingest.id)),
+                exist_ok=True,
+            )
+
+            os.makedirs(
+                os.path.join(settings.INGEST_OCR_DIR, str(pid)),
+                exist_ok=True,
+            )
+
+            open(trigger_file, "a", encoding="utf-8").close()
+
+            image_files, _ = s3_copy(self.s3_bucket, pid)
+
+            for image_file in image_files:
+                with open(trigger_file, "a", encoding="utf-8") as t_file:
+                    t_file.write(f"{image_file}\n")
+
+            local_ingest.create_canvases()
+
+        self.delete()
