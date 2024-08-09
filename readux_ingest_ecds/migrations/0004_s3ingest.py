@@ -7,6 +7,7 @@ import django.db.models.deletion
 import uuid
 
 ImageServer = settings.IIIF_IMAGE_SERVER_MODEL
+Collection = settings.IIIF_COLLECTION_MODEL
 
 
 class Migration(migrations.Migration):
@@ -53,7 +54,7 @@ class Migration(migrations.Migration):
                     models.ManyToManyField(
                         blank=True,
                         help_text="Optional: Collections to attach to ALL volumes ingested in this form.",
-                        to="iiif.Collection",
+                        to=Collection,
                     ),
                 ),
                 (
