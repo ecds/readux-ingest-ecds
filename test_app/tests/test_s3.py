@@ -64,7 +64,6 @@ class S3Test(TestCase):
                     self.fs_storage.rel_path, os.path.basename(fake_image)
                 )
             )
-            print(image_key)
             ocr_key = image_key.replace("jpg", "txt")
             open(
                 os.path.join(self.fs_storage.root_path, ocr_key),
@@ -115,10 +114,15 @@ class S3Test(TestCase):
                 for obj in destination_bucket.objects.all()
                 if str(obj.key).startswith(f"{settings.INGEST_STAGING_PREFIX}/{pid}_")
             ]
+            ingested_ocr = [
+                str(obj.key)
+                for obj in destination_bucket.objects.all()
+                if str(obj.key).startswith(f"{settings.INGEST_OCR_PREFIX}/{pid}/")
+            ]
             assert Manifest.objects.filter(pid=pid).exists()
-            print([str(obj) for obj in destination_bucket.objects.all()])
             assert Manifest.objects.get(pid=pid).canvas_set.count() == 4
             assert len(ingested_images) == 4
+            assert len(ingested_ocr) == 4
 
     def test_s3_ingest_pid_in_filename(self):
         pids, pid_file = self.create_pids(pid_count=2, image_count=3)
@@ -138,6 +142,12 @@ class S3Test(TestCase):
                 for obj in destination_bucket.objects.all()
                 if str(obj.key).startswith(f"{settings.INGEST_STAGING_PREFIX}/{pid}_")
             ]
+            ingested_ocr = [
+                str(obj.key)
+                for obj in destination_bucket.objects.all()
+                if str(obj.key).startswith(f"{settings.INGEST_OCR_PREFIX}/{pid}/{pid}_")
+            ]
             assert Manifest.objects.filter(pid=pid).exists()
             assert Manifest.objects.get(pid=pid).canvas_set.count() == 3
             assert len(ingested_images) == 3
+            assert len(ingested_ocr) == 3

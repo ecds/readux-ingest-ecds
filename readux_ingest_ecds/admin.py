@@ -54,7 +54,6 @@ class BulkAdmin(admin.ModelAdmin):
         ingest_files = request.FILES.getlist("volume_files")[0]
 
         for ingest_file in ingest_files:
-            print(ingest_file)
             if (
                 "metadata" in ingest_file.name.casefold()
                 and "zip" not in guess_type(ingest_file.name)[0]

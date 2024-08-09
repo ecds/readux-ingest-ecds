@@ -39,7 +39,7 @@ def is_ocr(file_path):
     :return: Bool if file type matches OCR file types.
     :rtype: bool
     """
-    ocr_file_types = ["text", "txt", "xml", "json", "html", "hocr", "tsv"]
+    ocr_file_types = ["txt", "xml", "json", "html", "hocr", "tsv"]
     return (
         file_path is not None
         and "ocr" in file_path
@@ -160,9 +160,6 @@ def s3_copy(source, pid):
     Returns:
         list[str]: List of copied image files for volume
     """
-    # if os.environ["DJANGO_ENV"] != "test":
-    #     mock = mock_aws()
-    #     mock.start()
     s3 = boto3.resource("s3")
     destination_bucket = s3.Bucket(settings.INGEST_BUCKET)
     source_bucket = s3.Bucket(source)
@@ -183,12 +180,10 @@ def s3_copy(source, pid):
             destination_bucket.copy(
                 copy_source, f"{settings.INGEST_STAGING_PREFIX}/{filename}"
             )
-        else:
+        elif is_ocr(f"ocr_{key}"):
             ocr_path = f"{settings.INGEST_OCR_PREFIX}/{pid}/{filename}"
             ocr.append(ocr_path)
             destination_bucket.copy(copy_source, ocr_path)
 
-    # if os.environ["DJANGO_ENV"] != "test":
-    #     mock.stop()
     images.sort()
     return (images, ocr)

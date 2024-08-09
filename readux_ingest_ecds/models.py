@@ -294,8 +294,6 @@ class Bulk(models.Model):
         :param files: _description_
         :type files: _type_
         """
-        # print(files)
-        # print(str(files))
         # if isinstance(files, InMemoryUploadedFile):
         #     FileSystemStorage(
         #         location=os.path.join(settings.INGEST_TMP_DIR, str(self.id))
