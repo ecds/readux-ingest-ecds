@@ -419,10 +419,15 @@ class S3Ingest(models.Model):
         verbose_name_plural = "Amazon S3 Ingests"
 
     def ingest(self):
-        metadata = metadata_from_file(self.metadata_spreadsheet.path)
+        rows = metadata_from_file(self.metadata_spreadsheet.path)
 
-        for pid in [row["pid"] for row in metadata]:
+        for row in rows:
+            pid = row["pid"]
             manifest = create_manifest_from_pid(pid, self.image_server)
+            metadata = dict(row)
+            for key, value in metadata.items():
+                setattr(manifest, key, value)
+
             manifest.collections.set(self.collections.all())
             manifest.save()
             local_ingest = Local.objects.create(
@@ -452,5 +457,12 @@ class S3Ingest(models.Model):
                     t_file.write(f"{image_file}\n")
 
             local_ingest.create_canvases()
+            manifest.save()
+            from .tasks import add_ocr_task_local
+
+            if os.environ["DJANGO_ENV"] == "test":
+                add_ocr_task_local(str(local_ingest.id))
+            else:
+                add_ocr_task_local.delay(str(local_ingest.id))
 
         self.delete()

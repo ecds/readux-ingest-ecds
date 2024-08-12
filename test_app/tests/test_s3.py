@@ -82,12 +82,12 @@ class S3Test(TestCase):
         pids = []
         pid_file = os.path.join(self.fixture_path, self.fake.file_name(extension="csv"))
         with open(pid_file, "w", encoding="utf-8") as t_file:
-            t_file.write("PID\n")
+            t_file.write("PID,Label\n")
 
         for _ in range(pid_count):
             pid = self.fake.isbn10()
             with open(pid_file, "a", encoding="utf-8") as t_file:
-                t_file.write(f"{pid}\n")
+                t_file.write(f"{pid},{self.fake.name()}\n")
             pids.append(pid)
             self.create_source_images(
                 pid=pid, count=image_count, include_pid_in_file=include_pid_in_file
@@ -123,6 +123,7 @@ class S3Test(TestCase):
             ]
             assert Manifest.objects.filter(pid=pid).exists()
             assert Manifest.objects.get(pid=pid).canvas_set.count() == 4
+            assert Manifest.objects.get(pid=pid).label is not None
             assert len(ingested_images) == 4
             assert len(ingested_ocr) == 4
 
