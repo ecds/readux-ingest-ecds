@@ -11,6 +11,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from .factories import ImageServerFactory, S3IngestFactory
 from iiif.models import Manifest
+from readux_ingest_ecds.tasks import s3_ingest_task
 
 
 @mock_aws
@@ -105,7 +106,8 @@ class S3Test(TestCase):
         )
 
         ingest = S3IngestFactory(metadata_spreadsheet=upload_file)
-        ingest.ingest()
+        s3_ingest_task(ingest.id)
+        # ingest.ingest()
 
         destination_bucket = self.s3.Bucket(settings.INGEST_BUCKET)
         for pid in pids:
@@ -133,7 +135,8 @@ class S3Test(TestCase):
         )
 
         ingest = S3IngestFactory(metadata_spreadsheet=upload_file)
-        ingest.ingest()
+        # ingest.ingest()
+        s3_ingest_task(ingest.id)
 
         destination_bucket = self.s3.Bucket(settings.INGEST_BUCKET)
         for pid in pids:

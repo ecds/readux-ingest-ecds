@@ -106,7 +106,7 @@ def bulk_ingest_task_ecds(ingest_id):
 
 
 @app.task(
-    name="ingest_ocr_to_canvas",
+    name="add_ocr_task_local_ecds",
     base=FinalTask,
     autoretry_for=(Manifest.DoesNotExist,),
     retry_backoff=5,
@@ -120,10 +120,14 @@ def add_ocr_task_local(ingest_id, *args, **kwargs):
 
 
 @app.task(
-    name="s3_ingest", autoretry_for=(Exception,), retry_backoff=True, max_retries=20
+    name="s3_ingest_task_ecds",
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    max_retries=20,
 )
 def s3_ingest_task(ingest_id, *args, **kwargs):
     """S3 Ingest Task"""
     LOGGER.info("Starting ingest from S3")
+    print(ingest_id)
     s3_ingest = S3Ingest.objects.get(pk=ingest_id)
     s3_ingest.ingest()
