@@ -165,7 +165,9 @@ def s3_copy(source, pid):
     source_bucket = s3.Bucket(source)
 
     keys_to_copy = [
-        str(obj.key) for obj in source_bucket.objects.all() if pid in obj.key
+        str(obj.key)
+        for obj in source_bucket.objects.all()
+        if pid in obj.key and not str(obj.key).endswith("/")
     ]
 
     images = []
