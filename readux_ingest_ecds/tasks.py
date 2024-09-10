@@ -116,7 +116,9 @@ def add_ocr_task_local(ingest_id, *args, **kwargs):
     LOGGER.info("ADDING OCR")
     local_ingest = Local.objects.get(pk=ingest_id)
     manifest = Manifest.objects.get(pk=local_ingest.manifest.pk)
-    add_ocr_to_canvases(manifest)
+    warnings = add_ocr_to_canvases(manifest)
+    local_ingest.warnings = "\n".join(warnings)
+    local_ingest.save()
 
 
 @app.task(

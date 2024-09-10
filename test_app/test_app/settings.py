@@ -34,6 +34,8 @@ INGEST_TRIGGER_BUCKET = "readux-ingest-ecds-test"
 INGEST_BUCKET = "ingest-test"
 INGEST_STAGING_PREFIX = "incoming"
 INGEST_OCR_PREFIX = "ocr"
+READUX_EMAIL_SENDER = "donotreplay@readux.io"
+HOSTNAME = "readux.io"
 
 # Readux settings
 DATASTREAM_PREFIX = "http://repo.library.emory.edu/fedora/objects/"
@@ -61,6 +63,7 @@ INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.messages",
+    "django.contrib.sessions",
     "django_celery_results",
     "iiif.apps.IiifConfig",
     "readux_ingest_ecds",

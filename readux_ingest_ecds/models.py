@@ -4,6 +4,7 @@ import uuid
 from zipfile import ZipFile
 from mimetypes import guess_type
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.storage import FileSystemStorage
@@ -101,6 +102,7 @@ class Local(IngestAbstractModel):
     )
 
     bundle_path = models.CharField(blank=True, max_length=1000)
+    warnings = models.CharField(blank=True, max_length=10000)
 
     class Meta:
         verbose_name_plural = "Local"
@@ -244,7 +246,9 @@ class Local(IngestAbstractModel):
 
     def success(self):
         LOGGER.info(f"SUCCESS!!! {self.manifest.pid}")
-        send_email_on_success(creator=self.creator, manifest=self.manifest)
+        send_email_on_success(
+            creator=self.creator, manifest=self.manifest, warnings=self.warnings
+        )
         self.manifest.save()
         if os.environ["DJANGO_ENV"] != "test":
             from apps.iiif.manifests.documents import ManifestDocument

@@ -3,7 +3,7 @@
 </h1>
 
 <h3 style="color: green;">Ingest complete: {{ manifest_pid }}</h3>
-<div>
+<p>
   Details:
   <ul>
     <li>Filename: <span style="font-family: monospace">{{ manifest_pid }}</span></li>
@@ -11,4 +11,8 @@
     <li><a href="{{ manifest_url }}">Edit manifest</a></li>
     <li><a href="{{ volume_url }}">Link to volume</a></li>
   </ul>
-</div>
+</p>
+{% if warnings is not None %}
+  <p>Warnings</p>
+  <p>{{warnings}}</p>
+{% endif %}
