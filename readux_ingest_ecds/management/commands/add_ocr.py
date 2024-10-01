@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "volume", type=str, help="PID for volume/manifest to be generated."
+            "--volume", type=str, help="PID for volume/manifest to be generated."
         )
 
     def handle(self, *args, **options):
