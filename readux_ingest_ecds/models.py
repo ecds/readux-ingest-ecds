@@ -225,20 +225,23 @@ class Local(IngestAbstractModel):
             except IndexError:
                 ocr_file_path = None
 
-            new_canvas = Canvas(
-                manifest=self.manifest,
-                image_server=self.image_server,
-                pid=canvas_pid,
-                ocr_file_path=ocr_file_path,
-                position=position,
-                width=width,
-                height=height,
-                resource=canvas_pid,
-            )
+            try:
+                Canvas.objects.get(pid=canvas_pid)
+            except Canvas.DoesNotExist:
+                new_canvas = Canvas(
+                    manifest=self.manifest,
+                    image_server=self.image_server,
+                    pid=canvas_pid,
+                    ocr_file_path=ocr_file_path,
+                    position=position,
+                    width=width,
+                    height=height,
+                    resource=canvas_pid,
+                )
 
-            new_canvas.before_save()
+                new_canvas.before_save()
 
-            new_canvases.append(new_canvas)
+                new_canvases.append(new_canvas)
 
         Canvas.objects.bulk_create(new_canvases)
 

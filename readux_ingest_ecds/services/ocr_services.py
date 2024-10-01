@@ -90,7 +90,7 @@ def fetch_positional_ocr(canvas):
 
         return fetch_url(url)
 
-    if "images.readux.ecds.emory" in canvas.manifest.image_server.server_base:
+    if "iip.readux.io" in canvas.manifest.image_server.server_base:
         # Fake TSV data for testing.
         if environ["DJANGO_ENV"] == "test":
             fake_tsv = open(path.join(settings.FIXTURE_DIR, "sample.tsv"))
@@ -121,7 +121,7 @@ def fetch_positional_ocr(canvas):
 
     if (
         environ["DJANGO_ENV"] == "test"
-        and "images.readux.ecds.emory" not in canvas.manifest.image_server.server_base
+        and "iip.readux.io" not in canvas.manifest.image_server.server_base
         and canvas.ocr_file_path is None
     ):
         fake_json = open(path.join(settings.FIXTURE_DIR, "ocr_words.json"))
