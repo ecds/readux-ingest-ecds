@@ -47,7 +47,8 @@ def get_ocr(canvas):
 
     result = fetch_positional_ocr(canvas)
 
-    return add_positional_ocr(canvas, result)
+    if result is not None:
+        return add_positional_ocr(canvas, result)
 
 
 def fetch_tei_ocr(canvas):
@@ -139,8 +140,11 @@ def fetch_positional_ocr(canvas):
             )
 
         if canvas.image_server.storage_service == "local":
-            with open(canvas.ocr_file_path, "rb") as ocr:
-                return ocr.read()
+            try:
+                with open(canvas.ocr_file_path, "rb") as ocr:
+                    return ocr.read()
+            except FileNotFoundError:
+                return None
 
 
 def parse_alto_ocr(result):
