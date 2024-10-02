@@ -143,4 +143,5 @@ def s3_ingest_task(ingest_id, *args, **kwargs):
 )
 def add_ocr_manage_task(volume_pid, *args, **kwargs):
     """Add OCR for Volume/Manifest via Manage Command"""
-    add_ocr_to_canvases(volume_pid)
+    manifest = Manifest.objects.get(pid=volume_pid)
+    add_ocr_to_canvases(manifest)
