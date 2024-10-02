@@ -1,3 +1,4 @@
+import os
 import httpretty
 import json
 import csv
@@ -533,8 +534,12 @@ def add_ocr_to_canvases(manifest):
         ocr = get_ocr(canvas)
         if isinstance(ocr, etree.XMLSyntaxError):
             warnings.append(f"Canvas {canvas.pid} - {ocr.__class__.__name__}: {ocr}")
+        elif not os.path.exists(canvas.ocr_file_path):
+            warnings.append(f"No OCR file for {canvas.pid}.")
         elif ocr is not None:
             new_ocr_annotations += add_ocr_annotations(canvas, ocr)
+        else:
+            warnings.append(f"No OCR for {canvas.pid}")
 
     OCR.objects.bulk_create(new_ocr_annotations)
     return warnings
