@@ -133,3 +133,14 @@ def s3_ingest_task(ingest_id, *args, **kwargs):
     print(ingest_id)
     s3_ingest = S3Ingest.objects.get(pk=ingest_id)
     s3_ingest.ingest()
+
+
+@app.task(
+    name="add_volume_ocr_manage_task",
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    max_retries=20,
+)
+def add_ocr_manage_task(volume_pid, *args, **kwargs):
+    """Add OCR for Volume/Manifest via Manage Command"""
+    add_ocr_to_canvases(volume_pid)
