@@ -423,13 +423,15 @@ class S3Ingest(models.Model):
     )
 
     class Meta:
-        verbose_name_plural = "Amazon S3 Ingests"
+        verbose_name_plural = "S3 Ingests"
 
     def ingest(self):
         rows = metadata_from_file(self.metadata_spreadsheet.path)
 
         for row in rows:
             pid = row["pid"]
+            if pid is None:
+                continue
             manifest = create_manifest_from_pid(pid, self.image_server)
             metadata = dict(row)
             for key, value in metadata.items():

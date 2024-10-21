@@ -96,15 +96,15 @@ def move_ocr_file(ingest, file_path):
     move(file_path, os.path.join(ingest.ocr_directory, base_name))
 
 
-def divide_chunks(file_list):
+def divide_chunks(item_list, chunk_size=10):
     """
     Divide list of files into smaller chunks for processing.
     :param file_list: List of images to ingest.
-    :type file_list: list of str
+    :param chunk_size: Number of items in each chunk. Defaults to 10.
+    :type file_list: list
     """
-    chunk_size = 10
-    for filename in range(0, len(file_list), chunk_size):
-        yield file_list[filename : filename + chunk_size]
+    for item in range(0, len(item_list), chunk_size):
+        yield item_list[item : item + chunk_size]
 
 
 def upload_trigger_file(trigger_file):

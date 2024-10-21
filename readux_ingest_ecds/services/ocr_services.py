@@ -13,6 +13,7 @@ from django.conf import settings
 from django.core.serializers import deserialize
 from readux_ingest_ecds.helpers import get_iiif_models
 from .services import fetch_url
+from ..services.file_services import divide_chunks
 
 LOGGER = logging.getLogger(__name__)
 OCR = get_iiif_models()["OCR"]
@@ -538,14 +539,17 @@ def add_ocr_to_canvases(manifest):
         ocr = get_ocr(canvas)
         if isinstance(ocr, etree.XMLSyntaxError):
             warnings.append(f"Canvas {canvas.pid} - {ocr.__class__.__name__}: {ocr}")
-        elif canvas.ocr_file_path is not None and not os.path.exists(
-            canvas.ocr_file_path
-        ):
-            warnings.append(f"No OCR file for {canvas.pid}.")
+        # elif canvas.ocr_file_path is not None and not os.path.exists(
+        #     canvas.ocr_file_path
+        # ):
+        #     warnings.append(f"No OCR file for {canvas.pid}.")
         elif ocr is not None:
             new_ocr_annotations += add_ocr_annotations(canvas, ocr)
         else:
             warnings.append(f"No OCR for {canvas.pid}")
 
-    OCR.objects.bulk_create(new_ocr_annotations)
+    chunks = divide_chunks(new_ocr_annotations, 100)
+    for chunk in list(chunks):
+        OCR.objects.bulk_create(chunk)
+
     return warnings

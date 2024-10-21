@@ -8,7 +8,6 @@ from django.apps import apps
 from django.conf import settings
 from .helpers import get_iiif_models
 from .services.ocr_services import add_ocr_to_canvases
-from .mail import send_email_on_success, send_email_on_failure
 
 # Use `apps.get_model` to avoid circular import error. Because the parameters used to
 # create a background task have to be serializable, we can't just pass in the model object.
@@ -130,7 +129,6 @@ def add_ocr_task_local(ingest_id, *args, **kwargs):
 def s3_ingest_task(ingest_id, *args, **kwargs):
     """S3 Ingest Task"""
     LOGGER.info("Starting ingest from S3")
-    print(ingest_id)
     s3_ingest = S3Ingest.objects.get(pk=ingest_id)
     s3_ingest.ingest()
 
