@@ -212,6 +212,7 @@ class Local(IngestAbstractModel):
         images.sort()
 
         for index, image in enumerate(images):
+            LOGGER.info(f"Creating canvas {image}")
             position = index + 1
             image_name = os.path.splitext(image)[0]
             canvas_pid = f"{image_name}.tiff"
@@ -432,6 +433,7 @@ class S3Ingest(models.Model):
             pid = row["pid"]
             if pid is None:
                 continue
+            LOGGER.info(f"Creating manifest {pid}")
             manifest = create_manifest_from_pid(pid, self.image_server)
             metadata = dict(row)
             for key, value in metadata.items():
@@ -466,6 +468,7 @@ class S3Ingest(models.Model):
                     t_file.write(f"{image_file}\n")
 
             local_ingest.create_canvases()
+            LOGGER.info(f"Canvases created for {pid}")
             manifest.save()
             from .tasks import add_ocr_task_local
 
