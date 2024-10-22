@@ -1,7 +1,8 @@
 Readux
 -------
 
-Ingest failed: {{ filename }}
+Ingest failed: {{ bundle }}
+Manifest Pid: {{ manifest_pid }}
 
 Details:
 {{ exception }}

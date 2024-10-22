@@ -1,7 +1,6 @@
 """ Module of service methods for ingest files. """
 
 import os
-import boto3
 from moto import mock_aws
 from shutil import move
 from mimetypes import guess_type
@@ -160,7 +159,7 @@ def s3_copy(source, pid):
     Returns:
         list[str]: List of copied image files for volume
     """
-    s3 = boto3.resource("s3")
+    s3 = resource("s3")
     destination_bucket = s3.Bucket(settings.INGEST_BUCKET)
     source_bucket = s3.Bucket(source)
 
@@ -177,12 +176,12 @@ def s3_copy(source, pid):
         filename = os.path.basename(key)
         if pid not in filename:
             filename = f"{pid}_{filename}"
-        if "image" in guess_type(key)[0]:
+        if "image" in guess_type(key)[0] and "images" in key.casefold():
             images.append(filename)
             destination_bucket.copy(
                 copy_source, f"{settings.INGEST_STAGING_PREFIX}/{filename}"
             )
-        elif is_ocr(f"ocr_{key}"):
+        elif "ocr" in key.casefold() and is_ocr(f"ocr_{key}"):
             ocr_path = f"{settings.INGEST_OCR_PREFIX}/{pid}/{filename}"
             ocr.append(ocr_path)
             destination_bucket.copy(copy_source, ocr_path)

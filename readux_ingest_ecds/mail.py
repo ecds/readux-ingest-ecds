@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 
 
-def send_email_on_failure(bundle=None, creator=None, exception=None):
+def send_email_on_failure(bundle=None, creator=None, exception=None, manifest=None):
     """Function to send an email on task failure signal from Celery.
 
     :type task_watcher: app.ingest.models.TaskWatcher
@@ -19,6 +19,8 @@ def send_email_on_failure(bundle=None, creator=None, exception=None):
         context["filename"] = bundle
     if exception is not None:
         context["exception"] = exception
+    if manifest is not None:
+        context["manifest_pid"] = manifest.pid
     html_email = get_template("ingest_ecds_failure_email.html").render(context)
     text_email = get_template("ingest_ecds_failure_email.txt").render(context)
     if creator is not None:

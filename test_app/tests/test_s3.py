@@ -24,8 +24,11 @@ class S3Test(TestCase):
         os.makedirs(
             os.path.join(settings.INGEST_TMP_DIR, settings.INGEST_STAGING_PREFIX)
         )
-        os.makedirs(os.path.join(settings.INGEST_TMP_DIR, settings.INGEST_OCR_PREFIX))
-        os.makedirs(os.path.join(settings.INGEST_PROCESSING_DIR))
+        os.makedirs(
+            os.path.join(settings.INGEST_TMP_DIR, settings.INGEST_OCR_PREFIX),
+            exist_ok=True,
+        )
+        os.makedirs(os.path.join(settings.INGEST_PROCESSING_DIR), exist_ok=True)
         self.image_server = ImageServerFactory()
         self.ingest_files = []
         self.fake = Faker()
@@ -55,6 +58,15 @@ class S3Test(TestCase):
             rel_path=sub_dir,
         )
 
+        os.makedirs(
+            os.path.join(self.fs_storage.root_path, self.fs_storage.rel_path, "images"),
+            exist_ok=True,
+        )
+        os.makedirs(
+            os.path.join(self.fs_storage.root_path, self.fs_storage.rel_path, "ocr"),
+            exist_ok=True,
+        )
+
         for _ in range(count):
             fake_image = self.fake.jpeg_file(storage=self.fs_storage)
             # include the pid in the filename if not included in the path
@@ -65,17 +77,25 @@ class S3Test(TestCase):
                     self.fs_storage.rel_path, os.path.basename(fake_image)
                 )
             )
+            print("##########")
+            print(fake_image)
+            print(image_key)
+            print(self.fs_storage.root_path)
+            print(self.fs_storage.rel_path)
+            print("##########")
             ocr_key = image_key.replace("jpg", "txt")
             open(
                 os.path.join(self.fs_storage.root_path, ocr_key),
                 "a",
                 encoding="utf-8",
             ).close()
+
             self.s3.Bucket("source").upload_file(
-                os.path.join(self.fs_storage.root_path, str(fake_image)), image_key
+                os.path.join(self.fs_storage.root_path, str(fake_image)),
+                f"images/{image_key}",
             )
             self.s3.Bucket("source").upload_file(
-                os.path.join(self.fs_storage.root_path, ocr_key), ocr_key
+                os.path.join(self.fs_storage.root_path, ocr_key), f"ocr/{ocr_key}"
             )
 
     def create_pids(self, pid_count=1, image_count=1, include_pid_in_file=True):

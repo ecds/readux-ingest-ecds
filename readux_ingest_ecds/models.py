@@ -4,10 +4,7 @@ import uuid
 from zipfile import ZipFile
 from mimetypes import guess_type
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 from django.conf import settings
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.core.files.storage import FileSystemStorage
 from django.core.files.base import ContentFile
 from django.core.validators import FileExtensionValidator
 from .services.file_services import (
@@ -264,7 +261,10 @@ class Local(IngestAbstractModel):
     def failure(self, exc):
         LOGGER.info(f"FAIL!!! {self.manifest.pid}")
         send_email_on_failure(
-            bundle=self.bundle.name, creator=self.creator, exception=str(exc)
+            bundle=self.bundle.name,
+            creator=self.creator,
+            exception=str(exc),
+            manifest=self.manifest,
         )
         self.delete()
 
