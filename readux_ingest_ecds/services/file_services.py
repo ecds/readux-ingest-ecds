@@ -1,6 +1,7 @@
 """ Module of service methods for ingest files. """
 
 import os
+import logging
 from moto import mock_aws
 from shutil import move
 from mimetypes import guess_type
@@ -13,6 +14,8 @@ from readux_ingest_ecds.helpers import get_iiif_models
 
 Manifest = get_iiif_models()["Manifest"]
 RelatedLink = get_iiif_models()["RelatedLink"]
+
+LOGGER = logging.getLogger(__name__)
 
 
 def is_image(file_path):
@@ -176,15 +179,19 @@ def s3_copy(source, pid):
         filename = os.path.basename(key)
         if pid not in filename:
             filename = f"{pid}_{filename}"
-        if "image" in guess_type(key)[0] and "images" in key.casefold():
-            images.append(filename)
-            destination_bucket.copy(
-                copy_source, f"{settings.INGEST_STAGING_PREFIX}/{filename}"
-            )
-        elif "ocr" in key.casefold() and is_ocr(f"ocr_{key}"):
-            ocr_path = f"{settings.INGEST_OCR_PREFIX}/{pid}/{filename}"
-            ocr.append(ocr_path)
-            destination_bucket.copy(copy_source, ocr_path)
+        try:
+            if "image" in guess_type(key)[0] and "images" in key.casefold():
+                images.append(filename)
+                destination_bucket.copy(
+                    copy_source, f"{settings.INGEST_STAGING_PREFIX}/{filename}"
+                )
+            elif "ocr" in key.casefold() and is_ocr(f"ocr_{key}"):
+                ocr_path = f"{settings.INGEST_OCR_PREFIX}/{pid}/{filename}"
+                ocr.append(ocr_path)
+                destination_bucket.copy(copy_source, ocr_path)
+        except TypeError as error:
+            LOGGER.warning(f"Could not determine file type for {key}")
+            LOGGER.warning(error)
 
     images.sort()
     return (images, ocr)

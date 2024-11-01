@@ -441,40 +441,45 @@ class S3Ingest(models.Model):
 
             manifest.collections.set(self.collections.all())
             manifest.save()
-            local_ingest = Local.objects.create(
+            local_ingest, created = Local.objects.get_or_create(
                 manifest=manifest, image_server=self.image_server, creator=self.creator
             )
 
-            trigger_file = os.path.join(
-                settings.INGEST_TMP_DIR, str(local_ingest.id), f"{pid}.txt"
-            )
+            if created:
 
-            os.makedirs(
-                os.path.join(settings.INGEST_TMP_DIR, str(local_ingest.id)),
-                exist_ok=True,
-            )
+                trigger_file = os.path.join(
+                    settings.INGEST_TMP_DIR, str(local_ingest.id), f"{pid}.txt"
+                )
 
-            os.makedirs(
-                os.path.join(settings.INGEST_OCR_DIR, str(pid)),
-                exist_ok=True,
-            )
+                os.makedirs(
+                    os.path.join(settings.INGEST_TMP_DIR, str(local_ingest.id)),
+                    exist_ok=True,
+                )
 
-            open(trigger_file, "a", encoding="utf-8").close()
+                os.makedirs(
+                    os.path.join(settings.INGEST_OCR_DIR, str(pid)),
+                    exist_ok=True,
+                )
 
-            image_files, _ = s3_copy(self.s3_bucket, pid)
+                open(trigger_file, "a", encoding="utf-8").close()
 
-            for image_file in image_files:
-                with open(trigger_file, "a", encoding="utf-8") as t_file:
-                    t_file.write(f"{image_file}\n")
+                image_files, _ = s3_copy(self.s3_bucket, pid)
 
-            local_ingest.create_canvases()
-            LOGGER.info(f"Canvases created for {pid}")
-            manifest.save()
-            from .tasks import add_ocr_task_local
+                for image_file in image_files:
+                    with open(trigger_file, "a", encoding="utf-8") as t_file:
+                        t_file.write(f"{image_file}\n")
 
-            if os.environ["DJANGO_ENV"] == "test":
-                add_ocr_task_local(str(local_ingest.id))
+                local_ingest.create_canvases()
+                LOGGER.info(f"Canvases created for {pid}")
+                manifest.save()
+                from .tasks import add_ocr_task_local
+
+                if os.environ["DJANGO_ENV"] == "test":
+                    add_ocr_task_local(str(local_ingest.id), manifest.pid)
+                else:
+                    add_ocr_task_local.delay(str(local_ingest.id), manifest.pid)
+
             else:
-                add_ocr_task_local.delay(str(local_ingest.id))
+                LOGGER.warning(f"Ingest for {manifest.pid} already exists.")
 
         self.delete()

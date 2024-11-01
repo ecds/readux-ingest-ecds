@@ -77,12 +77,6 @@ class S3Test(TestCase):
                     self.fs_storage.rel_path, os.path.basename(fake_image)
                 )
             )
-            print("##########")
-            print(fake_image)
-            print(image_key)
-            print(self.fs_storage.root_path)
-            print(self.fs_storage.rel_path)
-            print("##########")
             ocr_key = image_key.replace("jpg", "txt")
             open(
                 os.path.join(self.fs_storage.root_path, ocr_key),

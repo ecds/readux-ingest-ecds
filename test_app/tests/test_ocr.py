@@ -34,7 +34,7 @@ class OCRTest(TestCase):
             manifest=manifest,
         )
         local = LocalFactory.create(manifest=manifest, creator=UserFactory.create())
-        add_ocr_task_local(local.id)
+        add_ocr_task_local(local.id, manifest.pid)
         local.refresh_from_db()
         local.success()
         assert local.warnings.startswith(

@@ -82,9 +82,9 @@ def local_ingest_task_ecds(ingest_id):
     local_ingest = Local.objects.get(pk=ingest_id)
     local_ingest.ingest()
     if os.environ["DJANGO_ENV"] != "test":  # pragma: no cover
-        add_ocr_task_local.delay(ingest_id)
+        add_ocr_task_local.delay(ingest_id, local_ingest.manifest.pid)
     else:
-        add_ocr_task_local(ingest_id)
+        add_ocr_task_local(ingest_id, local_ingest.manifest.pid)
 
 
 @app.task(
@@ -110,9 +110,9 @@ def bulk_ingest_task_ecds(ingest_id):
     autoretry_for=(Manifest.DoesNotExist,),
     retry_backoff=5,
 )
-def add_ocr_task_local(ingest_id, *args, **kwargs):
+def add_ocr_task_local(ingest_id, manifest_pid, *args, **kwargs):
     """Function for parsing and adding OCR."""
-    LOGGER.info("ADDING OCR")
+    LOGGER.info(f"ADDING OCR for {manifest_pid}")
     local_ingest = Local.objects.get(pk=ingest_id)
     manifest = Manifest.objects.get(pk=local_ingest.manifest.pk)
     warnings = add_ocr_to_canvases(manifest)
