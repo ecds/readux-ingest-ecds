@@ -14,5 +14,9 @@
 </p>
 {% if warnings is not None %}
   <p>Warnings</p>
-  <p>{{warnings}}</p>
+  <ul>
+    {% for warning in warnings %}
+      <li>{{ warning }}</li>
+    {% endfor %}
+  </ul>
 {% endif %}

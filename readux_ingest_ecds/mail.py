@@ -44,9 +44,13 @@ def send_email_on_success(creator=None, manifest=None, warnings=None):
         )
         context["manifest_pid"] = manifest.pid
         context["volume_url"] = manifest.get_volume_url()
-        context["warnings"] = (
+        ingest_warnings = (
             warnings if warnings is not None and len(warnings) > 10 else None
         )
+        context["warnings"] = (
+            ingest_warnings.split("$$$$") if ingest_warnings is not None else None
+        )
+
         html_email = get_template("ingest_ecds_success_email.html").render(context)
         text_email = get_template("ingest_ecds_success_email.txt").render(context)
         if creator is not None:

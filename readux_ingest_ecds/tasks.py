@@ -116,7 +116,7 @@ def add_ocr_task_local(ingest_id, manifest_pid, *args, **kwargs):
     local_ingest = Local.objects.get(pk=ingest_id)
     manifest = Manifest.objects.get(pk=local_ingest.manifest.pk)
     warnings = add_ocr_to_canvases(manifest)
-    local_ingest.warnings = "\n".join(warnings)
+    local_ingest.warnings = "$$$$".join(warnings)
     local_ingest.save()
 
 

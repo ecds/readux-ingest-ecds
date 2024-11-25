@@ -8,5 +8,5 @@ Ingest complete: {{ manifest_pid }}
 - Link to volume: {{ volume_url }}
 {% if warnings is not None %}
 - Warnings:
-{{ warnings }}
+{{ warnings|join:"\n" }}
 {% endif %}
