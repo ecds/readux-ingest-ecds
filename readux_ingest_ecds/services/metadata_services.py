@@ -29,6 +29,7 @@ def clean_metadata(metadata):
             else key
         ): value
         for key, value in metadata.items()
+        if key is not None
     }
 
     if "metadata" not in metadata.keys():

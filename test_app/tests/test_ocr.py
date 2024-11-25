@@ -38,6 +38,6 @@ class OCRTest(TestCase):
         local.refresh_from_db()
         local.success()
         assert local.warnings.startswith(
-            f"Canvas {canvas.pid} - XMLSyntaxError: Document is empty, line 1, column 1 (<string>, line 1)\n"
+            f"Canvas {canvas.pid} - XMLSyntaxError: Document is empty, line 1, column 1 (<string>, line 1)$$$$"
         )
         assert "XMLSyntaxError" in mail.outbox[0].body
