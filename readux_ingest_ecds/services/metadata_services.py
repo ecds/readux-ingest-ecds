@@ -29,7 +29,7 @@ def clean_metadata(metadata):
             else key
         ): value
         for key, value in metadata.items()
-        if key is not None
+        if key is not None and key.strip()
     }
 
     if "metadata" not in metadata.keys():
@@ -130,7 +130,11 @@ def metadata_from_file(metadata_file):
 
     if metadata_set is not None:
         metadata_set.headers = [
-            header.casefold() if header.casefold() == "filename" else header
+            (
+                header.casefold()
+                if header is not None and header.casefold() == "filename"
+                else header
+            )
             for header in metadata_set.headers
         ]
         for row in metadata_set.dict:
