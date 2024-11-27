@@ -105,6 +105,30 @@ def bulk_ingest_task_ecds(ingest_id):
 
 
 @app.task(
+    name="add_canvases_task",
+    autoretry_for=(Exception,),
+    retry_backoff=5,
+)
+def add_canvases_task(ingest_id, manifest_pid, *args, **kwargs):
+    """Function to create canvases
+
+    Args:
+        ingest_id (string): ID for Local Ingest Object
+        manifest_pid (string): PID of Manifest being ingested
+    """
+    LOGGER.info(f"Adding Canvases for {manifest_pid}")
+    local_ingest = Local.objects.get(pk=ingest_id)
+    local_ingest.create_canvases()
+    LOGGER.info(f"Canvases created for {manifest_pid}")
+    local_ingest.manifest.save()
+
+    if os.environ["DJANGO_ENV"] == "test":
+        add_ocr_task_local(str(local_ingest.id), manifest_pid)
+    else:
+        add_ocr_task_local.delay(str(local_ingest.id), manifest_pid)
+
+
+@app.task(
     name="add_ocr_task_local_ecds",
     base=FinalTask,
     autoretry_for=(Manifest.DoesNotExist,),

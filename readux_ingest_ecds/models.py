@@ -469,15 +469,12 @@ class S3Ingest(models.Model):
                     with open(trigger_file, "a", encoding="utf-8") as t_file:
                         t_file.write(f"{image_file}\n")
 
-                local_ingest.create_canvases()
-                LOGGER.info(f"Canvases created for {pid}")
-                manifest.save()
-                from .tasks import add_ocr_task_local
+                from .tasks import add_canvases_task
 
                 if os.environ["DJANGO_ENV"] == "test":
-                    add_ocr_task_local(str(local_ingest.id), manifest.pid)
+                    add_canvases_task(str(local_ingest.id), manifest.pid)
                 else:
-                    add_ocr_task_local.delay(str(local_ingest.id), manifest.pid)
+                    add_canvases_task.delay(str(local_ingest.id), manifest.pid)
 
             else:
                 LOGGER.warning(f"Ingest for {manifest.pid} already exists.")
