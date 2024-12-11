@@ -30,7 +30,6 @@ class Migration(migrations.Migration):
                     models.CharField(
                         default=uuid.uuid4,
                         max_length=255,
-                        primary_key=True,
                         serialize=False,
                     ),
                 ),

@@ -130,7 +130,6 @@ def add_canvases_task(ingest_id, manifest_pid, *args, **kwargs):
 
 @app.task(
     name="add_ocr_task_local_ecds",
-    base=FinalTask,
     autoretry_for=(Manifest.DoesNotExist,),
     retry_backoff=5,
 )
@@ -142,6 +141,20 @@ def add_ocr_task_local(ingest_id, manifest_pid, *args, **kwargs):
     warnings = add_ocr_to_canvases(manifest)
     local_ingest.warnings = "$$$$".join(warnings)
     local_ingest.save()
+
+
+@app.task(
+    name="verify_canvases_task",
+    base=FinalTask,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    max_retries=2,
+)
+def verify_canvases_task(ingest_id, *args, **kwargs):
+    """Task to call check for duplicate canvases"""
+    local_ingest = Local.objects.get(pk=ingest_id)
+    LOGGER.info(f"Checking canvases {local_ingest.manifest.pid}")
+    local_ingest.check_canvases()
 
 
 @app.task(

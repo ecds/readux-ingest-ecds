@@ -245,6 +245,22 @@ class Local(IngestAbstractModel):
 
         upload_trigger_file(self.trigger_file)
 
+    def check_canvases(self):
+        Canvas = get_iiif_models()["Canvas"]
+        dupes = []
+        for canvas in self.manifest.canvas_set.all():
+            canvases = list(Canvas.objects.filter(pid=canvas.pid))
+            canvases.pop()
+            dupes += canvases
+
+        for dupe_canvas in dupes:
+            dupe_canvas.delete()
+
+        self.manifest.refresh_from_db()
+        self.manifest.start_canvas = self.manifest.canvas_set.all()[0]
+        self.manifest.save()
+        return True
+
     def success(self):
         LOGGER.info(f"SUCCESS!!! {self.manifest.pid}")
         send_email_on_success(

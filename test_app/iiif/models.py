@@ -52,9 +52,7 @@ class Manifest(models.Model):
 
 
 class Canvas(models.Model):
-    pid = models.CharField(
-        max_length=255, primary_key=True, default=uuid4, editable=True
-    )
+    pid = models.CharField(max_length=255, default=uuid4, editable=True)
     # image_server = models.ForeignKey(ImageServer, on_delete=models.DO_NOTHING, null=True)
     position = models.IntegerField()
     width = models.IntegerField(default=0)

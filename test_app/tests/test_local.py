@@ -4,6 +4,7 @@ import os
 import glob
 from shutil import rmtree
 from hashlib import md5
+from uuid import uuid4
 import pytest
 import boto3
 from uuid import UUID
@@ -12,7 +13,7 @@ from moto import mock_aws
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
-from .factories import ImageServerFactory
+from .factories import ImageServerFactory, LocalFactory, ManifestFactory, CanvasFactory
 from readux_ingest_ecds.models import Local
 
 # from ...readux_ingest_ecds.models import Local
@@ -281,6 +282,26 @@ class LocalTest(TestCase):
             for link in related_links
         )
         assert any(link["format"] == "application/pdf" for link in related_links)
+
+    def test_duplicate_canvases(self):
+        """It should open the metadata CSV file."""
+        manifest = ManifestFactory()
+        canvases = CanvasFactory.create_batch(3, manifest=manifest)
+        for canvas in canvases:
+            new_pid = uuid4()
+            canvas.pid = new_pid
+            canvas.save()
+            CanvasFactory.create_batch(2, pid=new_pid, manifest=manifest)
+
+        local = LocalFactory.create(manifest=manifest)
+
+        assert manifest.canvas_set.count() == 9
+
+        local.check_canvases()
+
+        manifest.refresh_from_db()
+
+        assert manifest.canvas_set.count() == 3
 
     # def test_upload_file_with_same_name(self):
     #     """ Uploading a file should replace file if name matches existing file. """

@@ -1,4 +1,5 @@
 from os.path import join
+from uuid import uuid4
 from factory.django import DjangoModelFactory, FileField
 from factory import Faker, SubFactory
 from django.conf import settings
@@ -36,6 +37,7 @@ class ManifestFactory(DjangoModelFactory):
 class CanvasFactory(DjangoModelFactory):
     """Creates a Canvas object for testing."""
 
+    pid = uuid4()
     manifest = SubFactory(ManifestFactory)
     position = 1
     image_server = SubFactory(ImageServerFactory)
