@@ -65,6 +65,7 @@ class S3IngestFactory(DjangoModelFactory):
     image_server = SubFactory(ImageServerFactory)
     creator = SubFactory(UserFactory)
     s3_bucket = "source"
+    prefix = None
 
 
 class BulkFactory(DjangoModelFactory):

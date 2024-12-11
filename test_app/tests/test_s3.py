@@ -48,11 +48,13 @@ class S3Test(TestCase):
             if item.endswith(".csv") or item.endswith(".zip"):
                 os.remove(os.path.join("./", item))
 
-    def create_source_images(self, pid=None, count=1, include_pid_in_file=True):
+    def create_source_images(
+        self, pid=None, count=1, include_pid_in_file=True, prefix="tmp"
+    ):
         if pid is None:
             raise Exception("You must supply a pid kwarg")
 
-        sub_dir = "tmp" if include_pid_in_file else pid
+        sub_dir = prefix if include_pid_in_file else pid
         self.fs_storage = FileSystemStorage(
             root_path=tempfile.gettempdir(),
             rel_path=sub_dir,
@@ -62,6 +64,7 @@ class S3Test(TestCase):
             os.path.join(self.fs_storage.root_path, self.fs_storage.rel_path, "images"),
             exist_ok=True,
         )
+
         os.makedirs(
             os.path.join(self.fs_storage.root_path, self.fs_storage.rel_path, "ocr"),
             exist_ok=True,
@@ -169,3 +172,52 @@ class S3Test(TestCase):
             assert Manifest.objects.get(pid=pid).canvas_set.count() == 3
             assert len(ingested_images) == 3
             assert len(ingested_ocr) == 3
+
+    def test_s3_ingest_with_prefix(self):
+        pids, pid_file = self.create_pids(pid_count=3, image_count=2)
+
+        for pid in pids:
+            self.create_source_images(pid=pid, count=2, prefix="emory")
+
+        upload_file = SimpleUploadedFile(
+            name=os.path.basename(pid_file),
+            content=open(pid_file, "rb").read(),
+        )
+
+        ingest = S3IngestFactory(metadata_spreadsheet=upload_file, prefix="emory")
+        # ingest.ingest()
+        s3_ingest_task(ingest.id)
+
+        destination_bucket = self.s3.Bucket(settings.INGEST_BUCKET)
+
+        source_files = [str(obj.key) for obj in self.s3.Bucket("source").objects.all()]
+
+        for pid in pids:
+            ingested_images = [
+                os.path.basename(str(obj.key))
+                for obj in destination_bucket.objects.all()
+                if str(obj.key).startswith(f"{settings.INGEST_STAGING_PREFIX}/{pid}_")
+            ]
+
+            ingested_ocr = [
+                os.path.basename(str(obj.key))
+                for obj in destination_bucket.objects.all()
+                if str(obj.key).startswith(f"{settings.INGEST_OCR_PREFIX}/{pid}/{pid}_")
+            ]
+
+            canvases = [
+                canvas.pid.replace(".tiff", ".jpg")
+                for canvas in Manifest.objects.get(pid=pid).canvas_set.all()
+            ]
+
+            for source_file in source_files:
+                if pid in source_file and source_file.endswith("jpg"):
+                    if "emory" in source_file:
+                        assert os.path.basename(source_file) in canvases
+                    if "emory" not in source_file:
+                        assert os.path.basename(source_file) not in canvases
+
+            assert Manifest.objects.filter(pid=pid).exists()
+            assert Manifest.objects.get(pid=pid).canvas_set.count() == 2
+            assert len(ingested_images) == 2
+            assert len(ingested_ocr) == 2

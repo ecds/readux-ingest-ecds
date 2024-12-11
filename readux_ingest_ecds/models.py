@@ -422,6 +422,12 @@ class S3Ingest(models.Model):
         null=True,
         related_name="ecds_ingest_created_s3",
     )
+    prefix = models.CharField(
+        null=True,
+        blank=True,
+        max_length=255,
+        help_text="""Optional: The name of a subdirectory in the bucket. This will limit where the ingest will look for files.""",
+    )
 
     class Meta:
         verbose_name_plural = "S3 Ingests"
@@ -463,7 +469,7 @@ class S3Ingest(models.Model):
 
                 open(trigger_file, "a", encoding="utf-8").close()
 
-                image_files, _ = s3_copy(self.s3_bucket, pid)
+                image_files, _ = s3_copy(self.s3_bucket, pid, prefix=self.prefix)
 
                 for image_file in image_files:
                     with open(trigger_file, "a", encoding="utf-8") as t_file:

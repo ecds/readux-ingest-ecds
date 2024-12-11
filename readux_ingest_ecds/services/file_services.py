@@ -152,7 +152,7 @@ def canvas_dimensions(image_name):
     return (0, 0)
 
 
-def s3_copy(source, pid):
+def s3_copy(source, pid, prefix=None):
     """Copy S3 objects to ingest
 
     Args:
@@ -171,6 +171,9 @@ def s3_copy(source, pid):
         for obj in source_bucket.objects.all()
         if pid in obj.key and not str(obj.key).endswith("/")
     ]
+
+    if prefix is not None:
+        keys_to_copy = [key for key in keys_to_copy if prefix in key]
 
     images = []
     ocr = []
