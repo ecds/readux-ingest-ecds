@@ -546,7 +546,7 @@ def add_ocr_to_canvases(manifest):
         elif ocr is not None:
             new_ocr_annotations += add_ocr_annotations(canvas, ocr)
         else:
-            warnings.append(f"No OCR for {canvas.pid}")
+            warnings.append(f"Canvas {canvas.pid} - No OCR")
 
     chunks = divide_chunks(new_ocr_annotations, 100)
     for chunk in list(chunks):

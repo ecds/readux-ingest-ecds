@@ -14,7 +14,9 @@ LOGGER = logging.getLogger(__name__)
 class LocalAdmin(admin.ModelAdmin):
     """Django admin ingest.models.local resource."""
 
+    list_display = ["manifest"]
     fields = ("bundle", "image_server", "collections")
+    readonly_fields = ["manifest", "warnings"]
     show_save_and_add_another = False
 
     def save_model(self, request, obj, form, change):

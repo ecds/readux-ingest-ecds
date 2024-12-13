@@ -242,6 +242,7 @@ class Local(IngestAbstractModel):
                 new_canvases.append(new_canvas)
 
         Canvas.objects.bulk_create(new_canvases)
+        self.check_canvases()
 
         upload_trigger_file(self.trigger_file)
 
@@ -272,7 +273,6 @@ class Local(IngestAbstractModel):
 
             index = ManifestDocument()
             index.update(self.manifest, True, "index")
-        self.delete()
 
     def failure(self, exc):
         LOGGER.info(f"FAIL!!! {self.manifest.pid}")

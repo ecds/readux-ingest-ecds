@@ -12,11 +12,15 @@
     <li><a href="{{ volume_url }}">Link to volume</a></li>
   </ul>
 </p>
-{% if warnings is not None %}
+{% if html_warnings is not None %}
   <p>Warnings</p>
-  <ul>
-    {% for warning in warnings %}
-      <li>{{ warning }}</li>
+  <table>
+    {% for warning in html_warnings %}
+      <tr>
+        {% for part in warning %}
+          <td>{{ part }}</td>
+        {% endfor %}
+      </tr>
     {% endfor %}
-  </ul>
+  </table>
 {% endif %}

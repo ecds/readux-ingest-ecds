@@ -47,9 +47,21 @@ def send_email_on_success(creator=None, manifest=None, warnings=None):
         ingest_warnings = (
             warnings if warnings is not None and len(warnings) > 10 else None
         )
-        context["warnings"] = (
-            ingest_warnings.split("$$$$") if ingest_warnings is not None else None
-        )
+        context["warnings"] = ""
+        context["html_warnings"] = []
+        if ingest_warnings is not None:
+            warnings = ingest_warnings.split(" | ")
+            context["warnings"] = [
+                f'{w} -- https://iip.readux.io/iiif/3/{w.split(" ")[1]}/full/250,/0/default.jpg'
+                for w in warnings
+            ]
+            context["html_warnings"] = [
+                [
+                    w,
+                    f'<img src="https://iip.readux.io/iiif/3/{w.split(" ")[1]}/full/250,/0/default.jpg" />',
+                ]
+                for w in warnings
+            ]
 
         html_email = get_template("ingest_ecds_success_email.html").render(context)
         text_email = get_template("ingest_ecds_success_email.txt").render(context)
