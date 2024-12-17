@@ -5,6 +5,7 @@ from django.test import TestCase
 from readux_ingest_ecds.services import ocr_services
 from readux_ingest_ecds.tasks import add_ocr_task_local
 from .factories import CanvasFactory, LocalFactory, ManifestFactory, UserFactory
+from iiif.models import OCR
 
 
 class OCRTest(TestCase):
@@ -42,3 +43,19 @@ class OCRTest(TestCase):
         )
         assert "XMLSyntaxError" in mail.outbox[0].body
         assert "iip" in mail.outbox[0].body
+
+    def test_prevent_double_ocr(self):
+        """"""
+        canvas = CanvasFactory.create(
+            ocr_file_path=os.path.join(self.fixture_path, "alto4.xml"),
+            manifest=ManifestFactory.create(),
+        )
+
+        ocr = ocr_services.get_ocr(canvas)
+        annos = ocr_services.add_ocr_annotations(canvas, ocr)
+        print(len(annos))
+        OCR.objects.bulk_create(annos)
+        assert len(annos) == 178
+        assert OCR.objects.count() == 178
+        dupe_annos = ocr_services.add_ocr_annotations(canvas, ocr)
+        assert len(dupe_annos) == 0

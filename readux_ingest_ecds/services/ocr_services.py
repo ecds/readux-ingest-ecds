@@ -350,6 +350,7 @@ def parse_tsv_ocr(result):
         h = int(row["h"])
         x = int(row["x"])
         y = int(row["y"])
+
         ocr.append(
             {
                 "content": content,
@@ -434,18 +435,29 @@ def add_ocr_annotations(canvas, ocr):
             or word["content"].isspace()
         ):
             word["content"] = " "
-        anno = OCR()
-        anno.canvas = canvas
-        anno.x = word["x"]
-        anno.y = word["y"]
-        anno.w = word["w"]
-        anno.h = word["h"]
-        anno.resource_type = anno.OCR
-        anno.content = word["content"]
-        anno.order = word_order
-        anno.set_span_element()
-        annotations.append(anno)
-        word_order += 1
+        try:
+            OCR.objects.get(
+                w=word["w"],
+                h=word["h"],
+                x=word["x"],
+                y=word["y"],
+                content=word["content"],
+                canvas=canvas,
+            )
+        except OCR.DoesNotExist:
+            anno = OCR()
+            anno.canvas = canvas
+            anno.x = word["x"]
+            anno.y = word["y"]
+            anno.w = word["w"]
+            anno.h = word["h"]
+            anno.resource_type = anno.OCR
+            anno.content = word["content"]
+            anno.order = word_order
+            anno.set_span_element()
+            if anno not in annotations:
+                annotations.append(anno)
+                word_order += 1
 
     return annotations
 
