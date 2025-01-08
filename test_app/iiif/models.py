@@ -3,6 +3,20 @@ from uuid import uuid4
 from django.contrib.auth.models import AbstractUser
 
 
+class Language(models.Model):
+    """Model to store language names and codes for multiple choice fields"""
+
+    code = models.CharField(max_length=16, unique=True)
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        """String representation of the language"""
+        return str(self.name)
+
+
 class Collection(models.Model):
     pid = models.UUIDField(primary_key=True, default=uuid4, editable=True)
 
@@ -25,6 +39,9 @@ class Manifest(models.Model):
     published_city = models.TextField(null=True, blank=True)
     publisher = models.TextField(null=True, blank=True)
     metadata = models.JSONField(default=dict, blank=True)
+    languages = models.ManyToManyField(
+        Language, help_text="Languages present in the manifest.", blank=True
+    )
 
     @property
     def related_links(self):

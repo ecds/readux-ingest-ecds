@@ -93,6 +93,7 @@ class LocalTest(TestCase):
         local = self.mock_local("csv_meta.zip")
         local.manifest = create_manifest(local)
         assert local.manifest.pid == "sqn75"
+        assert local.manifest.languages.all()[0].code == "en"
 
     def test_metadata_from_excel(self):
         """It should create a manifest with metadata supplied in an Excel file."""

@@ -17,7 +17,11 @@ from .services.file_services import (
     upload_trigger_file,
     s3_copy,
 )
-from .services.iiif_services import create_manifest, create_manifest_from_pid
+from .services.iiif_services import (
+    create_manifest,
+    create_manifest_from_pid,
+    find_language,
+)
 from .services.metadata_services import metadata_from_file, clean_metadata
 from .helpers import get_iiif_models
 from .storages import TmpStorage
@@ -459,7 +463,10 @@ class S3Ingest(models.Model):
             manifest = create_manifest_from_pid(pid, self.image_server)
             metadata = dict(row)
             for key, value in metadata.items():
-                setattr(manifest, key, value)
+                if key == "language":
+                    manifest.languages.add(find_language(value))
+                else:
+                    setattr(manifest, key, value)
 
             manifest.collections.set(self.collections.all())
             manifest.save()
@@ -468,7 +475,6 @@ class S3Ingest(models.Model):
             )
 
             if created:
-
                 trigger_file = os.path.join(
                     settings.INGEST_TMP_DIR, str(local_ingest.id), f"{pid}.txt"
                 )

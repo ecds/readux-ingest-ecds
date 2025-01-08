@@ -20,6 +20,7 @@ def clean_metadata(metadata):
         *(f.name for f in get_iiif_models()["Manifest"]._meta.get_fields()),
         "related",
         "filename",
+        "language",
     ]
 
     metadata = {

@@ -53,7 +53,6 @@ class OCRTest(TestCase):
 
         ocr = ocr_services.get_ocr(canvas)
         annos = ocr_services.add_ocr_annotations(canvas, ocr)
-        print(len(annos))
         OCR.objects.bulk_create(annos)
         assert len(annos) == 178
         assert OCR.objects.count() == 178

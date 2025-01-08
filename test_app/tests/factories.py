@@ -4,7 +4,7 @@ from factory.django import DjangoModelFactory, FileField
 from factory import Faker, SubFactory
 from django.conf import settings
 from readux_ingest_ecds.models import Local, Bulk, S3Ingest
-from iiif.models import ImageServer, Manifest, User, Collection, Canvas
+from iiif.models import ImageServer, Manifest, User, Collection, Canvas, Language
 
 
 class UserFactory(DjangoModelFactory):
@@ -84,3 +84,10 @@ class CollectionFactory(DjangoModelFactory):
 
     class Meta:
         model = Collection
+
+
+class LanguageFactory(DjangoModelFactory):
+    """Factory for language objects."""
+
+    class Meta:
+        model = Language

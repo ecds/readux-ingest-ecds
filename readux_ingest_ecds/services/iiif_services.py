@@ -10,6 +10,23 @@ Canvas = get_iiif_models()["Canvas"]
 OCR = get_iiif_models()["OCR"]
 
 
+def set_default_language():
+    """Create default language."""
+    Language = get_iiif_models()["Language"]
+    english, _ = Language.objects.get_or_create(code="en", name="English")
+    return english
+
+
+def find_language(language):
+    """Find Language object
+
+    Args:
+        language (str): Language code.
+    """
+    Language = get_iiif_models()["Language"]
+    return Language.objects.get(code=language)
+
+
 def create_manifest(ingest):
     """
     Create or update a Manifest from supplied metadata and images.
@@ -35,6 +52,8 @@ def create_manifest(ingest):
             if key == "related":
                 # add RelatedLinks from metadata spreadsheet key "related"
                 create_related_links(manifest, value)
+            elif key == "language":
+                manifest.languages.add(find_language(value))
             else:
                 # all other keys should exist as fields on Manifest (for now)
                 setattr(manifest, key, value)
@@ -46,6 +65,7 @@ def create_manifest(ingest):
 
     # Ensure that manifest has an ID before updating the M2M relationship
     manifest.save()
+    manifest.languages.add(set_default_language())
     manifest.refresh_from_db()
     manifest.collections.set(ingest.collections.all())
     # Save again once relationship is set
@@ -64,4 +84,5 @@ def create_manifest_from_pid(pid, image_server):
     """
     Manifest = get_iiif_models()["Manifest"]
     manifest, _ = Manifest.objects.get_or_create(pid=pid, image_server=image_server)
+    manifest.languages.add(set_default_language())
     return manifest
