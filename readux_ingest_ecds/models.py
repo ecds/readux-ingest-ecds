@@ -104,6 +104,22 @@ class Local(IngestAbstractModel):
 
     bundle_path = models.CharField(blank=True, max_length=1000)
     warnings = models.CharField(blank=True, max_length=10000)
+    prefix = models.CharField(
+        null=True,
+        blank=True,
+        max_length=255,
+        help_text="""Only from used when creating from S3Ingest.""",
+    )
+    from_s3 = models.BooleanField(
+        default=False,
+        help_text="""Only from used when creating from S3Ingest.""",
+    )
+    source_bucket = models.CharField(
+        null=True,
+        blank=True,
+        max_length=255,
+        help_text="""Only from used when creating from S3Ingest.""",
+    )
 
     class Meta:
         verbose_name_plural = "Local"
@@ -471,7 +487,12 @@ class S3Ingest(models.Model):
             manifest.collections.set(self.collections.all())
             manifest.save()
             local_ingest, created = Local.objects.get_or_create(
-                manifest=manifest, image_server=self.image_server, creator=self.creator
+                manifest=manifest,
+                image_server=self.image_server,
+                creator=self.creator,
+                from_s3=True,
+                prefix=self.prefix,
+                source_bucket=self.s3_bucket,
             )
 
             if created:

@@ -8,6 +8,7 @@ from django.apps import apps
 from django.conf import settings
 from .helpers import get_iiif_models
 from .services.ocr_services import add_ocr_to_canvases
+from .services.file_services import s3_copy
 
 # Use `apps.get_model` to avoid circular import error. Because the parameters used to
 # create a background task have to be serializable, we can't just pass in the model object.
@@ -167,3 +168,16 @@ def add_ocr_manage_task(volume_pid, *args, **kwargs):
     """Add OCR for Volume/Manifest via Manage Command"""
     manifest = Manifest.objects.get(pid=volume_pid)
     add_ocr_to_canvases(manifest)
+
+
+@app.task(
+    name="retry_local_from_s3_task",
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    max_retries=20,
+)
+def retry_local_from_s3_task(ingest_id, *args, **kwargs):
+    """Add OCR for Volume/Manifest via Manage Command"""
+    ingest = Local.objects.get(id=ingest_id)
+    s3_copy(ingest.source_bucket, ingest.manifest.pid, prefix=ingest.prefix)
+    add_canvases_task.delay(str(ingest.id), ingest.manifest.pid)

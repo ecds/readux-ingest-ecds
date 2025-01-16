@@ -5,7 +5,12 @@ from django.core.files.base import ContentFile
 from django.contrib import admin
 from django.shortcuts import redirect
 from .models import Local, Bulk, S3Ingest
-from .tasks import local_ingest_task_ecds, bulk_ingest_task_ecds, s3_ingest_task
+from .tasks import (
+    local_ingest_task_ecds,
+    bulk_ingest_task_ecds,
+    s3_ingest_task,
+    retry_local_from_s3_task,
+)
 from .forms import BulkVolumeUploadForm
 
 LOGGER = logging.getLogger(__name__)
@@ -18,14 +23,21 @@ class LocalAdmin(admin.ModelAdmin):
     fields = ("bundle", "image_server", "collections", "manifest", "warnings")
     readonly_fields = ("manifest", "warnings")
     show_save_and_add_another = False
+    search_fields = ("manifest__pid", "manifest__label")
 
     def save_model(self, request, obj, form, change):
+        is_adding = obj._state.adding
         LOGGER.info(f"INGEST: Local ingest started by {request.user.username}")
         obj.creator = request.user
-        obj.prep()
+        if is_adding or obj.from_s3 is False:
+            obj.prep()
         super().save_model(request, obj, form, change)
         if os.environ["DJANGO_ENV"] != "test":  # pragma: no cover
-            local_ingest_task_ecds.apply_async(args=[obj.id])
+            if is_adding or obj.from_s3 is False:
+                local_ingest_task_ecds.apply_async(args=[obj.id])
+            else:
+                retry_local_from_s3_task.apply_async(args=[obj.id])
+
         else:
             local_ingest_task_ecds(obj.id)
 
