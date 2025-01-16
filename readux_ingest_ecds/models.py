@@ -464,7 +464,7 @@ class S3Ingest(models.Model):
             metadata = dict(row)
             for key, value in metadata.items():
                 if key == "language":
-                    manifest.languages.add(find_language(value))
+                    manifest.languages.set(find_language(value))
                 else:
                     setattr(manifest, key, value)
 

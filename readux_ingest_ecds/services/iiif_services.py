@@ -24,7 +24,21 @@ def find_language(language):
         language (str): Language code.
     """
     Language = get_iiif_models()["Language"]
-    return Language.objects.get(code=language)
+
+    languages = []
+    for language_code in language.split("#"):
+        print(language_code)
+        try:
+            languages.append(
+                Language.objects.get(code=language_code.casefold().strip())
+            )
+        except Language.DoesNotExist:
+            pass
+    print(len(languages))
+    if len(languages) == 0:
+        languages.append(set_default_language())
+
+    return languages
 
 
 def create_manifest(ingest):
@@ -53,7 +67,7 @@ def create_manifest(ingest):
                 # add RelatedLinks from metadata spreadsheet key "related"
                 create_related_links(manifest, value)
             elif key == "language":
-                manifest.languages.add(find_language(value))
+                manifest.languages.set(find_language(value))
             else:
                 # all other keys should exist as fields on Manifest (for now)
                 setattr(manifest, key, value)
@@ -65,7 +79,8 @@ def create_manifest(ingest):
 
     # Ensure that manifest has an ID before updating the M2M relationship
     manifest.save()
-    manifest.languages.add(set_default_language())
+    if not manifest.languages.exists():
+        manifest.languages.add(set_default_language())
     manifest.refresh_from_db()
     manifest.collections.set(ingest.collections.all())
     # Save again once relationship is set
