@@ -26,7 +26,7 @@ def find_language(language):
     Language = get_iiif_models()["Language"]
 
     languages = []
-    for language_code in language.split("#"):
+    for language_code in language.split(";"):
         print(language_code)
         try:
             languages.append(

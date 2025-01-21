@@ -37,7 +37,6 @@ class LocalAdmin(admin.ModelAdmin):
                 local_ingest_task_ecds.apply_async(args=[obj.id])
             else:
                 retry_local_from_s3_task.apply_async(args=[obj.id])
-
         else:
             local_ingest_task_ecds(obj.id)
 
