@@ -268,9 +268,12 @@ class Local(IngestAbstractModel):
 
     def check_canvases(self):
         Canvas = get_iiif_models()["Canvas"]
-        dupes = []
+        unique_canvas_pids = set()
         for canvas in self.manifest.canvas_set.all():
-            canvases = list(Canvas.objects.filter(pid=canvas.pid))
+            unique_canvas_pids.add(canvas.pid)
+        dupes = []
+        for canvas_pid in list(unique_canvas_pids):
+            canvases = list(Canvas.objects.filter(pid=canvas_pid))
             canvases.pop()
             dupes += canvases
 

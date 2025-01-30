@@ -2,7 +2,6 @@ from django.core.management.base import BaseCommand, CommandError
 from readux_ingest_ecds.tasks import add_ocr_manage_task
 from readux_ingest_ecds.helpers import get_iiif_models
 from readux_ingest_ecds.services.ocr_services import (
-    add_ocr_to_canvases,
     get_ocr,
     add_ocr_annotations,
 )

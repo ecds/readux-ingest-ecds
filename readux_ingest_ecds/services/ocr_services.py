@@ -543,6 +543,47 @@ def is_tsv(to_test):
     return False
 
 
+def remove_duplicate_ocr(canvas):
+    """Remove duplicate OCR from a given canvas
+
+    Args:
+        canvas (iiif.canvases.models.Canvas): IIIF Canvas object.
+    """
+    unique = set()
+    dupes = []
+    for ocr in canvas.annotation_set.all():
+        unique.add((ocr.x, ocr.y, ocr.h, ocr.w))
+
+    for ocr_dimensions in list(unique):
+        annos = OCR.objects.filter(
+            canvas=canvas,
+            x=ocr_dimensions[0],
+            y=ocr_dimensions[1],
+            h=ocr_dimensions[2],
+            w=ocr_dimensions[3],
+        )
+        list(annos).pop()
+        dupes += annos
+
+    for dupe in dupes:
+        dupe.delete()
+
+
+# Another way to remove dupe OCR
+# for manifest in Manifest.objects.all():
+#     for canvas in manifest.canvas_set.all():
+#         print(canvas.pid)
+#         all_positions = [anno.order for anno in canvas.annotation_set.all()]
+#         unique_positions = list(set([anno.order for anno in canvas.annotation_set.all()]))
+#         if unique_positions < all_positions:
+#             for position in unique_positions:
+#                 annos = list(Annotation.objects.filter(canvas=canvas, order=position))
+#                 if len(annos) > 1:
+#                     annos.pop()
+#                     for anno in annos:
+#                         anno.delete()
+
+
 def add_ocr_to_canvases(manifest):
     OCR = get_iiif_models()["OCR"]
     new_ocr_annotations = []
