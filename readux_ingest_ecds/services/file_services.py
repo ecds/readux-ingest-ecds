@@ -146,6 +146,7 @@ def canvas_dimensions(image_name):
         if img.startswith(image_name)
     ]
     if len(original_image) > 0:
+        Image.MAX_IMAGE_PIXELS = None
         return Image.open(
             os.path.join(settings.INGEST_PROCESSING_DIR, original_image[0])
         ).size
