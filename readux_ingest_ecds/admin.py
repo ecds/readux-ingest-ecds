@@ -20,7 +20,15 @@ class LocalAdmin(admin.ModelAdmin):
     """Django admin ingest.models.local resource."""
 
     list_display = ["manifest"]
-    fields = ("bundle", "image_server", "collections", "manifest", "warnings")
+    fields = (
+        "bundle",
+        "image_server",
+        "collections",
+        "manifest",
+        "warnings",
+        "prefix",
+        "source_bucket",
+    )
     readonly_fields = ("manifest", "warnings")
     show_save_and_add_another = False
     search_fields = ("manifest__pid", "manifest__label")
