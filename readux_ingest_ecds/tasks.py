@@ -179,5 +179,16 @@ def add_ocr_manage_task(volume_pid, *args, **kwargs):
 def retry_local_from_s3_task(ingest_id, *args, **kwargs):
     """Add OCR for Volume/Manifest via Manage Command"""
     ingest = Local.objects.get(id=ingest_id)
-    s3_copy(ingest.source_bucket, ingest.manifest.pid, prefix=ingest.prefix)
+
+    # Create or clear the trigger file
+    open(ingest.trigger_file, "w", encoding="utf-8").close()
+
+    image_files, _ = s3_copy(
+        ingest.source_bucket, ingest.manifest.pid, prefix=ingest.prefix
+    )
+
+    for image_file in image_files:
+        with open(ingest.trigger_file, "a", encoding="utf-8") as t_file:
+            t_file.write(f"{image_file}\n")
+
     add_canvases_task.delay(str(ingest.id), ingest.manifest.pid)
