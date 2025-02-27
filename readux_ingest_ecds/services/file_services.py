@@ -170,7 +170,9 @@ def s3_copy(source, pid, prefix=None):
     keys_to_copy = [
         str(obj.key)
         for obj in source_bucket.objects.all()
-        if pid in obj.key and not str(obj.key).endswith("/")
+        if pid in obj.key
+        and not str(obj.key).endswith("/")
+        and pid in obj.key.split("/")
     ]
 
     if prefix is not None:

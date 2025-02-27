@@ -51,10 +51,13 @@ class S3Test(TestCase):
     def create_source_images(
         self, pid=None, count=1, include_pid_in_file=True, prefix="tmp"
     ):
+        print("$$$$$$$$$$$$$$")
+        print(f"{pid} - {count}")
+        print("$$$$$$$$$$$$$$")
         if pid is None:
             raise Exception("You must supply a pid kwarg")
 
-        sub_dir = prefix if include_pid_in_file else pid
+        sub_dir = f"{prefix}/{pid}" if include_pid_in_file else pid
         self.fs_storage = FileSystemStorage(
             root_path=tempfile.gettempdir(),
             rel_path=sub_dir,
@@ -95,14 +98,32 @@ class S3Test(TestCase):
                 os.path.join(self.fs_storage.root_path, ocr_key), f"ocr/{ocr_key}"
             )
 
-    def create_pids(self, pid_count=1, image_count=1, include_pid_in_file=True):
+    def create_pids(
+        self,
+        pid_count=1,
+        image_count=1,
+        include_pid_in_file=True,
+        specific_pid=None,
+        prefix=None,
+    ):
+        print("&&&&&&&&&&&&&&&")
+        print(specific_pid)
+        print("&&&&&&&&&&&&&&&")
+        # We don't want to create multiple with same pid.
+        if pid_count > 1 and specific_pid is not None:
+            assert False
+
         pids = []
         pid_file = os.path.join(self.fixture_path, self.fake.file_name(extension="csv"))
         with open(pid_file, "w", encoding="utf-8") as t_file:
             t_file.write("PID,Label\n")
 
         for _ in range(pid_count):
-            pid = self.fake.isbn10()
+            pid = self.fake.isbn10() if specific_pid is None else specific_pid
+            if prefix is not None:
+                pid = f"{prefix}_{pid}"
+            print("*********")
+            print(pid)
             with open(pid_file, "a", encoding="utf-8") as t_file:
                 t_file.write(f"{pid},{self.fake.name()}\n")
             pids.append(pid)
@@ -174,8 +195,10 @@ class S3Test(TestCase):
             assert len(ingested_ocr) == 3
 
     def test_s3_ingest_with_prefix(self):
+        # Make files without prefix
         pids, pid_file = self.create_pids(pid_count=3, image_count=2)
 
+        # Make files with prefix.
         for pid in pids:
             self.create_source_images(pid=pid, count=2, prefix="emory")
 
@@ -218,6 +241,66 @@ class S3Test(TestCase):
                         assert os.path.basename(source_file) not in canvases
 
             assert Manifest.objects.filter(pid=pid).exists()
+            # Assert it only included files with prefix.
             assert Manifest.objects.get(pid=pid).canvas_set.count() == 2
             assert len(ingested_images) == 2
             assert len(ingested_ocr) == 2
+
+    def test_s3_ingest_with_partial_pid(self):
+        """
+        This is to ensure a pid like "oxford" doesn't also collect files with pids like "oxford2"
+        """
+        pids, pid_file = self.create_pids(specific_pid="oxford")
+        other_pids, other_pid_file = self.create_pids(
+            pid_count=3, image_count=2, prefix="oxford"
+        )
+
+        for pid in pids:
+            assert pid == "oxford"
+
+        upload_file = SimpleUploadedFile(
+            name=os.path.basename(pid_file),
+            content=open(pid_file, "rb").read(),
+        )
+
+        for pid in other_pids:
+            assert "oxford" != pid
+            assert "oxford" in pid
+
+        other_upload_file = SimpleUploadedFile(
+            name=os.path.basename(pid_file),
+            content=open(pid_file, "rb").read(),
+        )
+
+        ingest = S3IngestFactory(metadata_spreadsheet=upload_file)
+        other_ingest = S3IngestFactory(metadata_spreadsheet=other_upload_file)
+        s3_ingest_task(ingest.id)
+        # s3_ingest_task(other_ingest.id)
+
+        destination_bucket = self.s3.Bucket(settings.INGEST_BUCKET)
+
+        source_files = [str(obj.key) for obj in self.s3.Bucket("source").objects.all()]
+
+        assert len(source_files) == 14
+        # Note: this assumes that the pid is in the 3rd position in the path.
+        assert len([f for f in source_files if "oxford" in f]) == 14
+        assert (
+            len([f for f in source_files if f.split("/")[2].startswith("oxford")]) == 14
+        )
+        assert len([f for f in source_files if f.split("/")[2] == "oxford"]) == 2
+
+        for pid in pids:
+            ingested_images = [
+                str(obj.key)
+                for obj in destination_bucket.objects.all()
+                if str(obj.key).startswith(f"{settings.INGEST_STAGING_PREFIX}/{pid}_")
+            ]
+            ingested_ocr = [
+                str(obj.key)
+                for obj in destination_bucket.objects.all()
+                if str(obj.key).startswith(f"{settings.INGEST_OCR_PREFIX}/{pid}/{pid}_")
+            ]
+            assert Manifest.objects.filter(pid=pid).exists()
+            assert Manifest.objects.get(pid=pid).canvas_set.count() == 1
+            assert len(ingested_images) == 1
+            assert len(ingested_ocr) == 1
