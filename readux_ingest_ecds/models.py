@@ -554,6 +554,12 @@ class Remote(models.Model):
         null=True,
         related_name="ecds_remote_ingest_image_server",
     )
+    manifest = models.ForeignKey(
+        Manifest,
+        on_delete=models.DO_NOTHING,
+        null=True,
+        related_name="ecds_remote_ingest_manifest",
+    )
 
     def ingest(self):
         """
@@ -589,11 +595,13 @@ class Remote(models.Model):
                             page=annos["id"], ingest=self
                         )
 
+        self.manifest = manifest
+        self.save()
+
         if len(new_canvases) > 0:
             Canvas.objects.bulk_create(new_canvases)
 
         if self.remoteannotationpage_set.count() > 0:
-            self.save()
             from .tasks import remote_ocr_task
 
             self.refresh_from_db()

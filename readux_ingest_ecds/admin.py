@@ -4,12 +4,13 @@ from mimetypes import guess_type
 from django.core.files.base import ContentFile
 from django.contrib import admin
 from django.shortcuts import redirect
-from .models import Local, Bulk, S3Ingest
+from .models import Local, Bulk, S3Ingest, Remote
 from .tasks import (
     local_ingest_task_ecds,
     bulk_ingest_task_ecds,
     s3_ingest_task,
     retry_local_from_s3_task,
+    remote_task,
 )
 from .forms import BulkVolumeUploadForm
 
@@ -117,6 +118,31 @@ class S3IngestAdmin(admin.ModelAdmin):
         model = S3Ingest
 
 
+class RemoteAdmin(admin.ModelAdmin):
+    """Django admin ingest.models.remote resource."""
+
+    list_display = ["manifest"]
+    fields = (
+        "link",
+        "image_server",
+        "manifest",
+    )
+    readonly_fields = ("manifest",)
+
+    def save_model(self, request, obj, form, change):
+        LOGGER.info(f"INGEST: Remote ingest started")
+
+        super().save_model(request, obj, form, change)
+        if os.environ["DJANGO_ENV"] != "test":  # pragma: no cover
+            remote_task.apply_async(args=[obj.id])
+        else:
+            remote_task(obj.id)
+
+    class Meta:
+        model = Remote
+
+
 admin.site.register(Local, LocalAdmin)
 admin.site.register(Bulk, BulkAdmin)
 admin.site.register(S3Ingest, S3IngestAdmin)
+admin.site.register(Remote, RemoteAdmin)

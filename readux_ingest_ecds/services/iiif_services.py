@@ -133,6 +133,6 @@ def ocr_from_annotation_page(link, page):
     data = response.json()
 
     for item in data["items"]:
-        annos.append(deserialize(settings.ANNOTATION_DESERIALIZER, item))
+        annos.append(deserialize(settings.ANNOTATION_DESERIALIZER, item)[0])
 
     return annos
