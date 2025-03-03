@@ -23,11 +23,14 @@ def Deserializer(data):
     soup = BeautifulSoup(content, "html.parser")
     selector = data["target"]["selector"]["value"].split(":")[-1]
     x, y, w, h = [int(n) for n in selector.split(",")]
-    return {
-        "content": soup.get_text(separator=" ", strip=True),
-        "canvas": Canvas.objects.get(pid=data["target"]["source"].split("/")[-1]),
-        "w": w,
-        "h": h,
-        "x": x,
-        "y": y,
-    }
+    return (
+        {
+            "content": soup.get_text(separator=" ", strip=True),
+            "canvas": Canvas.objects.get(pid=data["target"]["source"].split("/")[-1]),
+            "w": w,
+            "h": h,
+            "x": x,
+            "y": y,
+        },
+        None,
+    )
