@@ -14,6 +14,7 @@ from .services.file_services import s3_copy
 # create a background task have to be serializable, we can't just pass in the model object.
 Local = apps.get_model("readux_ingest_ecds.local")  # pylint: disable = invalid-name
 Bulk = apps.get_model("readux_ingest_ecds.bulk")  # pylint: disable = invalid-name
+Remote = apps.get_model("readux_ingest_ecds.remote")  # pylint: disable = invalid-name
 S3Ingest = apps.get_model(
     "readux_ingest_ecds.s3ingest"
 )  # pylint: disable = invalid-name
@@ -192,3 +193,27 @@ def retry_local_from_s3_task(ingest_id, *args, **kwargs):
             t_file.write(f"{image_file}\n")
 
     add_canvases_task.delay(str(ingest.id), ingest.manifest.pid)
+
+
+@app.task(
+    name="remote_task",
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    max_retries=20,
+)
+def remote_task(ingest_id, *args, **kwargs):
+    """Task for remote ingest."""
+    ingest = Remote.objects.get(id=ingest_id)
+    ingest.ingest()
+
+
+@app.task(
+    name="remote_ocr_task",
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    max_retries=20,
+)
+def remote_ocr_task(ingest_id, *args, **kwargs):
+    """Task for remote ingest."""
+    ingest = Remote.objects.get(id=ingest_id)
+    ingest.add_ocr()

@@ -1,6 +1,10 @@
 """ Module of service methods for IIIF objects. """
 
-import os
+import requests
+import httpretty
+from os import environ, path
+from django.core.serializers import deserialize
+from django.conf import settings
 from readux_ingest_ecds.helpers import get_iiif_models
 from .metadata_services import create_related_links
 
@@ -27,14 +31,12 @@ def find_language(language):
 
     languages = []
     for language_code in language.split(";"):
-        print(language_code)
         try:
             languages.append(
                 Language.objects.get(code=language_code.casefold().strip())
             )
         except Language.DoesNotExist:
             pass
-    print(len(languages))
     if len(languages) == 0:
         languages.append(set_default_language())
 
@@ -101,3 +103,36 @@ def create_manifest_from_pid(pid, image_server):
     manifest, _ = Manifest.objects.get_or_create(pid=pid, image_server=image_server)
     manifest.languages.add(set_default_language())
     return manifest
+
+
+def manifest_from_manifest(link):
+    if environ["DJANGO_ENV"] == "test":
+        fake_manifest = open(path.join(settings.FIXTURE_DIR, "v3_manifest.json"))
+        content = fake_manifest.read()
+        httpretty.enable()
+        httpretty.register_uri(httpretty.GET, link, body=content)
+
+    response = requests.get(link)
+    data = response.json()
+    return (deserialize(settings.MANIFEST_DESERIALIZER, data), data["items"])
+
+
+def canvas_from_manifest(data):
+    return deserialize(settings.CANVAS_DESERIALIZER, data)
+
+
+def ocr_from_annotation_page(link, page):
+    if environ["DJANGO_ENV"] == "test":
+        fake_annos = open(path.join(settings.FIXTURE_DIR, f"ocr_page_{page + 1}.json"))
+        content = fake_annos.read()
+        httpretty.enable()
+        httpretty.register_uri(httpretty.GET, link, body=str(content))
+
+    annos = []
+    response = requests.get(link)
+    data = response.json()
+
+    for item in data["items"]:
+        annos.append(deserialize(settings.ANNOTATION_DESERIALIZER, item))
+
+    return annos

@@ -37,6 +37,14 @@ INGEST_STAGING_PREFIX = "incoming"
 INGEST_OCR_PREFIX = "ocr"
 READUX_EMAIL_SENDER = "donotreplay@readux.io"
 HOSTNAME = "readux.io"
+MANIFEST_DESERIALIZER = "manifest"
+CANVAS_DESERIALIZER = "canvas"
+ANNOTATION_DESERIALIZER = "ocr"
+SERIALIZATION_MODULES = {
+    "ocr": "iiif.serializers.ocr",
+    "canvas": "iiif.serializers.canvas",
+    "manifest": "iiif.serializers.manifest",
+}
 
 # Readux settings
 DATASTREAM_PREFIX = "http://repo.library.emory.edu/fedora/objects/"

@@ -1,9 +1,11 @@
 import os
+import json
+from datetime import datetime
 from django.test import TestCase
 from django.conf import settings
 from readux_ingest_ecds.services import iiif_services
 from readux_ingest_ecds.services.metadata_services import metadata_from_file
-from .factories import LocalFactory, LanguageFactory
+from .factories import LocalFactory, LanguageFactory, CanvasFactory
 
 
 class IIIFServicesTest(TestCase):
@@ -83,3 +85,33 @@ class IIIFServicesTest(TestCase):
         assert language in manifest.languages.all()
         assert default_language not in manifest.languages.all()
         assert manifest.languages.count() == 1
+
+    def test_creating_manifest_from_manifest(self):
+        """It should crete a manifest/volume from a remote IIIF manifest."""
+        manifest, _ = iiif_services.manifest_from_manifest("https://example.org")
+        with open(os.path.join(self.fixture_path, "v3_manifest.json")) as f:
+            content = json.load(f)
+            assert manifest["label"] == content["label"]
+            assert manifest["published_date"] == datetime(1878, 1, 1)
+            assert "Full Title" in [d["label"] for d in manifest["metadata"]]
+
+    def test_creating_canvas_from_manifest(self):
+        """It should create a canvas from a canvas item from a IIIF manifest."""
+        with open(os.path.join(self.fixture_path, "v3_manifest.json")) as f:
+            content = json.load(f)
+            item = content["items"][0]
+            assert item["type"] == "Canvas"
+            canvas = iiif_services.canvas_from_manifest(item)
+            assert canvas["width"] == item["width"]
+            assert canvas["pid"] == "1878-Helpin-EMU-0001.tiff"
+
+    def test_creating_ocr_from_annotation_page(self):
+        """It should create an OCR annotation from a IIIF annotation page."""
+        CanvasFactory.create(pid="1878-Helpin-EMU-0001.tiff")
+        with open(os.path.join(self.fixture_path, "ocr_page_1.json")) as f:
+            content = json.load(f)
+            item = content["items"][0]
+            ocr_annos = iiif_services.ocr_from_annotation_page("https://example.org", 0)
+            assert "By" in ocr_annos[0]["content"]
+            assert ocr_annos[0]["x"] == 741
+            assert len(ocr_annos) == 4

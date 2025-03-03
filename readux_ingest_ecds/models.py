@@ -7,6 +7,7 @@ from django.db import models
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.validators import FileExtensionValidator
+from django.core.serializers import deserialize
 from .services.file_services import (
     is_image,
     is_ocr,
@@ -21,6 +22,9 @@ from .services.iiif_services import (
     create_manifest,
     create_manifest_from_pid,
     find_language,
+    manifest_from_manifest,
+    canvas_from_manifest,
+    ocr_from_annotation_page,
 )
 from .services.metadata_services import metadata_from_file, clean_metadata
 from .helpers import get_iiif_models
@@ -30,6 +34,8 @@ from .mail import send_email_on_success, send_email_on_failure
 Manifest = get_iiif_models()["Manifest"]
 ImageServer = get_iiif_models()["ImageServer"]
 Collection = get_iiif_models()["Collection"]
+Canvas = get_iiif_models()["Canvas"]
+OCR = get_iiif_models()["OCR"]
 
 LOGGER = logging.getLogger(__name__)
 
@@ -532,3 +538,87 @@ class S3Ingest(models.Model):
                 LOGGER.warning(f"Ingest for {manifest.pid} already exists.")
 
         self.delete()
+
+
+class Remote(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    link = models.CharField(
+        null=False,
+        blank=False,
+        max_length=500,
+        help_text="""URL for remote IIIF manifest.""",
+    )
+    image_server = models.ForeignKey(
+        ImageServer,
+        on_delete=models.DO_NOTHING,
+        null=True,
+        related_name="ecds_remote_ingest_image_server",
+    )
+
+    def ingest(self):
+        """
+        Ingest from remote manifest.
+        """
+        Manifest = get_iiif_models()["Manifest"]
+        Canvas = get_iiif_models()["Canvas"]
+        OCR = get_iiif_models()["OCR"]
+        new_canvases = []
+        manifest_attrs, items = manifest_from_manifest(self.link)
+        manifest = Manifest(**manifest_attrs)
+        manifest.image_server = self.image_server
+        manifest.save()
+        for index, item in enumerate(items):
+            canvas = None
+            if item["type"] == "Canvas":
+                canvas_attrs = canvas_from_manifest(item)
+                canvas = Canvas(**canvas_attrs)
+                canvas.position = index + 1
+                canvas.manifest = manifest
+                canvas.image_server = self.image_server
+                new_canvases.append(canvas)
+            if (
+                canvas is not None
+                and "annotations" in item.keys()
+                and len(item["annotations"]) > 0
+            ):
+                for annos in item["annotations"]:
+                    if annos["type"] == "AnnotationPage" and annos["id"].endswith(
+                        "ocr"
+                    ):
+                        RemoteAnnotationPage.objects.create(
+                            page=annos["id"], ingest=self
+                        )
+
+        if len(new_canvases) > 0:
+            Canvas.objects.bulk_create(new_canvases)
+
+        if self.remoteannotationpage_set.count() > 0:
+            self.save()
+            from .tasks import remote_ocr_task
+
+            self.refresh_from_db()
+            if os.environ["DJANGO_ENV"] == "test":
+                remote_ocr_task(str(self.id))
+            else:
+                remote_ocr_task.delay(str(self.id))
+
+    def add_ocr(self):
+        OCR = get_iiif_models()["OCR"]
+        new_ocr_annos = []
+        for index, anno_page in enumerate(self.remoteannotationpage_set.all()):
+            ocr_attrs = ocr_from_annotation_page(anno_page.page, index)
+            for ocr_anno in ocr_attrs:
+                ocr = OCR(**ocr_anno)
+                new_ocr_annos.append(ocr)
+
+        OCR.objects.bulk_create(new_ocr_annos)
+
+
+class RemoteAnnotationPage(models.Model):
+    page = models.CharField(
+        null=False,
+        blank=False,
+        max_length=500,
+        help_text="""URL for remote IIIF annotation page.""",
+    )
+    ingest = models.ForeignKey(Remote, on_delete=models.CASCADE)

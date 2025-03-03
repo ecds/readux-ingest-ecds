@@ -1,0 +1,142 @@
+{
+  "@context": "http://iiif.io/api/presentation/3/context.json",
+  "id": "https://staging.soundingspirit.org/iiif/1878-Helpin-EMU/annotationpage/1878-Helpin-EMU-0003.tiff",
+  "type": "AnnotationPage",
+  "items": [
+    {
+      "@context": "http://www.w3.org/ns/anno.jsonld",
+      "id": "#f79b784e-cc00-46b9-8dc1-a32f0187c228",
+      "type": "Annotation",
+      "body": [
+        {
+          "type": "TextualBody",
+          "value": "<span id='f79b784e-cc00-46b9-8dc1-a32f0187c228' class='anno-f79b784e-cc00-46b9-8dc1-a32f0187c228' data-letter-spacing='0.1125874125874126'>45810</span>",
+          "purpose": "supplementing",
+          "format": "text/html",
+          "creator": {
+            "id": "ocr",
+            "name": "OCR"
+          },
+          "created": "2025-01-14T23:10:01.117Z",
+          "modified": "2025-01-14T23:10:01.117Z"
+        }
+      ],
+      "target": {
+        "source": "https://iip.readux.io/iiif/2/1878-Helpin-EMU-0003.tiff",
+        "selector": {
+          "type": "FragmentSelector",
+          "value": "xywh=pixel:375,207,286,80",
+          "conformsTo": "http://www.w3.org/TR/media-frags/"
+        }
+      }
+    },
+    {
+      "@context": "http://www.w3.org/ns/anno.jsonld",
+      "id": "#81e6af47-efe4-4617-b6fb-9dd6b037503a",
+      "type": "Annotation",
+      "body": [
+        {
+          "type": "TextualBody",
+          "value": "<span id='81e6af47-efe4-4617-b6fb-9dd6b037503a' class='anno-81e6af47-efe4-4617-b6fb-9dd6b037503a' data-letter-spacing='0.09821428571428571'>1878</span>",
+          "purpose": "supplementing",
+          "format": "text/html",
+          "creator": {
+            "id": "ocr",
+            "name": "OCR"
+          },
+          "created": "2025-01-14T23:10:01.117Z",
+          "modified": "2025-01-14T23:10:01.117Z"
+        }
+      ],
+      "target": {
+        "source": "https://iip.readux.io/iiif/2/1878-Helpin-EMU-0003.tiff",
+        "selector": {
+          "type": "FragmentSelector",
+          "value": "xywh=pixel:1486,705,175,85",
+          "conformsTo": "http://www.w3.org/TR/media-frags/"
+        }
+      }
+    },
+    {
+      "@context": "http://www.w3.org/ns/anno.jsonld",
+      "id": "#3bc7cb6f-b7dd-4501-8538-5300a56a5c70",
+      "type": "Annotation",
+      "body": [
+        {
+          "type": "TextualBody",
+          "value": "<span id='3bc7cb6f-b7dd-4501-8538-5300a56a5c70' class='anno-3bc7cb6f-b7dd-4501-8538-5300a56a5c70' data-letter-spacing='0.04525862068965517'>Help</span>",
+          "purpose": "supplementing",
+          "format": "text/html",
+          "creator": {
+            "id": "ocr",
+            "name": "OCR"
+          },
+          "created": "2025-01-14T23:10:01.117Z",
+          "modified": "2025-01-14T23:10:01.117Z"
+        }
+      ],
+      "target": {
+        "source": "https://iip.readux.io/iiif/2/1878-Helpin-EMU-0003.tiff",
+        "selector": {
+          "type": "FragmentSelector",
+          "value": "xywh=pixel:1488,799,174,114",
+          "conformsTo": "http://www.w3.org/TR/media-frags/"
+        }
+      }
+    },
+    {
+      "@context": "http://www.w3.org/ns/anno.jsonld",
+      "id": "#7929695b-95c3-4d2a-8711-a071a380b8d2",
+      "type": "Annotation",
+      "body": [
+        {
+          "type": "TextualBody",
+          "value": "<span id='7929695b-95c3-4d2a-8711-a071a380b8d2' class='anno-7929695b-95c3-4d2a-8711-a071a380b8d2' data-letter-spacing='0.06794275929549902'>Entered</span>",
+          "purpose": "supplementing",
+          "format": "text/html",
+          "creator": {
+            "id": "ocr",
+            "name": "OCR"
+          },
+          "created": "2025-01-14T23:10:01.117Z",
+          "modified": "2025-01-14T23:10:01.117Z"
+        }
+      ],
+      "target": {
+        "source": "https://iip.readux.io/iiif/2/1878-Helpin-EMU-0003.tiff",
+        "selector": {
+          "type": "FragmentSelector",
+          "value": "xywh=pixel:895,1010,146,35",
+          "conformsTo": "http://www.w3.org/TR/media-frags/"
+        }
+      }
+    },
+    {
+      "@context": "http://www.w3.org/ns/anno.jsonld",
+      "id": "#b0e635ae-35f6-45c2-b858-934c38da2fee",
+      "type": "Annotation",
+      "body": [
+        {
+          "type": "TextualBody",
+          "value": "<span id='b0e635ae-35f6-45c2-b858-934c38da2fee' class='anno-b0e635ae-35f6-45c2-b858-934c38da2fee' data-letter-spacing='0.04325396825396825'>according</span>",
+          "purpose": "supplementing",
+          "format": "text/html",
+          "creator": {
+            "id": "ocr",
+            "name": "OCR"
+          },
+          "created": "2025-01-14T23:10:01.117Z",
+          "modified": "2025-01-14T23:10:01.117Z"
+        }
+      ],
+      "target": {
+        "source": "https://iip.readux.io/iiif/2/1878-Helpin-EMU-0003.tiff",
+        "selector": {
+          "type": "FragmentSelector",
+          "value": "xywh=pixel:1052,1011,175,38",
+          "conformsTo": "http://www.w3.org/TR/media-frags/"
+        }
+      }
+    }
+  ]
+}

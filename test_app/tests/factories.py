@@ -3,7 +3,7 @@ from uuid import uuid4
 from factory.django import DjangoModelFactory, FileField
 from factory import Faker, SubFactory
 from django.conf import settings
-from readux_ingest_ecds.models import Local, Bulk, S3Ingest
+from readux_ingest_ecds.models import Local, Bulk, S3Ingest, Remote
 from iiif.models import ImageServer, Manifest, User, Collection, Canvas, Language
 
 
@@ -91,3 +91,13 @@ class LanguageFactory(DjangoModelFactory):
 
     class Meta:
         model = Language
+
+
+class RemoteFactory(DjangoModelFactory):
+    """Factory for Remote ingest"""
+
+    link = "https://ecds.emory.edu/iiif/v3/1878-Helpin-EMU/manifest"
+    image_server = SubFactory(ImageServerFactory)
+
+    class Meta:
+        model = Remote

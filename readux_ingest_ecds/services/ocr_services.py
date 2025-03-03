@@ -1,10 +1,9 @@
-import os
 import httpretty
 import json
 import csv
 import re
 import tempfile
-from os import environ, path, unlink, remove
+from os import environ, path, unlink
 from io import BytesIO
 import logging
 from hocr_spec import HocrValidator

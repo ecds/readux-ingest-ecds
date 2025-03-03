@@ -37,6 +37,13 @@ class Manifest(models.Model):
     label = models.TextField(null=True, blank=True)
     author = models.TextField(null=True, blank=True)
     published_city = models.TextField(null=True, blank=True)
+    published_date = models.CharField(
+        "Published date (display)",
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Used for display only.",
+    )
     publisher = models.TextField(null=True, blank=True)
     metadata = models.JSONField(default=dict, blank=True)
     languages = models.ManyToManyField(

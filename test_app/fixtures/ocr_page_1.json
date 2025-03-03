@@ -1,0 +1,115 @@
+{
+  "@context": "http://iiif.io/api/presentation/3/context.json",
+  "id": "https://staging.soundingspirit.org/iiif/1878-Helpin-EMU/annotationpage/1878-Helpin-EMU-0001.tiff",
+  "type": "AnnotationPage",
+  "items": [
+    {
+      "@context": "http://www.w3.org/ns/anno.jsonld",
+      "id": "#7b0bab43-dba5-4015-9cbb-8428ba6cd583",
+      "type": "Annotation",
+      "body": [
+        {
+          "type": "TextualBody",
+          "value": "<span id='7b0bab43-dba5-4015-9cbb-8428ba6cd583' class='anno-7b0bab43-dba5-4015-9cbb-8428ba6cd583' data-letter-spacing='0.14583333333333334'>\"By</span>",
+          "purpose": "supplementing",
+          "format": "text/html",
+          "creator": {
+            "id": "ocr",
+            "name": "OCR"
+          },
+          "created": "2025-01-14T23:10:01.113Z",
+          "modified": "2025-01-14T23:10:01.113Z"
+        }
+      ],
+      "target": {
+        "source": "https://iip.readux.io/iiif/2/1878-Helpin-EMU-0001.tiff",
+        "selector": {
+          "type": "FragmentSelector",
+          "value": "xywh=pixel:741,335,125,75",
+          "conformsTo": "http://www.w3.org/TR/media-frags/"
+        }
+      }
+    },
+    {
+      "@context": "http://www.w3.org/ns/anno.jsonld",
+      "id": "#7bef0874-a3fb-4ac3-810e-acf4bc67152d",
+      "type": "Annotation",
+      "body": [
+        {
+          "type": "TextualBody",
+          "value": "<span id='7bef0874-a3fb-4ac3-810e-acf4bc67152d' class='anno-7bef0874-a3fb-4ac3-810e-acf4bc67152d' data-letter-spacing='0.11492146596858638'>songs</span>",
+          "purpose": "supplementing",
+          "format": "text/html",
+          "creator": {
+            "id": "ocr",
+            "name": "OCR"
+          },
+          "created": "2025-01-14T23:10:01.113Z",
+          "modified": "2025-01-14T23:10:01.113Z"
+        }
+      ],
+      "target": {
+        "source": "https://iip.readux.io/iiif/2/1878-Helpin-EMU-0001.tiff",
+        "selector": {
+          "type": "FragmentSelector",
+          "value": "xywh=pixel:891,359,191,52",
+          "conformsTo": "http://www.w3.org/TR/media-frags/"
+        }
+      }
+    },
+    {
+      "@context": "http://www.w3.org/ns/anno.jsonld",
+      "id": "#5b8728e6-a46e-4b8f-b58a-d8bbe6cc0b11",
+      "type": "Annotation",
+      "body": [
+        {
+          "type": "TextualBody",
+          "value": "<span id='5b8728e6-a46e-4b8f-b58a-d8bbe6cc0b11' class='anno-5b8728e6-a46e-4b8f-b58a-d8bbe6cc0b11' data-letter-spacing='0.28618421052631576'>of</span>",
+          "purpose": "supplementing",
+          "format": "text/html",
+          "creator": {
+            "id": "ocr",
+            "name": "OCR"
+          },
+          "created": "2025-01-14T23:10:01.113Z",
+          "modified": "2025-01-14T23:10:01.113Z"
+        }
+      ],
+      "target": {
+        "source": "https://iip.readux.io/iiif/2/1878-Helpin-EMU-0001.tiff",
+        "selector": {
+          "type": "FragmentSelector",
+          "value": "xywh=pixel:1140,356,76,52",
+          "conformsTo": "http://www.w3.org/TR/media-frags/"
+        }
+      }
+    },
+    {
+      "@context": "http://www.w3.org/ns/anno.jsonld",
+      "id": "#6e26d6a8-5ee5-4fb8-a3bd-dbb201441e20",
+      "type": "Annotation",
+      "body": [
+        {
+          "type": "TextualBody",
+          "value": "<span id='6e26d6a8-5ee5-4fb8-a3bd-dbb201441e20' class='anno-6e26d6a8-5ee5-4fb8-a3bd-dbb201441e20' data-letter-spacing='0.05192476580796253'>praise,</span>",
+          "purpose": "supplementing",
+          "format": "text/html",
+          "creator": {
+            "id": "ocr",
+            "name": "OCR"
+          },
+          "created": "2025-01-14T23:10:01.113Z",
+          "modified": "2025-01-14T23:10:01.113Z"
+        }
+      ],
+      "target": {
+        "source": "https://iip.readux.io/iiif/2/1878-Helpin-EMU-0001.tiff",
+        "selector": {
+          "type": "FragmentSelector",
+          "value": "xywh=pixel:1256,341,244,71",
+          "conformsTo": "http://www.w3.org/TR/media-frags/"
+        }
+      }
+    }
+  ]
+}

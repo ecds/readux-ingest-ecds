@@ -51,9 +51,6 @@ class S3Test(TestCase):
     def create_source_images(
         self, pid=None, count=1, include_pid_in_file=True, prefix="tmp"
     ):
-        print("$$$$$$$$$$$$$$")
-        print(f"{pid} - {count}")
-        print("$$$$$$$$$$$$$$")
         if pid is None:
             raise Exception("You must supply a pid kwarg")
 
@@ -106,9 +103,6 @@ class S3Test(TestCase):
         specific_pid=None,
         prefix=None,
     ):
-        print("&&&&&&&&&&&&&&&")
-        print(specific_pid)
-        print("&&&&&&&&&&&&&&&")
         # We don't want to create multiple with same pid.
         if pid_count > 1 and specific_pid is not None:
             assert False
@@ -122,8 +116,6 @@ class S3Test(TestCase):
             pid = self.fake.isbn10() if specific_pid is None else specific_pid
             if prefix is not None:
                 pid = f"{prefix}_{pid}"
-            print("*********")
-            print(pid)
             with open(pid_file, "a", encoding="utf-8") as t_file:
                 t_file.write(f"{pid},{self.fake.name()}\n")
             pids.append(pid)

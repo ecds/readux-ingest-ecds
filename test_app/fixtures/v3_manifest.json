@@ -1,0 +1,118 @@
+{
+  "@context": "http://iiif.io/api/presentation/3/context.json",
+  "id": "https://readux.test/iiif/v3/1878-Helpin-EMU/manifest",
+  "type": "Manifest",
+  "label": "The Helping Hand",
+  "metadata": [
+    {
+      "label": "Published Date (display)",
+      "value": "1878"
+    },
+    {
+      "label": "Full Title",
+      "value": "Helping hand, The ; extended & dedicated to Sunday schools & praise meetings."
+    }
+  ],
+  "summary": {
+    "none": [
+      "Some summary."
+    ]
+  },
+  "thumbnail": [
+    {
+      "id": "https://iip.readux.io/iiif/2/1878-Helpin-EMU-0001.tiff/full/600,/0/default.jpg",
+      "type": "Image",
+      "format": "image/jpeg",
+      "service": [
+        {
+          "id": "https://iip.readux.io/iiif/2/1878-Helpin-EMU-0001.tiff",
+          "type": "ImageService3",
+          "profile": "level1"
+        }
+      ]
+    }
+  ],
+  "items": [
+    {
+      "id": "https://readux.test/iiif/v3/1878-Helpin-EMU-0001.tiff/canvas",
+      "type": "Canvas",
+      "label": "",
+      "height": 2314,
+      "width": 2951,
+      "items": [
+        {
+          "id": "https://readux.test/iiif/v3/1878-Helpin-EMU-0001.tiff/page/1",
+          "type": "Annotation",
+          "motivation": "painting",
+          "body": {
+            "id": "https://iip.readux.io/iiif/2/1878-Helpin-EMU-0001.tiff",
+            "type": "Image",
+            "format": "image/jpeg",
+            "height": 2314,
+            "width": 2951
+          }
+        }
+      ],
+      "annotations": [
+        {
+          "type": "AnnotationPage",
+          "id": "https://readux.test/iiif/v3/1878-Helpin-EMU/annotations/1878-Helpin-EMU-0001.tiff/ocr"
+        }
+      ]
+    },
+    {
+      "id": "https://readux.test/iiif/v3/1878-Helpin-EMU-0002.tiff/canvas",
+      "type": "Canvas",
+      "label": "",
+      "height": 2214,
+      "width": 2802,
+      "items": [
+        {
+          "id": "https://readux.test/iiif/v3/1878-Helpin-EMU-0002.tiff/page/2",
+          "type": "Annotation",
+          "motivation": "painting",
+          "body": {
+            "id": "https://iip.readux.io/iiif/2/1878-Helpin-EMU-0002.tiff",
+            "type": "Image",
+            "format": "image/jpeg",
+            "height": 2214,
+            "width": 2802
+          }
+        }
+      ],
+      "annotations": [
+        {
+          "type": "AnnotationPage",
+          "id": "https://readux.test/iiif/v3/1878-Helpin-EMU/annotations/1878-Helpin-EMU-0002.tiff/ocr"
+        }
+      ]
+    },
+    {
+      "id": "https://readux.test/iiif/v3/1878-Helpin-EMU-0003.tiff/canvas",
+      "type": "Canvas",
+      "label": "",
+      "height": 2194,
+      "width": 2780,
+      "items": [
+        {
+          "id": "https://readux.test/iiif/v3/1878-Helpin-EMU-0003.tiff/page/3",
+          "type": "Annotation",
+          "motivation": "painting",
+          "body": {
+            "id": "https://iip.readux.io/iiif/2/1878-Helpin-EMU-0003.tiff",
+            "type": "Image",
+            "format": "image/jpeg",
+            "height": 2194,
+            "width": 2780
+          }
+        }
+      ],
+      "annotations": [
+        {
+          "type": "AnnotationPage",
+          "id": "https://readux.test/iiif/v3/1878-Helpin-EMU/annotations/1878-Helpin-EMU-0003.tiff/ocr"
+        }
+      ]
+    }
+  ]
+}
