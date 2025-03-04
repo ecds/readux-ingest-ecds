@@ -587,21 +587,21 @@ def add_ocr_to_canvases(manifest):
     OCR = get_iiif_models()["OCR"]
     new_ocr_annotations = []
     warnings = []
-    for canvas in manifest.canvas_set.all():
-        ocr = get_ocr(canvas)
-        if isinstance(ocr, etree.XMLSyntaxError):
-            warnings.append(f"Canvas {canvas.pid} - {ocr.__class__.__name__}: {ocr}")
-        # elif canvas.ocr_file_path is not None and not os.path.exists(
-        #     canvas.ocr_file_path
-        # ):
-        #     warnings.append(f"No OCR file for {canvas.pid}.")
-        elif ocr is not None:
-            new_ocr_annotations += add_ocr_annotations(canvas, ocr)
-        else:
-            warnings.append(f"Canvas {canvas.pid} - No OCR")
+    canvas_chunks = divide_chunks(manifest.canvas_set.all(), 200)
+    for canvas_chunk in canvas_chunks:
+        for canvas in canvas_chunk:
+            ocr = get_ocr(canvas)
+            if isinstance(ocr, etree.XMLSyntaxError):
+                warnings.append(
+                    f"Canvas {canvas.pid} - {ocr.__class__.__name__}: {ocr}"
+                )
+            elif ocr is not None:
+                new_ocr_annotations += add_ocr_annotations(canvas, ocr)
+            else:
+                warnings.append(f"Canvas {canvas.pid} - No OCR")
 
-    chunks = divide_chunks(new_ocr_annotations, 100)
-    for chunk in list(chunks):
-        OCR.objects.bulk_create(chunk)
+        chunks = divide_chunks(new_ocr_annotations, 100)
+        for chunk in list(chunks):
+            OCR.objects.bulk_create(chunk)
 
     return warnings
