@@ -15,3 +15,4 @@ class RemoteIngestTest(TestCase):
         manifest = Manifest.objects.get(pid="1878-Helpin-EMU")
         assert manifest.canvas_set.count() == 3
         assert manifest.canvas_set.all()[0].ocr_set.count() == 4
+        assert manifest.start_canvas == manifest.canvas_set.first()

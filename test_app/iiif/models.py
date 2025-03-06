@@ -49,6 +49,13 @@ class Manifest(models.Model):
     languages = models.ManyToManyField(
         Language, help_text="Languages present in the manifest.", blank=True
     )
+    start_canvas = models.ForeignKey(
+        "Canvas",
+        on_delete=models.SET_NULL,
+        related_name="start_canvas",
+        blank=True,
+        null=True,
+    )
 
     @property
     def related_links(self):

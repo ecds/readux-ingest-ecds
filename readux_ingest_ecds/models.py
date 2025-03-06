@@ -3,6 +3,7 @@ import logging
 import uuid
 from zipfile import ZipFile
 from mimetypes import guess_type
+from bs4 import BeautifulSoup
 from django.db import models
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -604,6 +605,10 @@ class Remote(models.Model):
         if len(new_canvases) > 0:
             Canvas.objects.bulk_create(new_canvases)
 
+        self.manifest.refresh_from_db()
+        self.manifest.start_canvas = self.manifest.canvas_set.first()
+        self.manifest.save()
+
         if self.remoteannotationpage_set.count() > 0:
             from .tasks import remote_ocr_task
 
@@ -615,14 +620,26 @@ class Remote(models.Model):
 
     def add_ocr(self):
         OCR = get_iiif_models()["OCR"]
-        new_ocr_annos = []
         for index, anno_page in enumerate(self.remoteannotationpage_set.all()):
+            new_ocr_annos = []
             ocr_attrs = ocr_from_annotation_page(anno_page.page, index)
             for ocr_anno in ocr_attrs:
                 ocr = OCR(**ocr_anno)
                 new_ocr_annos.append(ocr)
 
-        OCR.objects.bulk_create(new_ocr_annos)
+            OCR.objects.bulk_create(new_ocr_annos)
+
+    def set_ocr_span_elements(self):
+        """Call the function to set the span element for the OCR objects."""
+        OCR = get_iiif_models()["OCR"]
+        for canvas in self.manifest.canvas_set.all():
+            ocr_to_update = []
+            for ocr in OCR.objects.filter(canvas=canvas):
+                soup = BeautifulSoup(ocr.content, "html.parser")
+                ocr.content = soup.get_text(separator=" ", strip=True)
+                ocr.set_span_element()
+                ocr_to_update.append(ocr)
+            OCR.objects.bulk_update(ocr_to_update, ["content"])
 
     class Meta:
         verbose_name = "Remote Ingest"

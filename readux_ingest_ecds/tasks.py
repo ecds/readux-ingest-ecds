@@ -217,3 +217,4 @@ def remote_ocr_task(ingest_id, *args, **kwargs):
     """Task for remote ingest."""
     ingest = Remote.objects.get(id=ingest_id)
     ingest.add_ocr()
+    ingest.set_ocr_span_elements()
