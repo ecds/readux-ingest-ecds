@@ -209,6 +209,7 @@ def remote_task(ingest_id, *args, **kwargs):
 
 @app.task(
     name="remote_ocr_task",
+    base=FinalTask,
     autoretry_for=(Exception,),
     retry_backoff=True,
     max_retries=20,

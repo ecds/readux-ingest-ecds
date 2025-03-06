@@ -1,14 +1,16 @@
 import os
 import logging
 import uuid
+from urllib.parse import urlparse
 from zipfile import ZipFile
 from mimetypes import guess_type
 from bs4 import BeautifulSoup
+from django.core.validators import URLValidator
 from django.db import models
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.validators import FileExtensionValidator
-from django.core.serializers import deserialize
+from django.core.exceptions import ValidationError
 from .services.file_services import (
     is_image,
     is_ocr,
@@ -641,6 +643,24 @@ class Remote(models.Model):
                 ocr_to_update.append(ocr)
             OCR.objects.bulk_update(ocr_to_update, ["content"])
 
+    def success(self):
+        LOGGER.info(f"SUCCESS!!! {self.manifest.pid}")
+        # send_email_on_success(manifest=self.manifest)
+        self.manifest.save()
+        if os.environ["DJANGO_ENV"] != "test":
+            from apps.iiif.manifests.documents import ManifestDocument
+
+            index = ManifestDocument()
+            index.update(self.manifest, True, "index")
+
+    def failure(self, exc):
+        LOGGER.info(f"FAIL!!! {self.manifest.pid}")
+        # send_email_on_failure(
+        #     exception=str(exc),
+        #     manifest=self.manifest,
+        # )
+        self.delete()
+
     class Meta:
         verbose_name = "Remote Ingest"
         verbose_name_plural = "Remote Ingests"
@@ -654,3 +674,42 @@ class RemoteAnnotationPage(models.Model):
         help_text="""URL for remote IIIF annotation page.""",
     )
     ingest = models.ForeignKey(Remote, on_delete=models.CASCADE)
+
+
+# class BulkRemote(models.Model):
+#     image_server = models.ForeignKey(
+#         ImageServer,
+#         on_delete=models.DO_NOTHING,
+#         null=True,
+#         related_name="ecds_bulk_remote_ingest_image_server",
+#     )
+
+#     links = models.TextField(blank=False, null=False, help_text="One link or Pid per-line. No commas or other punctuation.")
+
+#     source = models.CharField(
+#         null=True,
+#         blank=True,
+#         max_length=500,
+#         help_text="""If only listing pids, enter the URL for the source of the manifests.""",
+#     )
+
+
+#     def create_remote_ingest(self, link):
+#         ingest = Remote.create(link=link, image_server=self.image_server)
+#         from .tasks import remote_task
+
+#         if os.environ["DJANGO_ENV"] == "test":
+#             remote_task(str(ingest.id))
+#         else:
+#             remote_task.delay(str(ingest.id))
+
+#     def ingest(self):
+#         url_validator = URLValidator()
+#         for link in [line.strip() for line in self.links.splitlines()]:
+#             try:
+#                 url_validator(link)
+#                 self.create_remote_ingest(link)
+#             except ValidationError:
+#                 url_parts = urlparse(self.source)
+#                 url_schema = 'https' if not url_parts.scheme else url_parts.scheme
+#                 self.create_remote_ingest(f"{url_schema}://{url_parts.path}/iiif/v3/{link}/manifest")
