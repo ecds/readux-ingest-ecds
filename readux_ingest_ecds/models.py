@@ -128,7 +128,8 @@ class Local(IngestAbstractModel):
     )
 
     class Meta:
-        verbose_name_plural = "Local"
+        verbose_name_plural = "Local Ingests"
+        verbose_name = "Local Ingest"
 
     @property
     def tmp_directory(self):
@@ -380,7 +381,8 @@ class Bulk(models.Model):
     class Meta:
         """Model Meta"""
 
-        verbose_name_plural = "Bulk"
+        verbose_name = "Bulk Ingest"
+        verbose_name_plural = "Bulk Ingests"
 
     def ingest(self):
         """Doc"""
@@ -476,6 +478,7 @@ class S3Ingest(models.Model):
 
     class Meta:
         verbose_name_plural = "S3 Ingests"
+        verbose_name = "S3 Ingest"
 
     def ingest(self):
         rows = metadata_from_file(self.metadata_spreadsheet.path)
@@ -620,6 +623,10 @@ class Remote(models.Model):
                 new_ocr_annos.append(ocr)
 
         OCR.objects.bulk_create(new_ocr_annos)
+
+    class Meta:
+        verbose_name = "Remote Ingest"
+        verbose_name_plural = "Remote Ingests"
 
 
 class RemoteAnnotationPage(models.Model):
