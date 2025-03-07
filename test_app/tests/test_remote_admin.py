@@ -3,9 +3,7 @@ from django.test import TestCase
 from django.test.client import RequestFactory
 from moto import mock_aws
 from iiif.models import Manifest, Canvas, OCR
-from .factories import (
-    RemoteFactory,
-)
+from .factories import RemoteFactory, UserFactory
 from readux_ingest_ecds.models import Remote
 from readux_ingest_ecds.admin import RemoteAdmin
 
@@ -15,6 +13,7 @@ class RemoteIngestAdminTest(TestCase):
 
     def test_local_admin_save(self):
         """It should add a create a manifest, canvases and OCR."""
+        user = UserFactory.create()
         remote = RemoteFactory.build()
         remote.image_server.save()
 
@@ -25,6 +24,7 @@ class RemoteIngestAdminTest(TestCase):
         request_factory = RequestFactory()
 
         req = request_factory.post("/admin/readux_ingest_ecds/remote/add/", data={})
+        req.user = user
 
         remote_model_admin = RemoteAdmin(model=Remote, admin_site=AdminSite())
         remote_model_admin.save_model(obj=remote, request=req, form=None, change=None)

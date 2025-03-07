@@ -566,6 +566,12 @@ class Remote(models.Model):
         null=True,
         related_name="ecds_remote_ingest_manifest",
     )
+    creator = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="ecds_ingest_created_remote",
+    )
 
     def ingest(self):
         """
@@ -645,7 +651,7 @@ class Remote(models.Model):
 
     def success(self):
         LOGGER.info(f"SUCCESS!!! {self.manifest.pid}")
-        # send_email_on_success(manifest=self.manifest)
+        send_email_on_success(creator=self.creator, manifest=self.manifest)
         self.manifest.save()
         if os.environ["DJANGO_ENV"] != "test":
             from apps.iiif.manifests.documents import ManifestDocument
@@ -655,10 +661,11 @@ class Remote(models.Model):
 
     def failure(self, exc):
         LOGGER.info(f"FAIL!!! {self.manifest.pid}")
-        # send_email_on_failure(
-        #     exception=str(exc),
-        #     manifest=self.manifest,
-        # )
+        send_email_on_failure(
+            creator=self.creator,
+            exception=str(exc),
+            manifest=self.manifest,
+        )
         self.delete()
 
     class Meta:

@@ -63,6 +63,18 @@ class FinalTask(Task):
         ingest.failure(exc)
 
 
+class FinalRemoteTask(Task):
+    def on_success(self, retval, task_id, args, kwargs):
+        """Same as FinalTask"""
+        ingest = Remote.objects.get(id=args[0])
+        ingest.success()
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        """Same as FinalTask"""
+        ingest = Remote.objects.get(id=args[0])
+        ingest.failure(exc)
+
+
 app = Celery("readux_ingest_ecds", result_extended=True)
 app.config_from_object("django.conf:settings")
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
@@ -209,7 +221,7 @@ def remote_task(ingest_id, *args, **kwargs):
 
 @app.task(
     name="remote_ocr_task",
-    base=FinalTask,
+    base=FinalRemoteTask,
     autoretry_for=(Exception,),
     retry_backoff=True,
     max_retries=20,

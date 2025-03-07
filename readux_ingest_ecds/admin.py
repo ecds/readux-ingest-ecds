@@ -131,6 +131,7 @@ class RemoteAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         LOGGER.info(f"INGEST: Remote ingest started")
+        obj.creator = request.user
 
         super().save_model(request, obj, form, change)
         if os.environ["DJANGO_ENV"] != "test":  # pragma: no cover
