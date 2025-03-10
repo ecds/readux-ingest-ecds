@@ -581,10 +581,16 @@ class Remote(models.Model):
         Canvas = get_iiif_models()["Canvas"]
         OCR = get_iiif_models()["OCR"]
         new_canvases = []
-        manifest_attrs, items = manifest_from_manifest(self.link)
+        manifest_attrs, relations, items = manifest_from_manifest(self.link)
         manifest = Manifest(**manifest_attrs)
         manifest.image_server = self.image_server
         manifest.save()
+        if "collections" in relations:
+            for collection in relations["collections"]:
+                manifest.collections.add(collection)
+        if "languages" in relations:
+            for language in relations["languages"]:
+                manifest.languages.add(language)
         for index, item in enumerate(items):
             canvas = None
             if item["type"] == "Canvas":

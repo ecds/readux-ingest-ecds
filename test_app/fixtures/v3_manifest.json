@@ -5,6 +5,19 @@
   "label": "The Helping Hand",
   "metadata": [
     {
+      "label": "Collections",
+      "value": [
+        "Collection 1",
+        "Collection 2"
+      ]
+    },
+    {
+      "label": "Languages",
+      "value": [
+        "fr"
+      ]
+    },
+    {
       "label": "Published Date (display)",
       "value": "1878"
     },

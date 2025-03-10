@@ -12,6 +12,8 @@ Manifest = get_iiif_models()["Manifest"]
 RelatedLink = get_iiif_models()["RelatedLink"]
 Canvas = get_iiif_models()["Canvas"]
 OCR = get_iiif_models()["OCR"]
+Language = get_iiif_models()["Language"]
+Collection = get_iiif_models()["Collection"]
 
 
 def set_default_language():
@@ -114,7 +116,8 @@ def manifest_from_manifest(link):
 
     response = requests.get(link)
     data = response.json()
-    return (deserialize(settings.MANIFEST_DESERIALIZER, data), data["items"])
+    manifest, relations = deserialize(settings.MANIFEST_DESERIALIZER, data)
+    return (manifest, find_relations(relations), data["items"])
 
 
 def canvas_from_manifest(data):
@@ -136,3 +139,23 @@ def ocr_from_annotation_page(link, page):
         annos.append(deserialize(settings.ANNOTATION_DESERIALIZER, item)[0])
 
     return annos
+
+
+def find_relations(relations):
+    Language = get_iiif_models()["Language"]
+    Collection = get_iiif_models()["Collection"]
+    related_objects = {}
+    if "collections" in relations:
+        related_objects["collections"] = []
+        for collection in relations["collections"]:
+            collection_obj, _ = Collection.objects.get_or_create(label=collection)
+            related_objects["collections"].append(collection_obj)
+    if "languages" in relations:
+        related_objects["languages"] = []
+        for language in relations["languages"]:
+            try:
+                related_objects["languages"].append(Language.objects.get(code=language))
+            except Language.DoesNotExist:
+                # welp
+                pass
+    return related_objects

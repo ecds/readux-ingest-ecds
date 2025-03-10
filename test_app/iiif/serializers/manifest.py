@@ -14,7 +14,7 @@ def Deserializer(data):
     Deserialize IIIF v3 Manifest
     """
     manifest = {"pid": data["id"].split("/")[-2]}
-
+    relations = {}
     fields = [f.name for f in Manifest._meta.get_fields()]
 
     for key, value in data.items():
@@ -31,6 +31,8 @@ def Deserializer(data):
                             if field in fields:
                                 if field == "published_date":
                                     manifest[field] = __parse_date(attr["value"])
+                                elif field == "collections" or field == "languages":
+                                    relations[field] = attr["value"]
                                 else:
                                     manifest[field] = attr["value"]
                             else:
@@ -45,7 +47,7 @@ def Deserializer(data):
                 else:
                     manifest[key] = value[value.keys()[0]]
 
-    return manifest
+    return (manifest, relations)
 
 
 def __parse_date(date):

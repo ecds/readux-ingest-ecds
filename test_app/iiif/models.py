@@ -19,6 +19,7 @@ class Language(models.Model):
 
 class Collection(models.Model):
     pid = models.UUIDField(primary_key=True, default=uuid4, editable=True)
+    label = models.TextField(null=True, blank=True)
 
 
 class ImageServer(models.Model):

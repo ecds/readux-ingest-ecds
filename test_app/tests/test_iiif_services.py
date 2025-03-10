@@ -88,7 +88,7 @@ class IIIFServicesTest(TestCase):
 
     def test_creating_manifest_from_manifest(self):
         """It should crete a manifest/volume from a remote IIIF manifest."""
-        manifest, _ = iiif_services.manifest_from_manifest("https://example.org")
+        manifest, _, _ = iiif_services.manifest_from_manifest("https://example.org")
         with open(os.path.join(self.fixture_path, "v3_manifest.json")) as f:
             content = json.load(f)
             assert manifest["label"] == content["label"]
