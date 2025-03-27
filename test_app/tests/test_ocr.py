@@ -1,4 +1,5 @@
 import os
+from uuid import uuid4
 from django.core import mail
 from django.conf import settings
 from django.test import TestCase
@@ -58,3 +59,11 @@ class OCRTest(TestCase):
         assert OCR.objects.count() == 178
         dupe_annos = ocr_services.add_ocr_annotations(canvas, ocr)
         assert len(dupe_annos) == 0
+
+    def test_ensuring_unique_ids(self):
+        dupe_uuid = uuid4()
+        annos = [OCR(id=dupe_uuid), OCR(id=dupe_uuid), OCR(id=uuid4()), OCR(id=uuid4())]
+
+        assert len(list(set([anno.id for anno in annos]))) == 3
+        annos = ocr_services.ensure_unique_ids(annos)
+        assert len(list(set([anno.id for anno in annos]))) == 4
