@@ -5,6 +5,7 @@ import re
 import tempfile
 from os import environ, path, unlink
 from io import BytesIO
+from uuid import uuid4
 import logging
 from hocr_spec import HocrValidator
 from lxml import etree
@@ -444,7 +445,7 @@ def add_ocr_annotations(canvas, ocr):
                 canvas=canvas,
             )
         except OCR.DoesNotExist:
-            anno = OCR()
+            anno = OCR(id=uuid4())
             anno.canvas = canvas
             anno.x = word["x"]
             anno.y = word["y"]
