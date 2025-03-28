@@ -445,9 +445,7 @@ def add_ocr_annotations(canvas, ocr):
                 canvas=canvas,
             )
         except OCR.DoesNotExist:
-            anno = OCR(
-                id=uuid4() if environ["DJANGO_ENV"] != "test" else 3 * (index + 2)
-            )
+            anno = OCR(id=uuid4()) if environ["DJANGO_ENV"] != "test" else OCR()
             anno.canvas = canvas
             anno.x = word["x"]
             anno.y = word["y"]
@@ -586,33 +584,13 @@ def remove_duplicate_ocr(canvas):
 #                         anno.delete()
 
 
-def check_unique_ids(annos):
-    total_annos = len(annos)
-    unique_ids = len(list(set([anno.id for anno in annos])))
-    print((total_annos, unique_ids))
-    return total_annos == unique_ids
-
-
-def ensure_unique_ids(annos):
-    if check_unique_ids(annos):
-        return annos
-    else:
-        for index, anno in enumerate(annos):
-            setattr(
-                anno,
-                "id",
-                uuid4() if environ["DJANGO_ENV"] != "test" else 4 * (index + 1),
-            )
-
-        return ensure_unique_ids(annos)
-
-
 def add_ocr_to_canvases(manifest):
     OCR = get_iiif_models()["OCR"]
-    new_ocr_annotations = []
     warnings = []
-    canvas_chunks = divide_chunks(manifest.canvas_set.all(), 200)
-    for canvas_chunk in canvas_chunks:
+    chunk_size = 200 if environ["DJANGO_ENV"] != "test" else 2
+    canvas_chunks = divide_chunks(manifest.canvas_set.all(), chunk_size)
+    for canvas_chunk in list(canvas_chunks):
+        new_ocr_annotations = []
         for canvas in canvas_chunk:
             ocr = get_ocr(canvas)
             if isinstance(ocr, etree.XMLSyntaxError):
@@ -623,9 +601,7 @@ def add_ocr_to_canvases(manifest):
                 new_ocr_annotations += add_ocr_annotations(canvas, ocr)
             else:
                 warnings.append(f"Canvas {canvas.pid} - No OCR")
-        print([anno.id for anno in new_ocr_annotations])
-        new_ocr_annotations = ensure_unique_ids(new_ocr_annotations)
-        chunks = divide_chunks(new_ocr_annotations, 100)
+        chunks = divide_chunks(new_ocr_annotations, chunk_size)
         for chunk in list(chunks):
             OCR.objects.bulk_create(chunk)
 

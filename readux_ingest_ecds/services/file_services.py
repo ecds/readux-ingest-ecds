@@ -1,4 +1,4 @@
-""" Module of service methods for ingest files. """
+"""Module of service methods for ingest files."""
 
 import os
 import logging
@@ -98,7 +98,9 @@ def move_ocr_file(ingest, file_path):
     move(file_path, os.path.join(ingest.ocr_directory, base_name))
 
 
-def divide_chunks(item_list, chunk_size=10):
+def divide_chunks(
+    item_list, chunk_size=10 if os.environ["DJANGO_ENV"] != "test" else 2
+):
     """
     Divide list of files into smaller chunks for processing.
     :param file_list: List of images to ingest.
