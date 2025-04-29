@@ -465,6 +465,7 @@ class S3Ingest(models.Model):
         Collection,
         blank=True,
         help_text="Optional: Collections to attach to ALL volumes ingested in this form.",
+        related_name="ecds_ingest_collections_s3"
     )
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
