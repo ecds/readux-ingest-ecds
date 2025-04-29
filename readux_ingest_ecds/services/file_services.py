@@ -2,7 +2,6 @@
 
 import os
 import logging
-from moto import mock_aws
 from shutil import move
 from mimetypes import guess_type
 from PIL import Image
