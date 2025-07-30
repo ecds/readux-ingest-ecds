@@ -1,0 +1,289 @@
+{
+  "@context": "http://iiif.io/api/presentation/2/context.json",
+  "@id": "https://readux.io/iiif/v2/snkng/manifest",
+  "@type": "sc:Manifest",
+  "label": "CSM Contingency Checklist",
+  "metadata": [
+    {
+      "label": "Author",
+      "value": "NASA"
+    },
+    {
+      "label": "Publisher",
+      "value": "NASA"
+    },
+    {
+      "label": "Place of Publication",
+      "value": "Place of publication"
+    },
+    {
+      "label": "Publication Date",
+      "value": "1971"
+    },
+    {
+      "label": "Notes",
+      "value": null
+    },
+    {
+      "label": "Record Created",
+      "value": "2020-05-26T21:14:08.780Z"
+    },
+    {
+      "label": "Edition Type",
+      "value": "Readux IIIF Exported Edition"
+    },
+    {
+      "label": "About Readux",
+      "value": "https://readux.ecdsdev.org/about/"
+    },
+    {
+      "label": "Annotators",
+      "value": "Jay Varner"
+    },
+    {
+      "label": "Export Date",
+      "value": "2025-05-27T12:35:00.806"
+    }
+  ],
+  "description": "CSM Contingency Checklist from the Apollo 15 Flight Data File (FDF).",
+  "related": ["https://readux.io/volume/snkng/page/all"],
+  "within": ["https://readux.io/collection/apollo-15"],
+  "thumbnail": {
+    "@id": "https://iip.readux.io/iiif/2/snkng_000.tif/full/600,/0/default.jpg",
+    "service": {
+      "@context": "http://iiif.io/api/image/2/context.json",
+      "@id": "https://iip.readux.io/iiif/2/snkng_000.tif",
+      "profile": "http://iiif.io/api/image/2/level1.json"
+    }
+  },
+  "attribution": "Emory University Libraries",
+  "logo": "https://readux.io/media/logos/lits-logo-web.png",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "viewingDirection": "left-to-right",
+  "viewingHint": "paged",
+  "sequences": [
+    {
+      "@id": "https://readux.io/iiif/v2/snkng/sequence/normal",
+      "@type": "sc:Sequence",
+      "label": "Current Page Order",
+      "startCanvas": "https://readux.io/iiif/snkng/canvas/snkng_000.tif",
+      "canvases": [
+        {
+          "@context": "http://iiif.io/api/presentation/2/context.json",
+          "@id": "https://readux.io/iiif/snkng/canvas/snkng_000.tif",
+          "@type": "sc:Canvas",
+          "label": "1",
+          "height": 3600,
+          "width": 3137,
+          "images": [
+            {
+              "@context": "http://iiif.io/api/presentation/2/context.json",
+              "@id": "https://readux.io/iiif/snkng/annotation/snkng_000.tif",
+              "@type": "oa:Annotation",
+              "motivation": "sc:painting",
+              "resource": {
+                "@id": "https://iip.readux.io/iiif/2/snkng_000.tif/full/full/0/default.jpg",
+                "@type": "dctypes:Image",
+                "format": "image/jpeg",
+                "height": 3600,
+                "width": 3137,
+                "service": {
+                  "@context": "https://iiif.io/api/image/2/context.json",
+                  "@id": "https://iip.readux.io/iiif/2/snkng_000.tif",
+                  "profile": "https://iiif.io/api/image/2/level2.json"
+                }
+              },
+              "on": "https://readux.io/iiif/snkng/canvas/snkng_000.tif"
+            }
+          ],
+          "thumbnail": {
+            "@id": "https://iip.readux.io/iiif/2/snkng_000.tif/full/200,/0/default.jpg",
+            "height": 250,
+            "width": 200
+          },
+          "otherContent": [
+            {
+              "@id": "https://readux.io/iiif/v2/snkng/list/snkng_000.tif",
+              "@type": "sc:AnnotationList",
+              "label": "OCR Text"
+            },
+            {
+              "label": "Annotations by jay",
+              "@type": "sc:AnnotationList",
+              "@id": "https://readux.io/annotations/jay/snkng/list/snkng_000.tif"
+            }
+          ]
+        },
+        {
+          "@context": "http://iiif.io/api/presentation/2/context.json",
+          "@id": "https://readux.io/iiif/snkng/canvas/snkng_001.tif",
+          "@type": "sc:Canvas",
+          "label": "2",
+          "height": 3600,
+          "width": 2827,
+          "images": [
+            {
+              "@context": "http://iiif.io/api/presentation/2/context.json",
+              "@id": "https://readux.io/iiif/snkng/annotation/snkng_001.tif",
+              "@type": "oa:Annotation",
+              "motivation": "sc:painting",
+              "resource": {
+                "@id": "https://iip.readux.io/iiif/2/snkng_001.tif/full/full/0/default.jpg",
+                "@type": "dctypes:Image",
+                "format": "image/jpeg",
+                "height": 3600,
+                "width": 2827,
+                "service": {
+                  "@context": "https://iiif.io/api/image/2/context.json",
+                  "@id": "https://iip.readux.io/iiif/2/snkng_001.tif",
+                  "profile": "https://iiif.io/api/image/2/level2.json"
+                }
+              },
+              "on": "https://readux.io/iiif/snkng/canvas/snkng_001.tif"
+            }
+          ],
+          "thumbnail": {
+            "@id": "https://iip.readux.io/iiif/2/snkng_001.tif/full/200,/0/default.jpg",
+            "height": 250,
+            "width": 200
+          },
+          "otherContent": [
+            {
+              "@id": "https://readux.io/iiif/v2/snkng/list/snkng_001.tif",
+              "@type": "sc:AnnotationList",
+              "label": "OCR Text"
+            }
+          ]
+        },
+        {
+          "@context": "http://iiif.io/api/presentation/2/context.json",
+          "@id": "https://readux.io/iiif/snkng/canvas/snkng_002.tif",
+          "@type": "sc:Canvas",
+          "label": "3",
+          "height": 3600,
+          "width": 2793,
+          "images": [
+            {
+              "@context": "http://iiif.io/api/presentation/2/context.json",
+              "@id": "https://readux.io/iiif/snkng/annotation/snkng_002.tif",
+              "@type": "oa:Annotation",
+              "motivation": "sc:painting",
+              "resource": {
+                "@id": "https://iip.readux.io/iiif/2/snkng_002.tif/full/full/0/default.jpg",
+                "@type": "dctypes:Image",
+                "format": "image/jpeg",
+                "height": 3600,
+                "width": 2793,
+                "service": {
+                  "@context": "https://iiif.io/api/image/2/context.json",
+                  "@id": "https://iip.readux.io/iiif/2/snkng_002.tif",
+                  "profile": "https://iiif.io/api/image/2/level2.json"
+                }
+              },
+              "on": "https://readux.io/iiif/snkng/canvas/snkng_002.tif"
+            }
+          ],
+          "thumbnail": {
+            "@id": "https://iip.readux.io/iiif/2/snkng_002.tif/full/200,/0/default.jpg",
+            "height": 250,
+            "width": 200
+          },
+          "otherContent": [
+            {
+              "@id": "https://readux.io/iiif/v2/snkng/list/snkng_002.tif",
+              "@type": "sc:AnnotationList",
+              "label": "OCR Text"
+            },
+            {
+              "label": "Annotations by jay",
+              "@type": "sc:AnnotationList",
+              "@id": "https://readux.io/annotations/jay/snkng/list/snkng_002.tif"
+            }
+          ]
+        },
+        {
+          "@context": "http://iiif.io/api/presentation/2/context.json",
+          "@id": "https://readux.io/iiif/snkng/canvas/snkng_003.tif",
+          "@type": "sc:Canvas",
+          "label": "4",
+          "height": 3600,
+          "width": 2827,
+          "images": [
+            {
+              "@context": "http://iiif.io/api/presentation/2/context.json",
+              "@id": "https://readux.io/iiif/snkng/annotation/snkng_003.tif",
+              "@type": "oa:Annotation",
+              "motivation": "sc:painting",
+              "resource": {
+                "@id": "https://iip.readux.io/iiif/2/snkng_003.tif/full/full/0/default.jpg",
+                "@type": "dctypes:Image",
+                "format": "image/jpeg",
+                "height": 3600,
+                "width": 2827,
+                "service": {
+                  "@context": "https://iiif.io/api/image/2/context.json",
+                  "@id": "https://iip.readux.io/iiif/2/snkng_003.tif",
+                  "profile": "https://iiif.io/api/image/2/level2.json"
+                }
+              },
+              "on": "https://readux.io/iiif/snkng/canvas/snkng_003.tif"
+            }
+          ],
+          "thumbnail": {
+            "@id": "https://iip.readux.io/iiif/2/snkng_003.tif/full/200,/0/default.jpg",
+            "height": 250,
+            "width": 200
+          },
+          "otherContent": [
+            {
+              "@id": "https://readux.io/iiif/v2/snkng/list/snkng_003.tif",
+              "@type": "sc:AnnotationList",
+              "label": "OCR Text"
+            }
+          ]
+        },
+        {
+          "@context": "http://iiif.io/api/presentation/2/context.json",
+          "@id": "https://readux.io/iiif/snkng/canvas/snkng_004.tif",
+          "@type": "sc:Canvas",
+          "label": "5",
+          "height": 3600,
+          "width": 2793,
+          "images": [
+            {
+              "@context": "http://iiif.io/api/presentation/2/context.json",
+              "@id": "https://readux.io/iiif/snkng/annotation/snkng_004.tif",
+              "@type": "oa:Annotation",
+              "motivation": "sc:painting",
+              "resource": {
+                "@id": "https://iip.readux.io/iiif/2/snkng_004.tif/full/full/0/default.jpg",
+                "@type": "dctypes:Image",
+                "format": "image/jpeg",
+                "height": 3600,
+                "width": 2793,
+                "service": {
+                  "@context": "https://iiif.io/api/image/2/context.json",
+                  "@id": "https://iip.readux.io/iiif/2/snkng_004.tif",
+                  "profile": "https://iiif.io/api/image/2/level2.json"
+                }
+              },
+              "on": "https://readux.io/iiif/snkng/canvas/snkng_004.tif"
+            }
+          ],
+          "thumbnail": {
+            "@id": "https://iip.readux.io/iiif/2/snkng_004.tif/full/200,/0/default.jpg",
+            "height": 250,
+            "width": 200
+          },
+          "otherContent": [
+            {
+              "@id": "https://readux.io/iiif/v2/snkng/list/snkng_004.tif",
+              "@type": "sc:AnnotationList",
+              "label": "OCR Text"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,9 +1,8 @@
-""" Tests for local ingest """
+"""Tests for local ingest"""
 
 import os
 import glob
 from shutil import rmtree
-from hashlib import md5
 from uuid import uuid4
 import pytest
 import boto3
@@ -31,7 +30,11 @@ class LocalTest(TestCase):
         """Set instance variables."""
         super().setUp()
         rmtree(settings.INGEST_TMP_DIR, ignore_errors=True)
-        os.mkdir(settings.INGEST_TMP_DIR)
+        try:
+            os.mkdir(settings.INGEST_TMP_DIR)
+        except FileExistsError:
+            os.system(f"rm -rf {settings.INGEST_TMP_DIR}/*")
+
         self.fixture_path = settings.FIXTURE_DIR
         self.image_server = ImageServerFactory()
 

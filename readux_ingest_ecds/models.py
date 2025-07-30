@@ -28,6 +28,7 @@ from .services.iiif_services import (
     manifest_from_manifest,
     canvas_from_manifest,
     ocr_from_annotation_page,
+    annotations,
 )
 from .services.metadata_services import metadata_from_file, clean_metadata
 from .helpers import get_iiif_models
@@ -231,7 +232,7 @@ class Local(IngestAbstractModel):
         self.metadata = metadata_from_file(metadata_file)[0]
 
     def create_canvases(self):
-        Canvas = get_iiif_models()["Canvas"]
+        CanvasModel = get_iiif_models()["Canvas"]
         new_canvases = []
         images = None
         with open(self.trigger_file, "r") as t_file:
@@ -254,9 +255,9 @@ class Local(IngestAbstractModel):
                 ocr_file_path = None
 
             try:
-                Canvas.objects.get(pid=canvas_pid)
-            except Canvas.DoesNotExist:
-                new_canvas = Canvas(
+                CanvasModel.objects.get(pid=canvas_pid)
+            except CanvasModel.DoesNotExist:
+                new_canvas = CanvasModel(
                     manifest=self.manifest,
                     image_server=self.image_server,
                     pid=canvas_pid,
@@ -271,19 +272,19 @@ class Local(IngestAbstractModel):
 
                 new_canvases.append(new_canvas)
 
-        Canvas.objects.bulk_create(new_canvases)
+        CanvasModel.objects.bulk_create(new_canvases)
         self.check_canvases()
 
         upload_trigger_file(self.trigger_file)
 
     def check_canvases(self):
-        Canvas = get_iiif_models()["Canvas"]
+        CanvasModel = get_iiif_models()["Canvas"]
         unique_canvas_pids = set()
         for canvas in self.manifest.canvas_set.all():
             unique_canvas_pids.add(canvas.pid)
         dupes = []
         for canvas_pid in list(unique_canvas_pids):
-            canvases = list(Canvas.objects.filter(pid=canvas_pid))
+            canvases = list(CanvasModel.objects.filter(pid=canvas_pid))
             canvases.pop()
             dupes += canvases
 
@@ -302,7 +303,10 @@ class Local(IngestAbstractModel):
         )
         self.manifest.save()
         if os.environ["DJANGO_ENV"] != "test":
+            # pylint: disable=import-outside-toplevel
             from apps.iiif.manifests.documents import ManifestDocument
+
+            # pylint: enable=import-outside-toplevel
 
             index = ManifestDocument()
             index.update(self.manifest, True, "index")
@@ -465,7 +469,7 @@ class S3Ingest(models.Model):
         Collection,
         blank=True,
         help_text="Optional: Collections to attach to ALL volumes ingested in this form.",
-        related_name="ecds_ingest_collections_s3"
+        related_name="ecds_ingest_collections_s3",
     )
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -578,12 +582,11 @@ class Remote(models.Model):
         """
         Ingest from remote manifest.
         """
-        Manifest = get_iiif_models()["Manifest"]
-        Canvas = get_iiif_models()["Canvas"]
-        OCR = get_iiif_models()["OCR"]
+        ManifestModel = get_iiif_models()["Manifest"]
+        CanvasModel = get_iiif_models()["Canvas"]
         new_canvases = []
         manifest_attrs, relations, items = manifest_from_manifest(self.link)
-        manifest = Manifest(**manifest_attrs)
+        manifest = ManifestModel(**manifest_attrs)
         manifest.image_server = self.image_server
         manifest.save()
         if "collections" in relations:
@@ -594,38 +597,35 @@ class Remote(models.Model):
                 manifest.languages.add(language)
         for index, item in enumerate(items):
             canvas = None
-            if item["type"] == "Canvas":
+            if item["type"] == "Canvas" or "Canvas" in item["@type"]:
                 canvas_attrs = canvas_from_manifest(item)
-                canvas = Canvas(**canvas_attrs)
+                canvas = CanvasModel(**canvas_attrs)
                 canvas.position = index + 1
                 canvas.manifest = manifest
                 canvas.image_server = self.image_server
                 new_canvases.append(canvas)
-            if (
-                canvas is not None
-                and "annotations" in item.keys()
-                and len(item["annotations"]) > 0
-            ):
-                for annos in item["annotations"]:
-                    if annos["type"] == "AnnotationPage" and annos["id"].endswith(
-                        "ocr"
-                    ):
-                        RemoteAnnotationPage.objects.create(
-                            page=annos["id"], ingest=self
-                        )
+            if canvas is not None:
+                for annos in annotations(item):
+                    if annos["type"] == "AnnotationPage" and annos.endswith("ocr"):
+                        RemoteAnnotationPage.objects.create(page=annos, ingest=self)
 
         self.manifest = manifest
         self.save()
 
         if len(new_canvases) > 0:
-            Canvas.objects.bulk_create(new_canvases)
+            CanvasModel.objects.bulk_create(new_canvases)
 
         self.manifest.refresh_from_db()
         self.manifest.start_canvas = self.manifest.canvas_set.first()
         self.manifest.save()
 
         if self.remoteannotationpage_set.count() > 0:
-            from .tasks import remote_ocr_task
+            # pylint: disable=import-outside-toplevel
+            from .tasks import (
+                remote_ocr_task,
+            )
+
+            # pylint: enable=import-outside-toplevel
 
             self.refresh_from_db()
             if os.environ["DJANGO_ENV"] == "test":
@@ -634,34 +634,37 @@ class Remote(models.Model):
                 remote_ocr_task.delay(str(self.id))
 
     def add_ocr(self):
-        OCR = get_iiif_models()["OCR"]
+        OCRModel = get_iiif_models()["OCR"]
         for index, anno_page in enumerate(self.remoteannotationpage_set.all()):
             new_ocr_annos = []
             ocr_attrs = ocr_from_annotation_page(anno_page.page, index)
             for ocr_anno in ocr_attrs:
-                ocr = OCR(**ocr_anno)
+                ocr = OCRModel(**ocr_anno)
                 new_ocr_annos.append(ocr)
 
-            OCR.objects.bulk_create(new_ocr_annos)
+            OCRModel.objects.bulk_create(new_ocr_annos)
 
     def set_ocr_span_elements(self):
         """Call the function to set the span element for the OCR objects."""
-        OCR = get_iiif_models()["OCR"]
+        OCRModel = get_iiif_models()["OCR"]
         for canvas in self.manifest.canvas_set.all():
             ocr_to_update = []
-            for ocr in OCR.objects.filter(canvas=canvas):
+            for ocr in OCRModel.objects.filter(canvas=canvas):
                 soup = BeautifulSoup(ocr.content, "html.parser")
                 ocr.content = soup.get_text(separator=" ", strip=True)
                 ocr.set_span_element()
                 ocr_to_update.append(ocr)
-            OCR.objects.bulk_update(ocr_to_update, ["content"])
+            OCRModel.objects.bulk_update(ocr_to_update, ["content"])
 
     def success(self):
         LOGGER.info(f"SUCCESS!!! {self.manifest.pid}")
         send_email_on_success(creator=self.creator, manifest=self.manifest)
         self.manifest.save()
         if os.environ["DJANGO_ENV"] != "test":
+            # pylint: disable=import-outside-toplevel
             from apps.iiif.manifests.documents import ManifestDocument
+
+            # pylint: enable=import-outside-toplevel
 
             index = ManifestDocument()
             index.update(self.manifest, True, "index")
