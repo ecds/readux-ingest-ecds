@@ -322,7 +322,6 @@ with the assistance of Justin Littman (Library of Congress).
 				<xsd:documentation>The next block in reading sequence on the page.</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attributeGroup ref="xlink:simpleLink"/>
 	</xsd:complexType>
 	<xsd:complexType name="StringType" mixed="false">
 		<xsd:annotation>

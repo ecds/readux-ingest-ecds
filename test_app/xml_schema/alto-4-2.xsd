@@ -440,7 +440,6 @@ For the full text see https://creativecommons.org/licenses/by-sa/4.0/legalcode. 
 				<xsd:documentation>Correction Status. Indicates whether manual correction has been done or not. The correction status should be recorded at the highest level possible (Block, TextLine, String).</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attributeGroup ref="xlink:simpleLink"/>
 	</xsd:complexType>
 	<xsd:complexType name="SPType">
 		<xsd:annotation>
