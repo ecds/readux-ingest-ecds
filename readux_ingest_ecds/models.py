@@ -553,7 +553,7 @@ class S3Ingest(models.Model):
 
 class Remote(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    link = models.CharField(
+    link = models.TextField(
         null=False,
         blank=False,
         max_length=500,
@@ -584,54 +584,58 @@ class Remote(models.Model):
         """
         ManifestModel = get_iiif_models()["Manifest"]
         CanvasModel = get_iiif_models()["Canvas"]
-        new_canvases = []
-        manifest_attrs, relations, items = manifest_from_manifest(self.link)
-        manifest = ManifestModel(**manifest_attrs)
-        manifest.image_server = self.image_server
-        manifest.save()
-        if "collections" in relations:
-            for collection in relations["collections"]:
-                manifest.collections.add(collection)
-        if "languages" in relations:
-            for language in relations["languages"]:
-                manifest.languages.add(language)
-        for index, item in enumerate(items):
-            canvas = None
-            if item["type"] == "Canvas" or "Canvas" in item["@type"]:
-                canvas_attrs = canvas_from_manifest(item)
-                canvas = CanvasModel(**canvas_attrs)
-                canvas.position = index + 1
-                canvas.manifest = manifest
-                canvas.image_server = self.image_server
-                new_canvases.append(canvas)
-            if canvas is not None:
-                for annos in annotations(item):
-                    if annos["type"] == "AnnotationPage" and annos.endswith("ocr"):
+        for link in self.link.splitlines():
+            new_canvases = []
+            manifest_attrs, relations, items = manifest_from_manifest(link)
+            manifest = ManifestModel(**manifest_attrs)
+            manifest.image_server = self.image_server
+            manifest.save()
+            if "collections" in relations:
+                for collection in relations["collections"]:
+                    manifest.collections.add(collection)
+            if "languages" in relations:
+                for language in relations["languages"]:
+                    manifest.languages.add(language)
+            for index, item in enumerate(items):
+                canvas = None
+                if item["type"] == "Canvas" or "Canvas" in item["@type"]:
+                    canvas_attrs = canvas_from_manifest(item)
+                    canvas = CanvasModel(**canvas_attrs)
+                    canvas.position = index + 1
+                    canvas.manifest = manifest
+                    canvas.image_server = self.image_server
+                    new_canvases.append(canvas)
+                if canvas is not None:
+                    for annos in annotations(item):
+                        print(annos)
+                        # if anno["type"] == "AnnotationPage" and anno["id"].endswith(
+                        #     "ocr"
+                        # ):
                         RemoteAnnotationPage.objects.create(page=annos, ingest=self)
 
-        self.manifest = manifest
-        self.save()
+            self.manifest = manifest
+            self.save()
 
-        if len(new_canvases) > 0:
-            CanvasModel.objects.bulk_create(new_canvases)
+            if len(new_canvases) > 0:
+                CanvasModel.objects.bulk_create(new_canvases)
 
-        self.manifest.refresh_from_db()
-        self.manifest.start_canvas = self.manifest.canvas_set.first()
-        self.manifest.save()
+            self.manifest.refresh_from_db()
+            self.manifest.start_canvas = self.manifest.canvas_set.first()
+            self.manifest.save()
 
-        if self.remoteannotationpage_set.count() > 0:
-            # pylint: disable=import-outside-toplevel
-            from .tasks import (
-                remote_ocr_task,
-            )
+            if self.remoteannotationpage_set.count() > 0:
+                # pylint: disable=import-outside-toplevel
+                from .tasks import (
+                    remote_ocr_task,
+                )
 
-            # pylint: enable=import-outside-toplevel
+                # pylint: enable=import-outside-toplevel
 
-            self.refresh_from_db()
-            if os.environ["DJANGO_ENV"] == "test":
-                remote_ocr_task(str(self.id))
-            else:
-                remote_ocr_task.delay(str(self.id))
+                self.refresh_from_db()
+                if os.environ["DJANGO_ENV"] == "test":
+                    remote_ocr_task(str(self.id))
+                else:
+                    remote_ocr_task.delay(str(self.id))
 
     def add_ocr(self):
         OCRModel = get_iiif_models()["OCR"]

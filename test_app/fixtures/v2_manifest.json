@@ -47,7 +47,9 @@
   ],
   "description": "CSM Contingency Checklist from the Apollo 15 Flight Data File (FDF).",
   "related": ["https://readux.io/volume/snkng/page/all"],
-  "within": ["https://readux.io/collection/apollo-15"],
+  "within": [
+    "https://readux.io/collection/c9a758fb-f46c-51da-a9ae-9f18fd611cf6"
+  ],
   "thumbnail": {
     "@id": "https://iip.readux.io/iiif/2/snkng_000.tif/full/600,/0/default.jpg",
     "service": {

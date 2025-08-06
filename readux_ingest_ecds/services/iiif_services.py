@@ -110,19 +110,22 @@ def create_manifest_from_pid(pid, image_server):
     return manifest
 
 
-def manifest_from_manifest(link):
+def manifest_from_manifest(link, version="v3"):
     if environ["DJANGO_ENV"] == "test":
-        fake_manifest = open(path.join(settings.FIXTURE_DIR, "v3_manifest.json"))
+        fake_manifest = open(
+            path.join(settings.FIXTURE_DIR, f"{version}_manifest.json")
+        )
         content = fake_manifest.read()
         httpretty.enable()
         httpretty.register_uri(httpretty.GET, link, body=content)
 
     response = requests.get(link, timeout=100)
     data = response.json()
+    manifest, relations = deserialize(settings.MANIFEST_DESERIALIZER, data)
+
     if "presentation/3/context" in data["@context"]:
-        manifest, relations = deserialize(settings.MANIFEST_DESERIALIZER, data)
         return (manifest, find_relations(relations, "v3"), data["items"])
-    manifest, relations = deserialize(settings.MANIFEST_V2_DESERIALIZER, data)
+
     return (
         manifest,
         find_relations(relations, "v2"),
@@ -167,7 +170,8 @@ def find_relations(relations, version):
                 pid = collection.split("/")[-1]
                 collection_obj, created = CollectionModel.objects.get_or_create(pid=pid)
                 if created:
-                    collection_obj.update(label=pid.title())
+                    collection_obj.label = pid.title()
+                    collection_obj.save(update_fields=["label"])
 
     if "languages" in relations:
         related_objects["languages"] = []
@@ -182,7 +186,7 @@ def find_relations(relations, version):
     return related_objects
 
 
-def annotations(canvas, ingest):
+def annotations(canvas):
     if (
         "@context" in canvas.keys()
         and "2/context" in canvas["@context"]

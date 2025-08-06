@@ -86,7 +86,18 @@ class IIIFServicesTest(TestCase):
         assert default_language not in manifest.languages.all()
         assert manifest.languages.count() == 1
 
-    def test_creating_manifest_from_manifest(self):
+    def test_creating_manifest_from_manifest_v2(self):
+        """It should crete a manifest/volume from a remote IIIF manifest."""
+        manifest, _, _ = iiif_services.manifest_from_manifest(
+            "https://example.org", "v2"
+        )
+        with open(os.path.join(self.fixture_path, "v2_manifest.json")) as f:
+            content = json.load(f)
+            assert manifest["label"] == content["label"]
+            assert manifest["published_date"] == "1971"
+            assert "Export Date" in [d["label"] for d in manifest["metadata"]]
+
+    def test_creating_manifest_from_manifest_v3(self):
         """It should crete a manifest/volume from a remote IIIF manifest."""
         manifest, _, _ = iiif_services.manifest_from_manifest("https://example.org")
         with open(os.path.join(self.fixture_path, "v3_manifest.json")) as f:

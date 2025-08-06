@@ -4,6 +4,26 @@ from django.core.serializers.json import Serializer as JSONSerializer
 from iiif.models import Manifest
 
 
+def parse_fields(attribute):
+    """Get attributes from V2 Manifest
+
+    Args:
+        attribute (tuple): _description_
+    """
+    key, value = attribute
+    fields = [field.name for field in Manifest._meta.get_fields()]
+    field = re.sub(r"\([^)]*\)", "", key).strip()
+    field = field.replace(" ", "_")
+    field = field.lower()
+    if field == "publication_date":
+        return {"published_date": value}
+    if field == "place_of_publication":
+        return {"published_city": value}
+    if field in fields:
+        return {field: value}
+    return None
+
+
 class Serializer(JSONSerializer):
     def _init_options(self):
         super()._init_options()
@@ -11,11 +31,49 @@ class Serializer(JSONSerializer):
 
 def Deserializer(data):
     """
-    Deserialize IIIF v3 Manifest
+    Deserialize IIIF Manifest
     """
+    fields = [f.name for f in Manifest._meta.get_fields()]
+
+    if "@context" in data and "2/context.json" in data["@context"]:
+        relations = {
+            "collections": data["within"],
+            "canvases": [
+                canvas["@id"].split("/")[-1]
+                for canvas in data["sequences"][0]["canvases"]
+            ],
+        }
+
+        if "seeAlso" in data.keys():
+            relations["related_links"] = data["seeAlso"]
+
+        manifest = {
+            "pid": data["@id"].split("/")[-2],
+            "summary": data["description"],
+            "metadata": [],
+        }
+
+        try:
+            metadata = data.pop("metadata")
+            for metadatum in metadata:
+                attribute = parse_fields((metadatum["label"], metadatum["value"]))
+                if attribute is not None:
+                    manifest = {**manifest, **attribute}
+                else:
+                    manifest["metadata"].append(metadatum)
+        except KeyError:
+            # Maybe no metadata
+            pass
+
+        for key, value in data.items():
+            attribute = parse_fields((key, value))
+            if attribute is not None:
+                manifest = {**manifest, **attribute}
+
+        return (manifest, relations)
+
     manifest = {"pid": data["id"].split("/")[-2]}
     relations = {}
-    fields = [f.name for f in Manifest._meta.get_fields()]
 
     for key, value in data.items():
         if key in fields and key != "id":
