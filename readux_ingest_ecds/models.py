@@ -26,7 +26,6 @@ from .services.iiif_services import (
     create_manifest_from_pid,
     find_language,
     manifest_from_manifest,
-    canvas_from_manifest,
     ocr_from_annotation_page,
     annotations,
 )
@@ -586,32 +585,26 @@ class Remote(models.Model):
         CanvasModel = get_iiif_models()["Canvas"]
         for link in self.link.splitlines():
             new_canvases = []
-            manifest_attrs, relations, items = manifest_from_manifest(link)
+            manifest_attrs, relations, canvases = manifest_from_manifest(link)
             manifest = ManifestModel(**manifest_attrs)
             manifest.image_server = self.image_server
-            manifest.save()
+            ManifestModel.objects.bulk_create([manifest])
+            manifest = ManifestModel.objects.get(pid=manifest.pid)
             if "collections" in relations:
                 for collection in relations["collections"]:
                     manifest.collections.add(collection)
             if "languages" in relations:
                 for language in relations["languages"]:
                     manifest.languages.add(language)
-            for index, item in enumerate(items):
+            for index, [deserialized_canvas, annos] in enumerate(canvases):
                 canvas = None
-                if item["type"] == "Canvas" or "Canvas" in item["@type"]:
-                    canvas_attrs = canvas_from_manifest(item)
-                    canvas = CanvasModel(**canvas_attrs)
-                    canvas.position = index + 1
-                    canvas.manifest = manifest
-                    canvas.image_server = self.image_server
-                    new_canvases.append(canvas)
-                if canvas is not None:
-                    for annos in annotations(item):
-                        print(annos)
-                        # if anno["type"] == "AnnotationPage" and anno["id"].endswith(
-                        #     "ocr"
-                        # ):
-                        RemoteAnnotationPage.objects.create(page=annos, ingest=self)
+                canvas = CanvasModel(**deserialized_canvas)
+                canvas.position = index + 1
+                canvas.manifest = manifest
+                canvas.image_server = self.image_server
+                new_canvases.append(canvas)
+                for anno in annos:
+                    RemoteAnnotationPage.objects.create(page=anno, ingest=self)
 
             self.manifest = manifest
             self.save()

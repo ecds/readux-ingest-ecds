@@ -88,7 +88,7 @@ class IIIFServicesTest(TestCase):
 
     def test_creating_manifest_from_manifest_v2(self):
         """It should crete a manifest/volume from a remote IIIF manifest."""
-        manifest, _, _ = iiif_services.manifest_from_manifest(
+        manifest, _, items = iiif_services.manifest_from_manifest(
             "https://example.org", "v2"
         )
         with open(os.path.join(self.fixture_path, "v2_manifest.json")) as f:
@@ -105,16 +105,6 @@ class IIIFServicesTest(TestCase):
             assert manifest["label"] == content["label"]
             assert manifest["published_date"] == datetime(1878, 1, 1)
             assert "Full Title" in [d["label"] for d in manifest["metadata"]]
-
-    def test_creating_canvas_from_manifest(self):
-        """It should create a canvas from a canvas item from a IIIF manifest."""
-        with open(os.path.join(self.fixture_path, "v3_manifest.json")) as f:
-            content = json.load(f)
-            item = content["items"][0]
-            assert item["type"] == "Canvas"
-            canvas = iiif_services.canvas_from_manifest(item)
-            assert canvas["width"] == item["width"]
-            assert canvas["pid"] == "1878-Helpin-EMU-0001.tiff"
 
     def test_creating_ocr_from_annotation_page(self):
         """It should create an OCR annotation from a IIIF annotation page."""

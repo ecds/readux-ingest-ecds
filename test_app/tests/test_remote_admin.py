@@ -34,7 +34,7 @@ class RemoteIngestAdminTest(TestCase):
         assert OCR.objects.count() == original_ocr_count + 9
 
     def test_remote_admin_save_multiple(self):
-        """It should add a create a manifest, canvases and OCR."""
+        """It should add a create multiple manifests with canvases and OCR."""
         links = "https://ecds.emory.edu/iiif/v3/1878-Helpin-EMU/manifest \
         https://ecds.emory.edu/iiif/v3/1879-Helpin-EMU/manifest \
         https://ecds.emory.edu/iiif/v3/1880-Helpin-EMU/manifest"

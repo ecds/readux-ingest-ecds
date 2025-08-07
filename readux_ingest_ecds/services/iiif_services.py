@@ -124,17 +124,23 @@ def manifest_from_manifest(link, version="v3"):
     manifest, relations = deserialize(settings.MANIFEST_DESERIALIZER, data)
 
     if "presentation/3/context" in data["@context"]:
-        return (manifest, find_relations(relations, "v3"), data["items"])
+        return (
+            manifest,
+            find_relations(relations, "v3"),
+            [
+                deserialize(settings.CANVAS_DESERIALIZER, canvas)
+                for canvas in data["items"]
+            ],
+        )
 
     return (
         manifest,
         find_relations(relations, "v2"),
-        [canvas for canvas in data["sequences"][0]["canvases"]],
+        [
+            deserialize(settings.CANVAS_DESERIALIZER, canvas)
+            for canvas in data["sequences"][0]["canvases"]
+        ],
     )
-
-
-def canvas_from_manifest(data):
-    return deserialize(settings.CANVAS_DESERIALIZER, data)
 
 
 def ocr_from_annotation_page(link, page):
