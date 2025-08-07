@@ -95,8 +95,9 @@ def __v3(data):
     content = ""
     if isinstance(data["body"], list):
         for body in data["body"]:
-            if body["type"] == "TextualBody":
-                content = body["value"]
+            if body["purpose"] == "TextualBody":
+                content = (body["value"],)
+
     elif isinstance(data["body"], dict):
         if data["body"]["type"] == "TextualBody":
             content = data["body"]["value"]
@@ -112,5 +113,5 @@ def __v3(data):
             "x": x,
             "y": y,
         },
-        None,
+        [],
     )

@@ -150,14 +150,11 @@ def ocr_from_annotation_page(link, page):
         httpretty.enable()
         httpretty.register_uri(httpretty.GET, link, body=str(content))
 
-    annos = []
     response = requests.get(link, timeout=100)
     data = response.json()
 
-    for item in data["items"]:
-        annos.append(deserialize(settings.ANNOTATION_DESERIALIZER, item)[0])
-
-    return annos
+    deserialized_annos = deserialize(settings.ANNOTATION_LIST_DESERIALIZER, data)
+    return [annos for annos, _ in deserialized_annos]
 
 
 def find_relations(relations, version):

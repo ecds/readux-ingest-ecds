@@ -40,10 +40,12 @@ HOSTNAME = "readux.io"
 MANIFEST_DESERIALIZER = "manifest"
 CANVAS_DESERIALIZER = "canvas"
 ANNOTATION_DESERIALIZER = "ocr"
+ANNOTATION_LIST_DESERIALIZER = "annotation_list"
 SERIALIZATION_MODULES = {
     "ocr": "iiif.serializers.ocr",
     "canvas": "iiif.serializers.canvas",
     "manifest": "iiif.serializers.manifest",
+    "annotation_list": "iiif.serializers.annotation_list",
 }
 
 # Readux settings
