@@ -17,6 +17,7 @@ from ..services.file_services import divide_chunks
 
 LOGGER = logging.getLogger(__name__)
 OCR = get_iiif_models()["OCR"]
+Canvas = get_iiif_models()["Canvas"]
 
 
 class IncludeQuotesDialect(csv.Dialect):  # pylint: disable=too-few-public-methods
@@ -606,3 +607,18 @@ def add_ocr_to_canvases(manifest):
             OCR.objects.bulk_create(chunk)
 
     return warnings
+
+
+def add_ocr_to_canvas(pid):
+    OCR = get_iiif_models()["OCR"]
+    Canvas = get_iiif_models()["Canvas"]
+    try:
+        canvas = Canvas.objects.get(pid=pid)
+        new_ocr_annotations = []
+        ocr = get_ocr(canvas)
+        if ocr is not None:
+            new_ocr_annotations += add_ocr_annotations(canvas, ocr)
+
+        OCR.objects.bulk_create(new_ocr_annotations)
+    except Canvas.DoesNotExist:
+        LOGGER.warning(f"Canvas {pid} does not exist.")

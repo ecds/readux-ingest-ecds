@@ -1,13 +1,13 @@
 # pylint: disable = unused-argument
 
-""" Common tasks for ingest. """
+"""Common tasks for ingest."""
 import os
 import logging
 from celery import Celery, Task
 from django.apps import apps
 from django.conf import settings
 from .helpers import get_iiif_models
-from .services.ocr_services import add_ocr_to_canvases
+from .services.ocr_services import add_ocr_to_canvases, add_ocr_to_canvas
 from .services.file_services import s3_copy
 
 # Use `apps.get_model` to avoid circular import error. Because the parameters used to
@@ -181,6 +181,17 @@ def add_ocr_manage_task(volume_pid, *args, **kwargs):
     """Add OCR for Volume/Manifest via Manage Command"""
     manifest = Manifest.objects.get(pid=volume_pid)
     add_ocr_to_canvases(manifest)
+
+
+@app.task(
+    name="add_volume_ocr_manage_task",
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    max_retries=20,
+)
+def add_ocr_to_canvas_task(canvas_pid, *args, **kwargs):
+    """Add OCR for Volume/Manifest via Manage Command"""
+    add_ocr_to_canvas(canvas_pid)
 
 
 @app.task(
