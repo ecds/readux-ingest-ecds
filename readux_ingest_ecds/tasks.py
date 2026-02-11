@@ -184,7 +184,7 @@ def add_ocr_manage_task(volume_pid, *args, **kwargs):
 
 
 @app.task(
-    name="add_volume_ocr_manage_task",
+    name="add_canvas_ocr_manage_task",
     autoretry_for=(Exception,),
     retry_backoff=True,
     max_retries=20,
