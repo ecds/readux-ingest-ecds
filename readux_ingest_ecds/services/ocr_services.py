@@ -622,3 +622,8 @@ def add_ocr_to_canvas(pid):
         OCR.objects.bulk_create(new_ocr_annotations)
     except Canvas.DoesNotExist:
         LOGGER.warning(f"Canvas {pid} does not exist.")
+
+
+# pids = None
+# with open('/iip/ns1/soundingspirit_staging/missing_ocr.txt', 'r') as f:
+#     pids = f.read().splitlines()

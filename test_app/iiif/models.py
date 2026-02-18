@@ -1,12 +1,42 @@
+import json
 import enum
 from uuid import uuid4
 from bs4 import BeautifulSoup
+import requests
 from django.utils import timezone
 from django.utils.functional import Promise
 from django.db import models
-from uuid import uuid4
+from django.core.serializers import deserialize as _deserialize, serialize as _serialize
 from django.contrib.auth.models import AbstractUser
 from .utils import encode_noid
+
+
+class IiifBase(models.Model):
+    class Meta:
+        abstract = True
+
+    @property
+    def serializer(self):
+        raise NotImplementedError("serializer() must be implemented in SubClass.")
+
+    @classmethod
+    def serialize(self, version="v3"):
+        return json.loads(_serialize(self.serializer, self, version=version))
+
+    @classmethod
+    def deserialize(self, url=None):
+        if url is None:
+            # Raise some error
+            pass
+
+        response = requests.get(url)
+        data = response.json()
+        obj = _deserialize(self.serializer, data)
+
+        for key, value in obj.items():
+            setattr(self, key, value)
+
+        self.save(update_fields=obj.keys())
 
 
 class ChoicesMeta(enum.EnumMeta):

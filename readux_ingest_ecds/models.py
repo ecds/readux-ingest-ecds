@@ -636,7 +636,6 @@ class Remote(models.Model):
             new_ocr_annos = []
             ocr_attrs = ocr_from_annotation_page(anno_page.page, index)
             for ocr_anno in ocr_attrs:
-                print(ocr_anno)
                 ocr = OCRModel(**ocr_anno)
                 new_ocr_annos.append(ocr)
 

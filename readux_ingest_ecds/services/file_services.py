@@ -167,7 +167,6 @@ def s3_copy(source, pid, prefix=None):
     s3 = resource("s3")
     destination_bucket = s3.Bucket(settings.INGEST_BUCKET)
     source_bucket = s3.Bucket(source)
-
     keys_to_copy = [
         str(obj.key)
         for obj in source_bucket.objects.all()
@@ -177,7 +176,7 @@ def s3_copy(source, pid, prefix=None):
     ]
 
     if prefix is not None:
-        keys_to_copy = [key for key in keys_to_copy if prefix in key]
+        keys_to_copy = [key for key in keys_to_copy if key.startswith(prefix)]
 
     images = []
     ocr = []
@@ -188,10 +187,9 @@ def s3_copy(source, pid, prefix=None):
             filename = f"{pid}_{filename}"
         try:
             if "image" in guess_type(key)[0] and "images" in key.casefold():
+                image_path = f"{settings.INGEST_STAGING_PREFIX}/{filename}"
                 images.append(filename)
-                destination_bucket.copy(
-                    copy_source, f"{settings.INGEST_STAGING_PREFIX}/{filename}"
-                )
+                destination_bucket.copy(copy_source, image_path)
             elif "ocr" in key.casefold() and is_ocr(f"ocr_{key}"):
                 ocr_path = f"{settings.INGEST_OCR_PREFIX}/{pid}/{filename}"
                 ocr.append(ocr_path)
