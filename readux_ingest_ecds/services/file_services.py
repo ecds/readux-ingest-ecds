@@ -2,9 +2,12 @@
 
 import os
 import logging
+import requests
+from urllib.parse import quote
 from shutil import move
 from mimetypes import guess_type
-from PIL import Image
+
+# from PIL import Image
 from boto3 import resource
 
 from django.conf import settings
@@ -133,24 +136,46 @@ def upload_trigger_file(trigger_file):
         )
 
 
-def canvas_dimensions(image_name):
-    """Get canvas dimensions
+# def canvas_dimensions(image_name):
+#     """Get canvas dimensions
 
-    :param image_name: File name without extension of image file.
-    :type image_name: str
-    :return: 2-tuple containing width and height (in pixels)
-    :rtype: tuple
-    """
-    original_image = [
-        img
-        for img in os.listdir(settings.INGEST_PROCESSING_DIR)
-        if img.startswith(image_name)
+#     :param image_name: File name without extension of image file.
+#     :type image_name: str
+#     :return: 2-tuple containing width and height (in pixels)
+#     :rtype: tuple
+#     """
+#     original_image = [
+#         img
+#         for img in os.listdir(settings.INGEST_PROCESSING_DIR)
+#         if img.startswith(image_name)
+#     ]
+#     if len(original_image) > 0:
+#         Image.MAX_IMAGE_PIXELS = None
+#         return Image.open(
+#             os.path.join(settings.INGEST_PROCESSING_DIR, original_image[0])
+#         ).size
+#     return (0, 0)
+
+
+def canvas_dimensions(image_name):
+    s3 = resource("s3")
+    bucket = s3.Bucket(settings.INGEST_BUCKET)
+
+    keys = [
+        str(obj)
+        for obj in bucket.objects.filter(
+            Prefix=f"{settings.INGEST_STAGING_PREFIX}/{image_name}"
+        )
     ]
-    if len(original_image) > 0:
-        Image.MAX_IMAGE_PIXELS = None
-        return Image.open(
-            os.path.join(settings.INGEST_PROCESSING_DIR, original_image[0])
-        ).size
+
+    if len(keys) > 0:
+        response = requests.get(
+            f"https://iiif.ecds.io/iiif/3/{quote(keys[0], safe="")}/info.json"
+        ).json()
+
+        dimensions = response["sizes"][-1]
+        return (dimensions["width"], dimensions["height"])
+
     return (0, 0)
 
 

@@ -243,7 +243,7 @@ class Local(IngestAbstractModel):
             position = index + 1
             image_name = os.path.splitext(image)[0]
             canvas_pid = f"{image_name}.tiff"
-            # width, height = canvas_dimensions(image_name)
+            width, height = canvas_dimensions(image_name)
             ocr_directory = os.path.join(settings.INGEST_OCR_DIR, self.manifest.pid)
             try:
                 ocr_file = [
