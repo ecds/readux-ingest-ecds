@@ -162,7 +162,7 @@ def canvas_dimensions(image_name):
     bucket = s3.Bucket(settings.INGEST_BUCKET)
 
     keys = [
-        str(obj)
+        obj.key
         for obj in bucket.objects.filter(
             Prefix=f"{settings.INGEST_STAGING_PREFIX}/{image_name}"
         )
@@ -170,7 +170,7 @@ def canvas_dimensions(image_name):
 
     if len(keys) > 0:
         response = requests.get(
-            f"https://iiif.ecds.io/iiif/3/{quote(keys[0], safe="")}/info.json"
+            f"https://iiif.ecds.io/iiif/3/{quote(keys[0], safe='')}/info.json"
         ).json()
 
         dimensions = response["sizes"][-1]
@@ -216,9 +216,9 @@ def s3_copy(source, pid, prefix=None):
                 images.append(filename)
                 destination_bucket.copy(copy_source, image_path)
             elif "ocr" in key.casefold() and is_ocr(f"ocr_{key}"):
-                ocr_path = f"{settings.INGEST_OCR_PREFIX}/{pid}/{filename}"
+                ocr_path = os.path.join(settings.INGEST_OCR_DIR, pid, filename)
+                s3.Bucket(source).download_file(key, ocr_path)
                 ocr.append(ocr_path)
-                destination_bucket.copy(copy_source, ocr_path)
         except TypeError as error:
             LOGGER.warning(f"Could not determine file type for {key}")
             LOGGER.warning(error)

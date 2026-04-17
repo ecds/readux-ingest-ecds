@@ -529,6 +529,11 @@ class S3Ingest(models.Model):
                     exist_ok=True,
                 )
 
+                os.makedirs(
+                    os.path.join(settings.INGEST_OCR_DIR, str(pid)),
+                    exist_ok=True,
+                )
+
                 open(trigger_file, "a", encoding="utf-8").close()
 
                 image_files, _ = s3_copy(self.s3_bucket, pid, prefix=self.prefix)
