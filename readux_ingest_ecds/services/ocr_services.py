@@ -563,8 +563,7 @@ def remove_duplicate_ocr(canvas):
             h=ocr_dimensions[2],
             w=ocr_dimensions[3],
         )
-        list(annos).pop()
-        dupes += annos
+        dupes += list(annos[1:])
 
     for dupe in dupes:
         dupe.delete()

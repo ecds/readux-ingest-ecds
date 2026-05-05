@@ -7,7 +7,11 @@ from celery import Celery, Task
 from django.apps import apps
 from django.conf import settings
 from .helpers import get_iiif_models
-from .services.ocr_services import add_ocr_to_canvases, add_ocr_to_canvas
+from .services.ocr_services import (
+    add_ocr_to_canvases,
+    add_ocr_to_canvas,
+    remove_duplicate_ocr,
+)
 from .services.file_services import s3_copy
 
 # Use `apps.get_model` to avoid circular import error. Because the parameters used to
@@ -156,6 +160,19 @@ def add_ocr_task_local(ingest_id, manifest_pid, *args, **kwargs):
     warnings = add_ocr_to_canvases(manifest)
     local_ingest.warnings = " | ".join(warnings)
     local_ingest.save()
+
+
+@app.task(
+    name="nuke_dupe_ocr_task",
+    autoretry_for=(Exception),
+    retry_backoff=True,
+    max_retries=5,
+)
+def nuke_dupe_ocr_task(manifest_pid, *args, **kwargs):
+    """Desperate effort to remove duplicate OCR"""
+    manifest = Manifest.objects.get(pid=manifest_pid)
+    for canvas in manifest.canvas_set.all():
+        remove_duplicate_ocr(canvas)
 
 
 @app.task(
