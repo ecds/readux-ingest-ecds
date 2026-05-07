@@ -1,6 +1,7 @@
 # pylint: disable = unused-argument
 
 """Common tasks for ingest."""
+
 import os
 import logging
 from celery import Celery, Task
@@ -164,7 +165,7 @@ def add_ocr_task_local(ingest_id, manifest_pid, *args, **kwargs):
 
 @app.task(
     name="nuke_dupe_ocr_task",
-    autoretry_for=(Exception),
+    autoretry_for=(Exception,),
     retry_backoff=True,
     max_retries=5,
 )
