@@ -542,6 +542,11 @@ class S3Ingest(models.Model):
                     with open(trigger_file, "a", encoding="utf-8") as t_file:
                         t_file.write(f"{image_file}\n")
 
+                if len(image_file) == 0:
+                    message = f"No images found for {manifest.pid} in {self.s3_bucket} bucket with the prefix {self.prefix}"
+                    LOGGER.error(message)
+                    raise ValueError(message)
+
                 from .tasks import add_canvases_task
 
                 if os.environ["DJANGO_ENV"] == "test":
