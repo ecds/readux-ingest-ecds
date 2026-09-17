@@ -442,7 +442,6 @@ def add_ocr_annotations(canvas, ocr):
                 h=word["h"],
                 x=word["x"],
                 y=word["y"],
-                content=word["content"],
                 canvas=canvas,
             )
         except OCR.DoesNotExist:
