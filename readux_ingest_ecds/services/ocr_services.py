@@ -13,7 +13,6 @@ from django.conf import settings
 from django.core.serializers import deserialize
 from readux_ingest_ecds.helpers import get_iiif_models
 from .services import fetch_url
-from ..services.file_services import divide_chunks
 
 LOGGER = logging.getLogger(__name__)
 OCR = get_iiif_models()["OCR"]
@@ -586,23 +585,25 @@ def remove_duplicate_ocr(canvas):
 def add_ocr_to_canvases(manifest):
     OCR = get_iiif_models()["OCR"]
     warnings = []
-    chunk_size = 200 if environ["DJANGO_ENV"] != "test" else 2
-    canvas_chunks = divide_chunks(manifest.canvas_set.all(), chunk_size)
-    for canvas_chunk in list(canvas_chunks):
-        new_ocr_annotations = []
-        for canvas in canvas_chunk:
-            ocr = get_ocr(canvas)
-            if isinstance(ocr, etree.XMLSyntaxError):
-                warnings.append(
-                    f"Canvas {canvas.pid} - {ocr.__class__.__name__}: {ocr}"
-                )
-            elif ocr is not None:
-                new_ocr_annotations += add_ocr_annotations(canvas, ocr)
-            else:
-                warnings.append(f"Canvas {canvas.pid} - No OCR")
-        chunks = divide_chunks(new_ocr_annotations, chunk_size)
-        for chunk in list(chunks):
-            OCR.objects.bulk_create(chunk)
+    # Only bounds each canvas's own bulk_create INSERT batches now -- annotations
+    # are flushed to the DB one canvas at a time (below) instead of accumulating
+    # across a whole batch of canvases.
+    bulk_create_batch_size = 200 if environ["DJANGO_ENV"] != "test" else 2
+
+    for canvas in manifest.canvas_set.iterator(chunk_size=50):
+        ocr = get_ocr(canvas)
+        if isinstance(ocr, etree.XMLSyntaxError):
+            warnings.append(f"Canvas {canvas.pid} - {ocr.__class__.__name__}: {ocr}")
+            continue
+        if ocr is None:
+            warnings.append(f"Canvas {canvas.pid} - No OCR")
+            continue
+
+        new_ocr_annotations = add_ocr_annotations(canvas, ocr)
+        if new_ocr_annotations:
+            OCR.objects.bulk_create(
+                new_ocr_annotations, batch_size=bulk_create_batch_size
+            )
 
     return warnings
 
