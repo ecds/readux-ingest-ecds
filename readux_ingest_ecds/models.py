@@ -254,7 +254,12 @@ class Local(IngestAbstractModel):
                 ocr_file_path = None
 
             try:
-                CanvasModel.objects.get(pid=canvas_pid)
+                # Scoped to this manifest -- pid isn't guaranteed globally
+                # unique (e.g. two volumes both containing a page literally
+                # named "0001.tif"), and an unscoped lookup here could match
+                # a different manifest's canvas, silently skipping creation
+                # of this manifest's own page.
+                CanvasModel.objects.get(pid=canvas_pid, manifest=self.manifest)
             except CanvasModel.DoesNotExist:
                 new_canvas = CanvasModel(
                     manifest=self.manifest,
@@ -283,9 +288,19 @@ class Local(IngestAbstractModel):
             unique_canvas_pids.add(canvas.pid)
         dupes = []
         for canvas_pid in list(unique_canvas_pids):
-            canvases = list(CanvasModel.objects.filter(pid=canvas_pid))
-            canvases.pop()
-            dupes += canvases
+            # Scoped to this manifest -- see the matching note in
+            # create_canvases(). Unscoped, this could treat another
+            # manifest's canvas as a "duplicate" of this one and delete it,
+            # cascading to that manifest's own OCR annotations.
+            # Ordered by pk so which row survives is deterministic (keep
+            # the earliest-created one) rather than whatever order the DB
+            # happens to return.
+            canvases = list(
+                CanvasModel.objects.filter(
+                    pid=canvas_pid, manifest=self.manifest
+                ).order_by("pk")
+            )
+            dupes += canvases[1:]
 
         for dupe_canvas in dupes:
             dupe_canvas.delete()

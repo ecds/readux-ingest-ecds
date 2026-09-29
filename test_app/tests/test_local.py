@@ -335,6 +335,55 @@ class LocalTest(TestCase):
 
         assert manifest.canvas_set.count() == 3
 
+    def test_check_canvases_does_not_touch_other_manifests_canvas(self):
+        """A pid collision across two different manifests (e.g. both
+        volumes happen to contain a page with the same base filename)
+        must not let one manifest's check_canvases() treat the other
+        manifest's canvas as its own duplicate and delete it."""
+        shared_pid = uuid4()
+
+        manifest_a = ManifestFactory()
+        CanvasFactory.create(pid=shared_pid, manifest=manifest_a)
+
+        manifest_b = ManifestFactory()
+        other_manifest_canvas = CanvasFactory.create(pid=shared_pid, manifest=manifest_b)
+
+        local_a = LocalFactory.create(manifest=manifest_a)
+        local_a.check_canvases()
+
+        manifest_b.refresh_from_db()
+        assert manifest_b.canvas_set.count() == 1
+        assert Canvas.objects.filter(pk=other_manifest_canvas.pk).exists()
+
+    def test_create_canvases_does_not_skip_on_other_manifests_pid_collision(self):
+        """The existence check in create_canvases() must be scoped to the
+        manifest being ingested -- otherwise a pid collision with another
+        manifest's canvas causes this manifest's page to be silently
+        skipped (never created) instead of the canvas being added."""
+        shared_pid = "0001.tiff"
+
+        other_manifest = ManifestFactory()
+        CanvasFactory.create(pid=shared_pid, manifest=other_manifest)
+
+        local = self.mock_local("csv_meta.zip")
+        local.prep()
+        local.refresh_from_db()
+        local.unzip_bundle()
+
+        # Force the very first image this bundle would create to collide
+        # with the other manifest's existing canvas pid.
+        with open(local.trigger_file, "r") as t_file:
+            images = t_file.read().splitlines()
+        first_image_name = os.path.splitext(images[0])[0]
+
+        Canvas.objects.filter(pid=shared_pid, manifest=other_manifest).update(
+            pid=f"{first_image_name}.tiff"
+        )
+
+        local.create_canvases()
+
+        assert local.manifest.canvas_set.filter(pid=f"{first_image_name}.tiff").count() == 1
+
     # def test_upload_file_with_same_name(self):
     #     """ Uploading a file should replace file if name matches existing file. """
     #     file_one = 'bundle.zip'
