@@ -4,11 +4,13 @@ import boto3
 from moto import mock_aws
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
+from readux_ingest_ecds import tasks as tasks_module
 from readux_ingest_ecds.locks import release_ingest_lock, try_acquire_ingest_lock
 from readux_ingest_ecds.models import Local
 from readux_ingest_ecds.tasks import (
     FinalTask,
     ReleaseLocalLockOnFailure,
+    TRANSIENT_EXCEPTIONS,
     local_ingest_task_ecds,
 )
 from shutil import rmtree
@@ -119,3 +121,39 @@ class IngestLockReleaseTest(TestCase):
         )
 
         assert try_acquire_ingest_lock("local", "some-ingest-id") is True
+
+
+class RetryScopingTest(TestCase):
+    """Regression guard for the retry-scoping fix: every Celery task in
+    this module used to retry on bare Exception, which blindly retried
+    non-idempotent work (bulk_create calls, etc.) and permanent failures
+    (bad data, "doesn't exist" errors) exactly as eagerly as genuine
+    network/DB blips. This asserts none of them fell back to that."""
+
+    def _all_registered_tasks(self):
+        from celery.app.task import Task
+
+        return [
+            value
+            for value in vars(tasks_module).values()
+            if isinstance(value, Task) and value.name
+        ]
+
+    def test_no_task_retries_on_bare_exception(self):
+        tasks = self._all_registered_tasks()
+        assert len(tasks) >= 10  # sanity check the lookup actually found them
+
+        for task in tasks:
+            autoretry_for = getattr(task, "autoretry_for", ())
+            assert Exception not in autoretry_for, (
+                f"{task.name} still retries on bare Exception"
+            )
+
+    def test_transient_exceptions_are_connectivity_only(self):
+        """Guards against TRANSIENT_EXCEPTIONS itself quietly growing to
+        include something like botocore.exceptions.ClientError, which
+        would also catch permanent errors like NoSuchBucket."""
+        from botocore.exceptions import ClientError
+
+        assert ClientError not in TRANSIENT_EXCEPTIONS
+        assert ValueError not in TRANSIENT_EXCEPTIONS

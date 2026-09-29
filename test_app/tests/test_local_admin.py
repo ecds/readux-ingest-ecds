@@ -1,5 +1,7 @@
+import os
 from os.path import join
 from shutil import rmtree
+from unittest.mock import patch
 import boto3
 from django.conf import settings
 from django.contrib.admin.sites import AdminSite
@@ -77,6 +79,40 @@ class LocalIngestAdminTest(TestCase):
         assert Manifest.objects.count() == original_manifest_count + 1
         assert Canvas.objects.count() == original_canvas_count + 10
         assert OCR.objects.count() == original_ocr_count + 1073
+
+    def test_local_admin_save_defers_dispatch_to_on_commit(self):
+        """In production (DJANGO_ENV != "test"), save_model() runs inside
+        Django admin's implicit transaction.atomic() for the whole
+        changeform view -- the task dispatch must go through
+        transaction.on_commit() rather than calling .apply_async()
+        immediately, since a worker picking it up right away could query
+        for the row before this transaction has actually committed."""
+        local = LocalFactory.build(image_server=self.image_server)
+        with open(join(self.fixture_path, "no_meta_file.zip"), "rb") as f:
+            content = files.base.ContentFile(f.read())
+        local.bundle = files.File(content.file, "no_meta_file.zip")
+
+        request_factory = RequestFactory()
+        req = request_factory.post("/admin/readux_ingest_ecds/local/add/", data={})
+        req.user = self.user
+
+        local_model_admin = LocalAdmin(model=Local, admin_site=AdminSite())
+
+        with patch.dict(os.environ, {"DJANGO_ENV": "not-test"}), patch(
+            "readux_ingest_ecds.admin.local_ingest_task_ecds"
+        ) as mock_task:
+            with self.captureOnCommitCallbacks(execute=False) as callbacks:
+                local_model_admin.save_model(
+                    obj=local, request=req, form=None, change=None
+                )
+                # Must not dispatch yet -- only once the transaction commits.
+                mock_task.apply_async.assert_not_called()
+
+            assert len(callbacks) == 1
+
+            # Running the captured callback is what a real commit would do.
+            callbacks[0]()
+            mock_task.apply_async.assert_called_once_with(args=[local.id])
 
     def test_local_admin_response_add(self):
         """It should redirect to new manifest"""

@@ -4,9 +4,12 @@
 
 import os
 import logging
+from botocore.exceptions import ConnectionError as BotoConnectionError
 from celery import Celery, Task
 from django.apps import apps
 from django.conf import settings
+from django.db.utils import OperationalError
+from requests.exceptions import ConnectionError as RequestsConnectionError, Timeout
 from .helpers import get_iiif_models
 from .locks import try_acquire_ingest_lock, release_ingest_lock
 from .services.ocr_services import (
@@ -15,6 +18,20 @@ from .services.ocr_services import (
     remove_duplicate_ocr,
 )
 from .services.file_services import s3_copy
+
+# Exceptions worth an automatic retry: genuine connectivity/infrastructure
+# blips (network drops, DB connection hiccups) that are likely to succeed
+# on a later attempt. Deliberately NOT botocore.exceptions.ClientError or
+# BotoCoreError -- ClientError also covers things like NoSuchBucket, which
+# mean "this genuinely doesn't exist," not "try again later"; retrying
+# those just repeats a guaranteed failure (and, for non-idempotent work
+# like bulk_create, can turn a permanent failure into duplicated data).
+TRANSIENT_EXCEPTIONS = (
+    BotoConnectionError,  # covers EndpointConnectionError too (subclass)
+    RequestsConnectionError,
+    Timeout,
+    OperationalError,
+)
 
 # Use `apps.get_model` to avoid circular import error. Because the parameters used to
 # create a background task have to be serializable, we can't just pass in the model object.
@@ -106,7 +123,7 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 @app.task(
     name="local_ingest_task_ecds",
     base=ReleaseLocalLockOnFailure,
-    autoretry_for=(Exception,),
+    autoretry_for=TRANSIENT_EXCEPTIONS,
     retry_backoff=True,
     max_retries=20,
 )
@@ -129,7 +146,7 @@ def local_ingest_task_ecds(ingest_id):
 
 @app.task(
     name="bulk_ingest_task_ecds",
-    autoretry_for=(Exception,),
+    autoretry_for=TRANSIENT_EXCEPTIONS,
     retry_backoff=True,
     max_retries=20,
 )
@@ -147,7 +164,7 @@ def bulk_ingest_task_ecds(ingest_id):
 @app.task(
     name="add_canvases_task",
     base=ReleaseLocalLockOnFailure,
-    autoretry_for=(Exception,),
+    autoretry_for=TRANSIENT_EXCEPTIONS,
     retry_backoff=5,
 )
 def add_canvases_task(ingest_id, manifest_pid, *args, **kwargs):
@@ -172,7 +189,17 @@ def add_canvases_task(ingest_id, manifest_pid, *args, **kwargs):
 @app.task(
     name="add_ocr_task_local_ecds",
     base=FinalTask,
-    autoretry_for=(Manifest.DoesNotExist,),
+    # Manifest.DoesNotExist here used to be the actual fix for a dispatch-
+    # before-commit race (admin.py's save_model dispatches inside Django
+    # admin's implicit transaction.atomic() for the changeform view, so a
+    # worker could start before the manifest row was visible). That's now
+    # fixed at the source via transaction.on_commit() around the dispatch
+    # calls in admin.py -- this retry is left as a defensive backstop for
+    # any other commit-visibility lag (e.g. read-replica delay), not the
+    # primary protection anymore. Also retries the same transient
+    # connectivity exceptions as the other tasks, since add_ocr_to_canvases
+    # fetches OCR over S3/HTTP.
+    autoretry_for=(Manifest.DoesNotExist,) + TRANSIENT_EXCEPTIONS,
     retry_backoff=5,
 )
 def add_ocr_task_local(ingest_id, manifest_pid, *args, **kwargs):
@@ -187,7 +214,9 @@ def add_ocr_task_local(ingest_id, manifest_pid, *args, **kwargs):
 
 @app.task(
     name="nuke_dupe_ocr_task",
-    autoretry_for=(Exception,),
+    # Pure DB work, no S3/HTTP calls -- only a connection blip is
+    # realistically transient here.
+    autoretry_for=(OperationalError,),
     retry_backoff=True,
     max_retries=5,
 )
@@ -200,7 +229,7 @@ def nuke_dupe_ocr_task(manifest_pid, *args, **kwargs):
 
 @app.task(
     name="s3_ingest_task_ecds",
-    autoretry_for=(Exception,),
+    autoretry_for=TRANSIENT_EXCEPTIONS,
     retry_backoff=True,
     max_retries=20,
 )
@@ -213,7 +242,7 @@ def s3_ingest_task(ingest_id, *args, **kwargs):
 
 @app.task(
     name="add_volume_ocr_manage_task",
-    autoretry_for=(Exception,),
+    autoretry_for=TRANSIENT_EXCEPTIONS,
     retry_backoff=True,
     max_retries=20,
 )
@@ -225,7 +254,7 @@ def add_ocr_manage_task(volume_pid, *args, **kwargs):
 
 @app.task(
     name="add_canvas_ocr_manage_task",
-    autoretry_for=(Exception,),
+    autoretry_for=TRANSIENT_EXCEPTIONS,
     retry_backoff=True,
     max_retries=20,
 )
@@ -237,7 +266,7 @@ def add_ocr_to_canvas_task(canvas_pid, *args, **kwargs):
 @app.task(
     name="retry_local_from_s3_task",
     base=ReleaseLocalLockOnFailure,
-    autoretry_for=(Exception,),
+    autoretry_for=TRANSIENT_EXCEPTIONS,
     retry_backoff=True,
     max_retries=20,
 )
@@ -263,7 +292,7 @@ def retry_local_from_s3_task(ingest_id, *args, **kwargs):
 
 @app.task(
     name="remote_task",
-    autoretry_for=(Exception,),
+    autoretry_for=TRANSIENT_EXCEPTIONS,
     retry_backoff=True,
     max_retries=20,
 )
@@ -276,7 +305,7 @@ def remote_task(ingest_id, *args, **kwargs):
 @app.task(
     name="remote_ocr_task",
     base=FinalRemoteTask,
-    autoretry_for=(Exception,),
+    autoretry_for=TRANSIENT_EXCEPTIONS,
     retry_backoff=True,
     max_retries=20,
 )

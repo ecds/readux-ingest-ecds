@@ -3,6 +3,7 @@ import logging
 from mimetypes import guess_type
 from django.core.files.base import ContentFile
 from django.contrib import admin
+from django.db import transaction
 from django.shortcuts import redirect
 from .models import Local, Bulk, S3Ingest, Remote
 from .tasks import (
@@ -42,10 +43,16 @@ class LocalAdmin(admin.ModelAdmin):
             obj.prep()
         super().save_model(request, obj, form, change)
         if os.environ["DJANGO_ENV"] != "test":  # pragma: no cover
+            # Defer dispatch until the admin view's transaction actually
+            # commits -- Django wraps the whole changeform view (including
+            # this save_model call) in transaction.atomic(), so a worker
+            # picking up the task immediately can otherwise query for this
+            # row (or the manifest obj.prep() just created) before it's
+            # visible outside this transaction.
             if is_adding or obj.from_s3 is False:
-                local_ingest_task_ecds.apply_async(args=[obj.id])
+                transaction.on_commit(lambda: local_ingest_task_ecds.apply_async(args=[obj.id]))
             else:
-                retry_local_from_s3_task.apply_async(args=[obj.id])
+                transaction.on_commit(lambda: retry_local_from_s3_task.apply_async(args=[obj.id]))
         else:
             local_ingest_task_ecds(obj.id)
 
@@ -95,7 +102,7 @@ class BulkAdmin(admin.ModelAdmin):
         obj.creator = request.user
         super().save_model(request, obj, form, change)
         if os.environ["DJANGO_ENV"] != "test":  # pragma: no cover
-            bulk_ingest_task_ecds.apply_async(args=[obj.id])
+            transaction.on_commit(lambda: bulk_ingest_task_ecds.apply_async(args=[obj.id]))
         else:
             bulk_ingest_task_ecds(obj.id)
 
@@ -110,7 +117,7 @@ class S3IngestAdmin(admin.ModelAdmin):
 
         super().save_model(request, obj, form, change)
         if os.environ["DJANGO_ENV"] != "test":  # pragma: no cover
-            s3_ingest_task.apply_async(args=[obj.id])
+            transaction.on_commit(lambda: s3_ingest_task.apply_async(args=[obj.id]))
         else:
             s3_ingest_task(obj.id)
 
@@ -135,7 +142,7 @@ class RemoteAdmin(admin.ModelAdmin):
 
         super().save_model(request, obj, form, change)
         if os.environ["DJANGO_ENV"] != "test":  # pragma: no cover
-            remote_task.apply_async(args=[obj.id])
+            transaction.on_commit(lambda: remote_task.apply_async(args=[obj.id]))
         else:
             remote_task(obj.id)
 
