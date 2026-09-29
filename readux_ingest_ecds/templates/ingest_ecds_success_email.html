@@ -8,8 +8,10 @@
   <ul>
     <li>Filename: <span style="font-family: monospace">{{ manifest_pid }}</span></li>
     <li>Manifest PID: <span style="font-family: monospace">{{ manifest_pid }}</span></li>
+    {% if source %}<li>Source: {{ source }}</li>{% endif %}
     <li><a href="{{ manifest_url }}">Edit manifest</a></li>
     <li><a href="{{ volume_url }}">Link to volume</a></li>
+    <li>Canvases: {{ total_canvases }} total, {{ canvases_succeeded }} with OCR, {{ canvases_with_warnings }} with warnings</li>
   </ul>
 </p>
 {% if html_warnings is not None %}

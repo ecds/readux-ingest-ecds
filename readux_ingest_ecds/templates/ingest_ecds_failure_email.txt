@@ -1,8 +1,9 @@
 Readux
 -------
 
-Ingest failed: {{ bundle }}
+Ingest failed: {{ filename|default:manifest_pid|default:"unknown" }}
 Manifest Pid: {{ manifest_pid }}
-
+{% if total_canvases %}Canvases: {{ total_canvases }} total
+{% endif %}
 Details:
 {{ exception }}

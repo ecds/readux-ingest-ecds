@@ -313,7 +313,10 @@ class Local(IngestAbstractModel):
     def success(self):
         LOGGER.info(f"SUCCESS!!! {self.manifest.pid}")
         send_email_on_success(
-            creator=self.creator, manifest=self.manifest, warnings=self.warnings
+            creator=self.creator,
+            manifest=self.manifest,
+            warnings=self.warnings,
+            source="S3" if self.from_s3 else "File Upload",
         )
         self.manifest.save()
         if os.environ["DJANGO_ENV"] != "test":
@@ -680,7 +683,9 @@ class Remote(models.Model):
 
     def success(self):
         LOGGER.info(f"SUCCESS!!! {self.manifest.pid}")
-        send_email_on_success(creator=self.creator, manifest=self.manifest)
+        send_email_on_success(
+            creator=self.creator, manifest=self.manifest, source="Remote URL"
+        )
         self.manifest.save()
         if os.environ["DJANGO_ENV"] != "test":
             # pylint: disable=import-outside-toplevel

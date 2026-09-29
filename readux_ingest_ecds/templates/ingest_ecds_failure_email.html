@@ -2,11 +2,13 @@
     Readux
   </h1>
 
-  <h3 style="color: red;">Ingest failed: {{ filename }}</h3>
+  <h3 style="color: red;">Ingest failed: {{ filename|default:manifest_pid|default:"unknown" }}</h3>
   <div>
     Details:
     <ul>
-        <li>Filename: <span style="font-family: monospace">{{ filename }}</span></li>
+        {% if filename %}<li>Filename: <span style="font-family: monospace">{{ filename }}</span></li>{% endif %}
+        {% if manifest_pid %}<li>Manifest PID: <span style="font-family: monospace">{{ manifest_pid }}</span></li>{% endif %}
+        {% if total_canvases %}<li>Canvases: {{ total_canvases }} total</li>{% endif %}
     </ul>
     <p>
         ERROR:

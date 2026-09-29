@@ -4,8 +4,10 @@ Readux
 Ingest complete: {{ manifest_pid }}
 
 - Manifest PID: {{ manifest_pid }}
-- Edit manifest: {{ manifest_url }}
+{% if source %}- Source: {{ source }}
+{% endif %}- Edit manifest: {{ manifest_url }}
 - Link to volume: {{ volume_url }}
+- Canvases: {{ total_canvases }} total, {{ canvases_succeeded }} with OCR, {{ canvases_with_warnings }} with warnings
 {% if warnings is not None %}
 - Warnings:
 {{ warnings|join:"\n" }}
