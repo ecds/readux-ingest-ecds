@@ -38,6 +38,7 @@ class LocalIngestAdminTest(TestCase):
         # Create fake bucket for moto's mock S3 service.
         conn = boto3.resource("s3", region_name="us-east-1")
         conn.create_bucket(Bucket=settings.INGEST_TRIGGER_BUCKET)
+        conn.create_bucket(Bucket=settings.INGEST_BUCKET)
 
     def teardown_class():
         rmtree(settings.INGEST_TMP_DIR, ignore_errors=True)

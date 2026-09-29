@@ -1,6 +1,7 @@
 import os
 import boto3
 import tempfile
+from unittest.mock import patch
 from shutil import rmtree
 from faker import Faker
 from faker_file.providers.jpeg_file import JpegFileProvider
@@ -42,6 +43,14 @@ class S3Test(TestCase):
         conn.create_bucket(Bucket=settings.INGEST_BUCKET)
         conn.create_bucket(Bucket="source")
 
+        # canvas_dimensions() asks the IIIF server for each image's info.json.
+        iiif_patcher = patch("readux_ingest_ecds.services.file_services.requests.get")
+        mock_get = iiif_patcher.start()
+        mock_get.return_value.json.return_value = {
+            "sizes": [{"width": 100, "height": 150}]
+        }
+        self.addCleanup(iiif_patcher.stop)
+
     def teardown_class():
         rmtree(settings.INGEST_TMP_DIR, ignore_errors=True)
         for item in os.listdir("./"):
@@ -72,27 +81,25 @@ class S3Test(TestCase):
 
         for _ in range(count):
             fake_image = self.fake.jpeg_file(storage=self.fs_storage)
-            # include the pid in the filename if not included in the path
-            image_key = (
-                os.path.join(sub_dir, f"{pid}_{os.path.basename(fake_image)}")
-                if include_pid_in_file
-                else os.path.join(
-                    self.fs_storage.rel_path, os.path.basename(fake_image)
-                )
+            # Source keys are <prefix>/images/<pid>/<pid>_<file>, or
+            # images/<pid>/<file> when the pid is not in the filename.
+            image_name = os.path.basename(fake_image)
+            key_prefix = ""
+            if include_pid_in_file:
+                image_name = f"{pid}_{image_name}"
+                key_prefix = f"{prefix}/"
+            ocr_name = f"{os.path.splitext(image_name)[0]}.txt"
+            ocr_path = os.path.join(
+                self.fs_storage.root_path, self.fs_storage.rel_path, "ocr", ocr_name
             )
-            ocr_key = image_key.replace("jpg", "txt")
-            open(
-                os.path.join(self.fs_storage.root_path, ocr_key),
-                "a",
-                encoding="utf-8",
-            ).close()
+            open(ocr_path, "a", encoding="utf-8").close()
 
             self.s3.Bucket("source").upload_file(
                 os.path.join(self.fs_storage.root_path, str(fake_image)),
-                f"images/{image_key}",
+                f"{key_prefix}images/{pid}/{image_name}",
             )
             self.s3.Bucket("source").upload_file(
-                os.path.join(self.fs_storage.root_path, ocr_key), f"ocr/{ocr_key}"
+                ocr_path, f"{key_prefix}ocr/{pid}/{ocr_name}"
             )
 
     def create_pids(
@@ -146,11 +153,7 @@ class S3Test(TestCase):
                 for obj in destination_bucket.objects.all()
                 if str(obj.key).startswith(f"{settings.INGEST_STAGING_PREFIX}/{pid}_")
             ]
-            ingested_ocr = [
-                str(obj.key)
-                for obj in destination_bucket.objects.all()
-                if str(obj.key).startswith(f"{settings.INGEST_OCR_PREFIX}/{pid}/")
-            ]
+            ingested_ocr = os.listdir(os.path.join(settings.INGEST_OCR_DIR, pid))
             assert Manifest.objects.filter(pid=pid).exists()
             assert Manifest.objects.get(pid=pid).canvas_set.count() == 4
             assert Manifest.objects.get(pid=pid).label is not None
@@ -177,9 +180,9 @@ class S3Test(TestCase):
                 if str(obj.key).startswith(f"{settings.INGEST_STAGING_PREFIX}/{pid}_")
             ]
             ingested_ocr = [
-                str(obj.key)
-                for obj in destination_bucket.objects.all()
-                if str(obj.key).startswith(f"{settings.INGEST_OCR_PREFIX}/{pid}/{pid}_")
+                ocr
+                for ocr in os.listdir(os.path.join(settings.INGEST_OCR_DIR, pid))
+                if ocr.startswith(f"{pid}_")
             ]
             assert Manifest.objects.filter(pid=pid).exists()
             assert Manifest.objects.get(pid=pid).canvas_set.count() == 3
@@ -215,9 +218,9 @@ class S3Test(TestCase):
             ]
 
             ingested_ocr = [
-                os.path.basename(str(obj.key))
-                for obj in destination_bucket.objects.all()
-                if str(obj.key).startswith(f"{settings.INGEST_OCR_PREFIX}/{pid}/{pid}_")
+                ocr
+                for ocr in os.listdir(os.path.join(settings.INGEST_OCR_DIR, pid))
+                if ocr.startswith(f"{pid}_")
             ]
 
             canvases = [
@@ -288,9 +291,9 @@ class S3Test(TestCase):
                 if str(obj.key).startswith(f"{settings.INGEST_STAGING_PREFIX}/{pid}_")
             ]
             ingested_ocr = [
-                str(obj.key)
-                for obj in destination_bucket.objects.all()
-                if str(obj.key).startswith(f"{settings.INGEST_OCR_PREFIX}/{pid}/{pid}_")
+                ocr
+                for ocr in os.listdir(os.path.join(settings.INGEST_OCR_DIR, pid))
+                if ocr.startswith(f"{pid}_")
             ]
             assert Manifest.objects.filter(pid=pid).exists()
             assert Manifest.objects.get(pid=pid).canvas_set.count() == 1

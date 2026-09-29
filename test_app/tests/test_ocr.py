@@ -59,3 +59,25 @@ class OCRTest(TestCase):
         assert OCR.objects.count() == 178
         dupe_annos = ocr_services.add_ocr_annotations(canvas, ocr)
         assert len(dupe_annos) == 0
+
+    def test_add_ocr_to_canvases_handles_multiple_canvases(self):
+        """add_ocr_to_canvases() now flushes each canvas's OCR to the DB
+        individually instead of accumulating a whole batch of canvases in
+        memory first (a fix for workers getting OOM-killed on large
+        manifests) -- this confirms that change still adds OCR correctly
+        across more than one canvas, not just a single one."""
+        manifest = ManifestFactory.create()
+        canvas_one = CanvasFactory.create(
+            ocr_file_path=os.path.join(self.fixture_path, "alto4.xml"),
+            manifest=manifest,
+        )
+        canvas_two = CanvasFactory.create(
+            ocr_file_path=os.path.join(self.fixture_path, "alto4.xml"),
+            manifest=manifest,
+        )
+
+        warnings = ocr_services.add_ocr_to_canvases(manifest)
+
+        assert warnings == []
+        assert OCR.objects.filter(canvas=canvas_one).count() == 178
+        assert OCR.objects.filter(canvas=canvas_two).count() == 178

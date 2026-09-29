@@ -8,6 +8,7 @@ from celery import Celery, Task
 from django.apps import apps
 from django.conf import settings
 from .helpers import get_iiif_models
+from .locks import try_acquire_ingest_lock, release_ingest_lock
 from .services.ocr_services import (
     add_ocr_to_canvases,
     add_ocr_to_canvas,
@@ -31,6 +32,21 @@ OCR = get_iiif_models()["OCR"]
 LOGGER = logging.getLogger(__name__)
 
 
+class ReleaseLocalLockOnFailure(Task):
+    """Releases the "local" ingest lock when a task in the Local pipeline
+    fails permanently (retries exhausted, or a non-retried exception).
+
+    Deliberately does NOT release on every raised exception -- Celery only
+    calls on_failure once a task gives up for good, so the lock stays held
+    across an individual task's own retry/backoff attempts, which is what
+    actually blocks a concurrent second dispatch (e.g. an admin resave)
+    from racing in while this pipeline is still working through retries.
+    """
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        release_ingest_lock("local", args[0])
+
+
 class FinalTask(Task):
     def on_success(self, retval, task_id, args, kwargs):
         """Success handler.
@@ -46,6 +62,7 @@ class FinalTask(Task):
         Returns:
             None: The return value of this handler is ignored.
         """
+        release_ingest_lock("local", args[0])
         ingest = Local.objects.get(id=args[0])
         ingest.success()
 
@@ -64,6 +81,7 @@ class FinalTask(Task):
         Returns:
             None: The return value of this handler is ignored.
         """
+        release_ingest_lock("local", args[0])
         ingest = Local.objects.get(id=args[0])
         ingest.failure(exc)
 
@@ -87,6 +105,7 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 @app.task(
     name="local_ingest_task_ecds",
+    base=ReleaseLocalLockOnFailure,
     autoretry_for=(Exception,),
     retry_backoff=True,
     max_retries=20,
@@ -98,6 +117,8 @@ def local_ingest_task_ecds(ingest_id):
     :type ingest_id: UUID
 
     """
+    if not try_acquire_ingest_lock("local", ingest_id):
+        return
     local_ingest = Local.objects.get(pk=ingest_id)
     local_ingest.ingest()
     if os.environ["DJANGO_ENV"] != "test":  # pragma: no cover
@@ -125,6 +146,7 @@ def bulk_ingest_task_ecds(ingest_id):
 
 @app.task(
     name="add_canvases_task",
+    base=ReleaseLocalLockOnFailure,
     autoretry_for=(Exception,),
     retry_backoff=5,
 )
@@ -214,12 +236,15 @@ def add_ocr_to_canvas_task(canvas_pid, *args, **kwargs):
 
 @app.task(
     name="retry_local_from_s3_task",
+    base=ReleaseLocalLockOnFailure,
     autoretry_for=(Exception,),
     retry_backoff=True,
     max_retries=20,
 )
 def retry_local_from_s3_task(ingest_id, *args, **kwargs):
     """Add OCR for Volume/Manifest via Manage Command"""
+    if not try_acquire_ingest_lock("local", ingest_id):
+        return
     ingest = Local.objects.get(id=ingest_id)
 
     # Create or clear the trigger file

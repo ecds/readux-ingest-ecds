@@ -201,7 +201,12 @@ def s3_copy(source, pid, prefix=None):
     ]
 
     if prefix is not None:
+        # Keys are laid out as <prefix>/images/<pid>/... and <prefix>/ocr/<pid>/...
+        prefix = f"{prefix.strip('/')}/"
         keys_to_copy = [key for key in keys_to_copy if key.startswith(prefix)]
+
+    ocr_directory = os.path.join(settings.INGEST_OCR_DIR, pid)
+    os.makedirs(ocr_directory, exist_ok=True)
 
     images = []
     ocr = []
@@ -216,7 +221,7 @@ def s3_copy(source, pid, prefix=None):
                 images.append(filename)
                 destination_bucket.copy(copy_source, image_path)
             elif "ocr" in key.casefold() and is_ocr(f"ocr_{key}"):
-                ocr_path = os.path.join(settings.INGEST_OCR_DIR, pid, filename)
+                ocr_path = os.path.join(ocr_directory, filename)
                 s3.Bucket(source).download_file(key, ocr_path)
                 ocr.append(ocr_path)
         except TypeError as error:

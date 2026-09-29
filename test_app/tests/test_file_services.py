@@ -18,6 +18,7 @@ class FileServicesTest(TestCase):
         self.s3.create_bucket(Bucket=settings.INGEST_TRIGGER_BUCKET)
         self.s3.create_bucket(Bucket=settings.INGEST_BUCKET)
         self.s3.create_bucket(Bucket="source")
+        os.makedirs(settings.INGEST_OCR_DIR, exist_ok=True)
 
     def test_s3_copy(self):
         fixture_dir = os.path.join(self.fixture_path, "s3_copy")
@@ -39,10 +40,9 @@ class FileServicesTest(TestCase):
                 f"{settings.INGEST_STAGING_PREFIX}/{image}",
             ).load()
 
+        # OCR is downloaded locally rather than copied to the ingest bucket.
         for ocr in ocr_files:
-            self.s3.Object(
-                settings.INGEST_BUCKET,
-                ocr,
-            ).load()
+            assert os.path.dirname(ocr) == os.path.join(settings.INGEST_OCR_DIR, "pid")
+            assert os.path.isfile(ocr)
         assert len(images) == 10
         assert len(ocr_files) == 10

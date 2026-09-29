@@ -480,6 +480,8 @@ def add_positional_ocr(canvas, result):
     """
     if result is None:
         return None
+    # Stays None for formats without positional data, e.g. plain .txt.
+    ocr = None
     if canvas.ocr_file_path is None:
         if isinstance(result, dict) or is_json(result):
             ocr = parse_dict_ocr(result)
