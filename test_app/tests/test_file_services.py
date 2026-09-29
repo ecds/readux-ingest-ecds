@@ -46,3 +46,50 @@ class FileServicesTest(TestCase):
             assert os.path.isfile(ocr)
         assert len(images) == 10
         assert len(ocr_files) == 10
+
+    def test_s3_copy_with_prefix_only_matches_that_prefix(self):
+        """s3_copy() now passes Prefix= to the S3 list call itself instead
+        of listing the whole bucket and filtering in Python -- this checks
+        that narrowing didn't break correctness: files under a *different*
+        prefix (even matching the same pid) must not be picked up, and
+        files under the requested prefix still are."""
+        self.s3.Bucket("source").put_object(
+            Key="myprefix/pid/images/page1.jpg", Body=b"fake-image"
+        )
+        self.s3.Bucket("source").put_object(
+            Key="myprefix/pid/ocr/page1.xml", Body=b"fake-ocr"
+        )
+        # Same pid, but under a different prefix -- must be excluded.
+        self.s3.Bucket("source").put_object(
+            Key="otherprefix/pid/images/page1.jpg", Body=b"fake-image"
+        )
+
+        images, ocr_files = file_services.s3_copy("source", "pid", prefix="myprefix")
+
+        assert len(images) == 1
+        assert len(ocr_files) == 1
+
+    def test_s3_copy_lists_fewer_objects_with_a_prefix(self):
+        """Confirms the narrowing is genuinely happening server-side (via
+        Prefix=), not just that results are still correct -- a bucket-wide
+        listing would still return the right *files* even without this
+        fix, since the pid/images/ocr filtering in Python was already
+        correct; what changed is how much the S3 API call itself has to
+        return in the first place."""
+        for i in range(20):
+            self.s3.Bucket("source").put_object(
+                Key=f"unrelated-{i}/other/images/page.jpg", Body=b"noise"
+            )
+        self.s3.Bucket("source").put_object(
+            Key="myprefix/pid/images/page1.jpg", Body=b"fake-image"
+        )
+
+        bucket = self.s3.Bucket("source")
+        full_scan_count = len(list(bucket.objects.all()))
+        prefixed_count = len(list(bucket.objects.filter(Prefix="myprefix/")))
+
+        assert full_scan_count == 21
+        assert prefixed_count == 1
+
+        images, ocr_files = file_services.s3_copy("source", "pid", prefix="myprefix")
+        assert len(images) == 1

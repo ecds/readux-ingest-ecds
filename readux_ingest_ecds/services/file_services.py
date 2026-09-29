@@ -192,18 +192,16 @@ def s3_copy(source, pid, prefix=None):
     s3 = resource("s3")
     destination_bucket = s3.Bucket(settings.INGEST_BUCKET)
     source_bucket = s3.Bucket(source)
+
+    # Keys are laid out as <prefix>/<pid>/images/... and <prefix>/<pid>/ocr/...
+    list_prefix = f"{prefix.strip('/')}/" if prefix is not None else ""
     keys_to_copy = [
         str(obj.key)
-        for obj in source_bucket.objects.all()
+        for obj in source_bucket.objects.filter(Prefix=list_prefix)
         if pid in obj.key
         and not str(obj.key).endswith("/")
         and pid in obj.key.split("/")
     ]
-
-    if prefix is not None:
-        # Keys are laid out as <prefix>/images/<pid>/... and <prefix>/ocr/<pid>/...
-        prefix = f"{prefix.strip('/')}/"
-        keys_to_copy = [key for key in keys_to_copy if key.startswith(prefix)]
 
     ocr_directory = os.path.join(settings.INGEST_OCR_DIR, pid)
     os.makedirs(ocr_directory, exist_ok=True)
