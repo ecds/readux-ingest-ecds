@@ -422,6 +422,14 @@ def add_ocr_annotations(canvas, ocr):
     OCR = get_iiif_models()["OCR"]
     word_order = 1
     annotations = []
+    # Tracks geometries already handled earlier in *this* call, since the
+    # DB existence check below only sees committed rows -- it can't see a
+    # sibling duplicate word still sitting in the in-memory `annotations`
+    # list from a few iterations ago. (A plain `if anno not in annotations`
+    # doesn't work for this: each `anno` gets its own uuid4() pk before
+    # that check runs, and Django's Model.__eq__ compares by pk once it's
+    # set, so two freshly-built objects can never compare equal.)
+    seen_geometries = set()
     for index, word in enumerate(ocr):
         # A quick check to make sure the header row didn't slip through.
         if word["x"] == "x":
@@ -435,6 +443,12 @@ def add_ocr_annotations(canvas, ocr):
             or word["content"].isspace()
         ):
             word["content"] = " "
+
+        geometry = (word["w"], word["h"], word["x"], word["y"])
+        if geometry in seen_geometries:
+            continue
+        seen_geometries.add(geometry)
+
         try:
             OCR.objects.get(
                 w=word["w"],
@@ -443,20 +457,26 @@ def add_ocr_annotations(canvas, ocr):
                 y=word["y"],
                 canvas=canvas,
             )
+            continue
         except OCR.DoesNotExist:
-            anno = OCR(id=uuid4()) if environ["DJANGO_ENV"] != "test" else OCR()
-            anno.canvas = canvas
-            anno.x = word["x"]
-            anno.y = word["y"]
-            anno.w = word["w"]
-            anno.h = word["h"]
-            anno.resource_type = anno.OCR
-            anno.content = word["content"]
-            anno.order = word_order
-            anno.set_span_element()
-            if anno not in annotations:
-                annotations.append(anno)
-                word_order += 1
+            pass
+        except OCR.MultipleObjectsReturned:
+            # Already duplicated in the DB from an earlier run -- don't
+            # add yet another copy, just leave the existing rows alone.
+            continue
+
+        anno = OCR(id=uuid4()) if environ["DJANGO_ENV"] != "test" else OCR()
+        anno.canvas = canvas
+        anno.x = word["x"]
+        anno.y = word["y"]
+        anno.w = word["w"]
+        anno.h = word["h"]
+        anno.resource_type = anno.OCR
+        anno.content = word["content"]
+        anno.order = word_order
+        anno.set_span_element()
+        annotations.append(anno)
+        word_order += 1
 
     return annotations
 

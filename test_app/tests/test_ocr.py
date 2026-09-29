@@ -60,6 +60,45 @@ class OCRTest(TestCase):
         dupe_annos = ocr_services.add_ocr_annotations(canvas, ocr)
         assert len(dupe_annos) == 0
 
+    def test_add_ocr_annotations_dedupes_within_a_single_batch(self):
+        """If the OCR source lists the same word position twice within one
+        get_ocr() call (a malformed/repeated line), add_ocr_annotations()
+        must not create two rows for it. The DB existence check alone
+        can't catch this -- neither duplicate is committed yet when the
+        second one is checked -- so this has to be caught in-memory."""
+        canvas = CanvasFactory.create(manifest=ManifestFactory.create())
+        word = {"content": "duplicate", "w": 10, "h": 10, "x": 5, "y": 5}
+
+        annos = ocr_services.add_ocr_annotations(canvas, [dict(word), dict(word)])
+
+        assert len(annos) == 1
+
+    def test_add_ocr_annotations_skips_gracefully_on_pre_existing_duplicates(self):
+        """If a canvas already has more than one existing OCR row at the
+        same geometry (leftover duplication from before this session's
+        fixes), add_ocr_annotations() must not crash with
+        MultipleObjectsReturned -- it should just skip creating another
+        copy and leave the existing rows alone."""
+        canvas = CanvasFactory.create(manifest=ManifestFactory.create())
+        for _ in range(2):
+            OCR.objects.create(
+                canvas=canvas,
+                w=10,
+                h=10,
+                x=5,
+                y=5,
+                content="existing",
+                order=1,
+                resource_type=OCR.OCR,
+            )
+
+        word = {"content": "existing", "w": 10, "h": 10, "x": 5, "y": 5}
+
+        annos = ocr_services.add_ocr_annotations(canvas, [word])  # must not raise
+
+        assert annos == []
+        assert OCR.objects.filter(canvas=canvas).count() == 2
+
     def test_add_ocr_to_canvases_handles_multiple_canvases(self):
         """add_ocr_to_canvases() now flushes each canvas's OCR to the DB
         individually instead of accumulating a whole batch of canvases in
