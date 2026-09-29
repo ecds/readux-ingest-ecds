@@ -12,6 +12,7 @@ from lxml import etree
 from django.conf import settings
 from django.core.serializers import deserialize
 from readux_ingest_ecds.helpers import get_iiif_models
+from ..retry_exceptions import TRANSIENT_EXCEPTIONS
 from .services import fetch_url
 
 LOGGER = logging.getLogger(__name__)
@@ -613,19 +614,38 @@ def add_ocr_to_canvases(manifest):
     bulk_create_batch_size = 200 if environ["DJANGO_ENV"] != "test" else 2
 
     for canvas in manifest.canvas_set.iterator(chunk_size=50):
-        ocr = get_ocr(canvas)
-        if isinstance(ocr, etree.XMLSyntaxError):
-            warnings.append(f"Canvas {canvas.pid} - {ocr.__class__.__name__}: {ocr}")
-            continue
-        if ocr is None:
-            warnings.append(f"Canvas {canvas.pid} - No OCR")
-            continue
+        try:
+            ocr = get_ocr(canvas)
+            if isinstance(ocr, etree.XMLSyntaxError):
+                warnings.append(f"Canvas {canvas.pid} - {ocr.__class__.__name__}: {ocr}")
+                continue
+            if ocr is None:
+                warnings.append(f"Canvas {canvas.pid} - No OCR")
+                continue
 
-        new_ocr_annotations = add_ocr_annotations(canvas, ocr)
-        if new_ocr_annotations:
-            OCR.objects.bulk_create(
-                new_ocr_annotations, batch_size=bulk_create_batch_size
-            )
+            new_ocr_annotations = add_ocr_annotations(canvas, ocr)
+            if new_ocr_annotations:
+                OCR.objects.bulk_create(
+                    new_ocr_annotations, batch_size=bulk_create_batch_size
+                )
+        except TRANSIENT_EXCEPTIONS:
+            # A genuine connectivity/DB blip -- let it propagate so
+            # add_ocr_task_local's autoretry_for retries the whole task,
+            # rather than silently recording "no OCR" for a canvas that
+            # might have succeeded on a later attempt.
+            raise
+        except Exception as exc:  # pylint: disable=broad-except
+            # Anything else (malformed hOCR, an unexpected parse error,
+            # etc.) is specific to this one canvas. Record it and move on,
+            # the same way XMLSyntaxError/no-OCR already do above --
+            # letting it propagate would fail the whole task over one bad
+            # canvas, and (since add_ocr_task_local isn't retried for
+            # non-transient exceptions) permanently delete the Local
+            # tracking row via Local.failure(), discarding every other
+            # canvas's already-committed OCR from the record and leaving
+            # no way to resume.
+            LOGGER.warning(f"Canvas {canvas.pid} - {exc.__class__.__name__}: {exc}")
+            warnings.append(f"Canvas {canvas.pid} - {exc.__class__.__name__}: {exc}")
 
     return warnings
 

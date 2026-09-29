@@ -4,34 +4,19 @@
 
 import os
 import logging
-from botocore.exceptions import ConnectionError as BotoConnectionError
 from celery import Celery, Task
 from django.apps import apps
 from django.conf import settings
 from django.db.utils import OperationalError
-from requests.exceptions import ConnectionError as RequestsConnectionError, Timeout
 from .helpers import get_iiif_models
 from .locks import try_acquire_ingest_lock, release_ingest_lock
+from .retry_exceptions import TRANSIENT_EXCEPTIONS
 from .services.ocr_services import (
     add_ocr_to_canvases,
     add_ocr_to_canvas,
     remove_duplicate_ocr,
 )
 from .services.file_services import s3_copy
-
-# Exceptions worth an automatic retry: genuine connectivity/infrastructure
-# blips (network drops, DB connection hiccups) that are likely to succeed
-# on a later attempt. Deliberately NOT botocore.exceptions.ClientError or
-# BotoCoreError -- ClientError also covers things like NoSuchBucket, which
-# mean "this genuinely doesn't exist," not "try again later"; retrying
-# those just repeats a guaranteed failure (and, for non-idempotent work
-# like bulk_create, can turn a permanent failure into duplicated data).
-TRANSIENT_EXCEPTIONS = (
-    BotoConnectionError,  # covers EndpointConnectionError too (subclass)
-    RequestsConnectionError,
-    Timeout,
-    OperationalError,
-)
 
 # Use `apps.get_model` to avoid circular import error. Because the parameters used to
 # create a background task have to be serializable, we can't just pass in the model object.

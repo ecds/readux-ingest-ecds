@@ -1,7 +1,9 @@
 import os
 from uuid import uuid4
+from unittest.mock import patch
 from django.core import mail
 from django.conf import settings
+from django.db.utils import OperationalError
 from django.test import TestCase
 from readux_ingest_ecds.services import ocr_services
 from readux_ingest_ecds.tasks import add_ocr_task_local
@@ -98,6 +100,62 @@ class OCRTest(TestCase):
 
         assert annos == []
         assert OCR.objects.filter(canvas=canvas).count() == 2
+
+    def test_add_ocr_to_canvases_isolates_a_single_canvas_failure(self):
+        """A non-transient exception from one canvas (e.g. malformed hOCR)
+        must not abort the whole task -- OCR should still get added for
+        every other canvas, and the failure recorded as a warning instead
+        of propagating. Letting it propagate would reach
+        add_ocr_task_local's on_failure -> Local.failure(), which deletes
+        the whole ingest's tracking record even though every other canvas
+        already succeeded."""
+        manifest = ManifestFactory.create()
+        good_canvas = CanvasFactory.create(
+            ocr_file_path=os.path.join(self.fixture_path, "alto4.xml"),
+            manifest=manifest,
+        )
+        bad_canvas = CanvasFactory.create(
+            ocr_file_path=os.path.join(self.fixture_path, "alto4.xml"),
+            manifest=manifest,
+        )
+
+        real_get_ocr = ocr_services.get_ocr
+
+        def flaky_get_ocr(canvas):
+            if canvas.pk == bad_canvas.pk:
+                raise ValueError("simulated malformed OCR source")
+            return real_get_ocr(canvas)
+
+        with patch(
+            "readux_ingest_ecds.services.ocr_services.get_ocr",
+            side_effect=flaky_get_ocr,
+        ):
+            warnings = ocr_services.add_ocr_to_canvases(manifest)
+
+        assert OCR.objects.filter(canvas=good_canvas).count() == 178
+        assert OCR.objects.filter(canvas=bad_canvas).count() == 0
+        assert any(
+            "ValueError" in w and str(bad_canvas.pid) in w for w in warnings
+        )
+
+    def test_add_ocr_to_canvases_reraises_transient_exceptions(self):
+        """A transient/connectivity exception must propagate rather than
+        get swallowed as a per-canvas warning, so Celery's autoretry_for
+        on add_ocr_task_local actually retries the whole task instead of
+        silently recording "this canvas failed" for something that might
+        succeed on the next attempt."""
+        manifest = ManifestFactory.create()
+        CanvasFactory.create(
+            ocr_file_path=os.path.join(self.fixture_path, "alto4.xml"),
+            manifest=manifest,
+        )
+
+        with patch(
+            "readux_ingest_ecds.services.ocr_services.get_ocr",
+            side_effect=OperationalError("connection lost"),
+        ):
+            with self.assertRaises(OperationalError):
+                ocr_services.add_ocr_to_canvases(manifest)
 
     def test_add_ocr_to_canvases_handles_multiple_canvases(self):
         """add_ocr_to_canvases() now flushes each canvas's OCR to the DB
