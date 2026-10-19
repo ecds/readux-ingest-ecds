@@ -7,10 +7,7 @@ from uuid import uuid4
 import pytest
 import boto3
 from uuid import UUID
-from unittest.mock import MagicMock, patch
-from urllib.parse import unquote
 from zipfile import ZipFile
-from PIL import Image
 from moto import mock_aws
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -236,8 +233,8 @@ class LocalTest(TestCase):
         local.prep()
         local.unzip_bundle()
 
-        # canvas_dimensions() looks for each image in the ingest bucket's
-        # staging prefix, then asks the IIIF server for its info.json.
+        # canvas_dimensions() reads each image's size from its copy in the
+        # ingest bucket's staging prefix.
         bucket = boto3.resource("s3").Bucket(settings.INGEST_BUCKET)
         for image in os.listdir(settings.INGEST_PROCESSING_DIR):
             bucket.upload_file(
@@ -245,21 +242,7 @@ class LocalTest(TestCase):
                 f"{settings.INGEST_STAGING_PREFIX}/{image}",
             )
 
-        def fake_info_json(url):
-            key = unquote(url.split("/iiif/3/")[1].removesuffix("/info.json"))
-            with Image.open(
-                os.path.join(settings.INGEST_PROCESSING_DIR, os.path.basename(key))
-            ) as image:
-                width, height = image.size
-            response = MagicMock()
-            response.json.return_value = {"sizes": [{"width": width, "height": height}]}
-            return response
-
-        with patch(
-            "readux_ingest_ecds.services.file_services.requests.get",
-            side_effect=fake_info_json,
-        ):
-            local.create_canvases()
+        local.create_canvases()
 
         pid = local.manifest.pid
 

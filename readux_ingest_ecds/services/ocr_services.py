@@ -605,6 +605,19 @@ def remove_duplicate_ocr(canvas):
 #                         anno.delete()
 
 
+def ocr_is_referenced(canvas):
+    """Whether any other record points at this canvas's OCR. In Readux, a
+    user's text annotation is anchored to the OCR words it highlights, so
+    deleting that OCR would delete the annotation too."""
+    OCR = get_iiif_models()["OCR"]
+    ocr = OCR.objects.filter(canvas=canvas)
+    for relation in OCR._meta.related_objects:
+        related = relation.related_model._default_manager
+        if related.filter(**{f"{relation.field.name}__in": ocr}).exists():
+            return True
+    return False
+
+
 MAX_WARNING_DETAIL = 300
 
 
@@ -621,15 +634,30 @@ def canvas_warning(canvas, error):
     return f"Canvas {canvas.pid} - {detail}"
 
 
-def add_ocr_to_canvases(manifest):
+def add_ocr_to_canvases(manifest, kept_canvas_pids=()):
+    """Add OCR to every canvas in the manifest.
+
+    :param kept_canvas_pids: Re-ingested pages that keep their existing OCR
+        because user annotations are anchored to it. They're skipped, so the
+        new file's OCR isn't added alongside the old, and listed in warnings.
+    """
     OCR = get_iiif_models()["OCR"]
     warnings = []
+    # Compared as strings: the pids arrive as JSON when passed through Celery.
+    kept_canvas_pids = {str(pid) for pid in kept_canvas_pids}
     # Only bounds each canvas's own bulk_create INSERT batches now -- annotations
     # are flushed to the DB one canvas at a time (below) instead of accumulating
     # across a whole batch of canvases.
     bulk_create_batch_size = 200 if environ["DJANGO_ENV"] != "test" else 2
 
     for canvas in manifest.canvas_set.iterator(chunk_size=50):
+        if str(canvas.pid) in kept_canvas_pids:
+            warnings.append(
+                f"Canvas {canvas.pid} - Kept this page's existing image, "
+                "dimensions and OCR: user annotations are anchored to its OCR, "
+                "and replacing it would delete them."
+            )
+            continue
         try:
             ocr = get_ocr(canvas)
             if isinstance(ocr, etree.XMLSyntaxError):

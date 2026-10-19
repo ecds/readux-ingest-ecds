@@ -157,11 +157,15 @@ def local_ingest_task_ecds(self, ingest_id):
     if not start_local_pipeline(self, ingest_id):
         return
     local_ingest = Local.objects.get(pk=ingest_id)
-    local_ingest.ingest()
+    kept_canvas_pids = local_ingest.ingest()
     if os.environ["DJANGO_ENV"] != "test":  # pragma: no cover
-        add_ocr_task_local.delay(ingest_id, local_ingest.manifest.pid)
+        add_ocr_task_local.delay(
+            ingest_id, local_ingest.manifest.pid, kept_canvas_pids=kept_canvas_pids
+        )
     else:
-        add_ocr_task_local(ingest_id, local_ingest.manifest.pid)
+        add_ocr_task_local(
+            ingest_id, local_ingest.manifest.pid, kept_canvas_pids=kept_canvas_pids
+        )
 
 
 @app.task(
@@ -196,14 +200,18 @@ def add_canvases_task(ingest_id, manifest_pid, *args, **kwargs):
     """
     LOGGER.info(f"Adding Canvases for {manifest_pid}")
     local_ingest = Local.objects.get(pk=ingest_id)
-    local_ingest.create_canvases()
+    kept_canvas_pids = local_ingest.create_canvases()
     LOGGER.info(f"Canvases created for {manifest_pid}")
     local_ingest.manifest.save()
 
     if os.environ["DJANGO_ENV"] == "test":
-        add_ocr_task_local(str(local_ingest.id), manifest_pid)
+        add_ocr_task_local(
+            str(local_ingest.id), manifest_pid, kept_canvas_pids=kept_canvas_pids
+        )
     else:
-        add_ocr_task_local.delay(str(local_ingest.id), manifest_pid)
+        add_ocr_task_local.delay(
+            str(local_ingest.id), manifest_pid, kept_canvas_pids=kept_canvas_pids
+        )
 
 
 @app.task(
@@ -222,12 +230,12 @@ def add_canvases_task(ingest_id, manifest_pid, *args, **kwargs):
     autoretry_for=(Manifest.DoesNotExist,) + TRANSIENT_EXCEPTIONS,
     retry_backoff=5,
 )
-def add_ocr_task_local(ingest_id, manifest_pid, *args, **kwargs):
+def add_ocr_task_local(ingest_id, manifest_pid, *args, kept_canvas_pids=(), **kwargs):
     """Function for parsing and adding OCR."""
     LOGGER.info(f"ADDING OCR for {manifest_pid}")
     local_ingest = Local.objects.get(pk=ingest_id)
     manifest = Manifest.objects.get(pk=local_ingest.manifest.pk)
-    warnings = add_ocr_to_canvases(manifest)
+    warnings = add_ocr_to_canvases(manifest, kept_canvas_pids=kept_canvas_pids)
     local_ingest.warnings = " | ".join(warnings)
     local_ingest.save()
 

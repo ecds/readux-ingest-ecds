@@ -30,6 +30,7 @@ from .services.iiif_services import (
     annotations,
 )
 from .services.metadata_services import metadata_from_file, clean_metadata
+from .services.ocr_services import ocr_is_referenced
 from .helpers import get_iiif_models
 from .storages import TmpStorage
 from .mail import send_email_on_success, send_email_on_failure
@@ -171,10 +172,11 @@ class Local(IngestAbstractModel):
     def ingest(self):
         LOGGER.info(f"INGEST: Local ingest - {self.id} - saved for {self.manifest.pid}")
         self.unzip_bundle()
-        self.create_canvases()
+        kept_canvas_pids = self.create_canvases()
         LOGGER.info(
             f"INGEST: Local ingest - {self.id} - finished for {self.manifest.pid}"
         )
+        return kept_canvas_pids
 
     def unzip_bundle(self):
         open(self.trigger_file, "a", encoding="utf-8").close()
@@ -250,8 +252,20 @@ class Local(IngestAbstractModel):
         os.replace(tmp_path, self.trigger_file)
 
     def create_canvases(self):
+        """Create a canvas for each listed image, or update it in place if it
+        already exists (a re-ingest).
+
+        :return: pids of existing pages left untouched because user
+            annotations are anchored to their OCR.
+        :rtype: list
+        """
         CanvasModel = get_iiif_models()["Canvas"]
+        OCRModel = get_iiif_models()["OCR"]
         new_canvases = []
+        updated_canvases = []
+        replace_ocr_for = []
+        kept_canvas_pids = []
+        kept_images = []
         retry_hint = (
             "For an S3 ingest, re-save this Local ingest in the admin to copy "
             "the files again."
@@ -276,22 +290,14 @@ class Local(IngestAbstractModel):
             image_name = os.path.splitext(image)[0]
             canvas_pid = f"{image_name}.tiff"
             width, height = canvas_dimensions(image_name)
-            ocr_directory = os.path.join(settings.INGEST_OCR_DIR, self.manifest.pid)
-            try:
-                ocr_file = [
-                    ocr for ocr in os.listdir(ocr_directory) if image_name in ocr
-                ][0]
-                ocr_file_path = os.path.abspath(os.path.join(ocr_directory, ocr_file))
-            except IndexError:
-                ocr_file_path = None
+            ocr_file_path = self.ocr_file_for(image_name)
 
             try:
                 # Scoped to this manifest -- pid isn't guaranteed globally
                 # unique (e.g. two volumes both containing a page literally
                 # named "0001.tif"), and an unscoped lookup here could match
-                # a different manifest's canvas, silently skipping creation
-                # of this manifest's own page.
-                CanvasModel.objects.get(pid=canvas_pid, manifest=self.manifest)
+                # a different manifest's canvas.
+                canvas = CanvasModel.objects.get(pid=canvas_pid, manifest=self.manifest)
             except CanvasModel.DoesNotExist:
                 new_canvas = CanvasModel(
                     manifest=self.manifest,
@@ -307,11 +313,52 @@ class Local(IngestAbstractModel):
                 new_canvas.before_save()
 
                 new_canvases.append(new_canvas)
+                continue
+
+            # A re-ingested page is updated in place. Its position is left
+            # alone; it may have been set by hand.
+            if ocr_is_referenced(canvas):
+                # Replacing this page's OCR would delete the annotations
+                # anchored to it, so the whole page is left as it was.
+                kept_canvas_pids.append(canvas.pid)
+                kept_images.append(image)
+                continue
+            if width and height:
+                canvas.width, canvas.height = width, height
+            if ocr_file_path:
+                # Only when this ingest brought a new OCR file, so an
+                # image-only re-ingest doesn't wipe the page's OCR.
+                canvas.ocr_file_path = ocr_file_path
+                replace_ocr_for.append(canvas)
+            updated_canvases.append(canvas)
 
         CanvasModel.objects.bulk_create(new_canvases)
+        CanvasModel.objects.bulk_update(
+            updated_canvases, ["width", "height", "ocr_file_path"]
+        )
+        # The OCR step adds words alongside any already there, so the old OCR
+        # is removed for it to rebuild from the new file.
+        OCRModel.objects.filter(canvas__in=replace_ocr_for).delete()
         self.check_canvases()
 
-        upload_trigger_file(self.trigger_file)
+        upload_trigger_file(self.trigger_file, exclude=kept_images)
+        return kept_canvas_pids
+
+    def ocr_file_for(self, image_name):
+        """This page's OCR file, if the ingest included one. An exact name
+        match wins, so "page-1" doesn't take "page-10.xml"; otherwise the
+        first file whose name contains the image name."""
+        ocr_directory = os.path.join(settings.INGEST_OCR_DIR, self.manifest.pid)
+        try:
+            files = sorted(os.listdir(ocr_directory))
+        except FileNotFoundError:
+            return None
+        matches = [f for f in files if os.path.splitext(f)[0] == image_name] or [
+            f for f in files if image_name in f
+        ]
+        if not matches:
+            return None
+        return os.path.abspath(os.path.join(ocr_directory, matches[0]))
 
     def check_canvases(self):
         CanvasModel = get_iiif_models()["Canvas"]

@@ -2,12 +2,17 @@
 create_canvases()."""
 
 import os
+from io import BytesIO
 from shutil import rmtree
 from types import SimpleNamespace
 from unittest.mock import patch
+import boto3
 import pytest
+from moto import mock_aws
+from PIL import Image
 from django.conf import settings
 from django.test import TestCase
+from readux_ingest_ecds.services import file_services
 from readux_ingest_ecds.services.file_services import volume_keys
 from .factories import LocalFactory, ManifestFactory
 
@@ -112,3 +117,49 @@ class LocalImageListTest(TestCase):
 
         with self.assertRaisesRegex(ValueError, "is empty.*re-save"):
             self.local.create_canvases()
+
+
+@mock_aws
+class CanvasDimensionsTest(TestCase):
+    """Dimensions are read from the staged file itself, never from an IIIF
+    server, whose cached info.json can describe an earlier file."""
+
+    def setUp(self):
+        super().setUp()
+        self.bucket = boto3.resource("s3", region_name="us-east-1").create_bucket(
+            Bucket=settings.INGEST_BUCKET
+        )
+
+    def stage(self, name, size, fmt="JPEG"):
+        image = BytesIO()
+        Image.new("RGB", size).save(image, fmt)
+        self.bucket.put_object(
+            Key=f"{settings.INGEST_STAGING_PREFIX}/{name}", Body=image.getvalue()
+        )
+
+    def test_reads_size_from_the_staged_file(self):
+        self.stage("page-0001.jpg", (640, 480))
+
+        assert file_services.canvas_dimensions("page-0001") == (640, 480)
+
+    def test_rescanned_file_with_same_name_gets_its_new_size(self):
+        self.stage("page-0001.jpg", (640, 480))
+        assert file_services.canvas_dimensions("page-0001") == (640, 480)
+
+        self.stage("page-0001.jpg", (1280, 2029))
+
+        assert file_services.canvas_dimensions("page-0001") == (1280, 2029)
+
+    def test_reads_whole_file_when_header_has_no_size(self):
+        self.stage("page-0001.tif", (300, 200), fmt="TIFF")
+
+        with patch.object(file_services, "IMAGE_HEADER_BYTES", 16):
+            assert file_services.canvas_dimensions("page-0001") == (300, 200)
+
+    def test_matches_the_whole_file_name(self):
+        self.stage("page-0010.jpg", (640, 480))
+
+        assert file_services.canvas_dimensions("page-001") == (0, 0)
+
+    def test_missing_file_has_no_size(self):
+        assert file_services.canvas_dimensions("page-0001") == (0, 0)

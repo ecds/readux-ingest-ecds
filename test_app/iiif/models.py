@@ -469,6 +469,14 @@ class UserAnnotation(models.Model):
     TYPE_CHOICES = ((OCR, "ocr"), (TEXT, "text"))
 
     canvas = models.ForeignKey(Canvas, on_delete=models.DO_NOTHING)
+    # As in Readux: a text annotation is anchored to the OCR word it starts on.
+    start_selector = models.ForeignKey(
+        "iiif.OCR",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="start_selector",
+    )
     x = models.IntegerField(default=0)
     y = models.IntegerField(default=0)
     w = models.IntegerField(default=0)

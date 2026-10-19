@@ -1,7 +1,6 @@
 import os
 import boto3
 import tempfile
-from unittest.mock import patch
 from shutil import rmtree
 from faker import Faker
 from faker_file.providers.jpeg_file import JpegFileProvider
@@ -44,13 +43,6 @@ class S3Test(TestCase):
         conn.create_bucket(Bucket=settings.INGEST_BUCKET)
         conn.create_bucket(Bucket="source")
 
-        # canvas_dimensions() asks the IIIF server for each image's info.json.
-        iiif_patcher = patch("readux_ingest_ecds.services.file_services.requests.get")
-        mock_get = iiif_patcher.start()
-        mock_get.return_value.json.return_value = {
-            "sizes": [{"width": 100, "height": 150}]
-        }
-        self.addCleanup(iiif_patcher.stop)
 
     def teardown_class():
         rmtree(settings.INGEST_TMP_DIR, ignore_errors=True)

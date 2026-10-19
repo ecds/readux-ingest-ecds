@@ -2,12 +2,11 @@
 
 import os
 import logging
-import requests
-from urllib.parse import quote
+from io import BytesIO
 from shutil import move
 from mimetypes import guess_type
 
-# from PIL import Image
+from PIL import Image
 from boto3 import resource
 
 from django.conf import settings
@@ -113,7 +112,7 @@ def divide_chunks(
         yield item_list[item : item + chunk_size]
 
 
-def upload_trigger_file(trigger_file):
+def upload_trigger_file(trigger_file, exclude=()):
     """
     Upload trigger file to S3. The file contains a list of images being ingested.
     The file will be picked up by an AWS lambda function and the images will be
@@ -121,10 +120,13 @@ def upload_trigger_file(trigger_file):
 
     :param trigger_file: Absolute path to trigger file.
     :type trigger_file: str
+    :param exclude: Images in the trigger file not to convert, e.g. re-ingested
+        pages that keep their existing image.
     """
     s3 = resource("s3")
     with open(trigger_file, "r", encoding="utf-8") as t_file:
-        images = t_file.read().splitlines()
+        exclude = set(exclude)
+        images = [image for image in t_file.read().splitlines() if image not in exclude]
     chunked_images = list(divide_chunks(images))
     for idx, chunk in enumerate(chunked_images):
         chunked_trigger_file = trigger_file.replace(".txt", f"-{idx}.txt")
@@ -136,47 +138,45 @@ def upload_trigger_file(trigger_file):
         )
 
 
-# def canvas_dimensions(image_name):
-#     """Get canvas dimensions
+# Only image headers are read, never pixel data, so PIL's decompression-bomb
+# limit doesn't apply and would otherwise reject very large scans.
+Image.MAX_IMAGE_PIXELS = None
 
-#     :param image_name: File name without extension of image file.
-#     :type image_name: str
-#     :return: 2-tuple containing width and height (in pixels)
-#     :rtype: tuple
-#     """
-#     original_image = [
-#         img
-#         for img in os.listdir(settings.INGEST_PROCESSING_DIR)
-#         if img.startswith(image_name)
-#     ]
-#     if len(original_image) > 0:
-#         Image.MAX_IMAGE_PIXELS = None
-#         return Image.open(
-#             os.path.join(settings.INGEST_PROCESSING_DIR, original_image[0])
-#         ).size
-#     return (0, 0)
+# Enough for the size information of nearly any JPEG. TIFFs can keep theirs
+# at the end of the file, in which case the whole file is read.
+IMAGE_HEADER_BYTES = 256 * 1024
+
+
+def staging_key(bucket, image_name):
+    """The ingest bucket's staging key for an image, matched on the whole file
+    name so "page-001" doesn't pick up "page-0010.jpg"."""
+    for obj in bucket.objects.filter(
+        Prefix=f"{settings.INGEST_STAGING_PREFIX}/{image_name}"
+    ):
+        if os.path.splitext(os.path.basename(obj.key))[0] == image_name:
+            return obj.key
+    return None
 
 
 def canvas_dimensions(image_name):
-    s3 = resource("s3")
-    bucket = s3.Bucket(settings.INGEST_BUCKET)
+    """Width and height of a staged image, read from the file itself.
 
-    keys = [
-        obj.key
-        for obj in bucket.objects.filter(
-            Prefix=f"{settings.INGEST_STAGING_PREFIX}/{image_name}"
-        )
-    ]
+    Not from an IIIF server's info.json: on a re-ingest, a rescanned file
+    keeps its name, and a cached info.json for that name still describes
+    the earlier file.
+    """
+    bucket = resource("s3").Bucket(settings.INGEST_BUCKET)
+    key = staging_key(bucket, image_name)
+    if key is None:
+        return (0, 0)
 
-    if len(keys) > 0:
-        response = requests.get(
-            f"https://iiif.ecds.io/iiif/3/{quote(keys[0], safe='')}/info.json"
-        ).json()
-
-        dimensions = response["sizes"][-1]
-        return (dimensions["width"], dimensions["height"])
-
-    return (0, 0)
+    obj = bucket.Object(key)
+    header = obj.get(Range=f"bytes=0-{IMAGE_HEADER_BYTES - 1}")["Body"].read()
+    try:
+        return Image.open(BytesIO(header)).size
+    except Exception:  # pylint: disable=broad-except
+        # Size information isn't in the header; read the whole file.
+        return Image.open(BytesIO(obj.get()["Body"].read())).size
 
 
 def volume_keys(bucket, pid, prefix=None):
