@@ -179,6 +179,27 @@ def canvas_dimensions(image_name):
     return (0, 0)
 
 
+def volume_keys(bucket, pid, prefix=None):
+    """Keys in `bucket` that belong to volume `pid` -- any key with `pid` as
+    one of its path segments.
+
+    Volumes are normally laid out as `<prefix>/<pid>/...`, so that folder is
+    listed first. Listing just `<prefix>/` pages through every volume in the
+    bucket, which takes minutes on a large one; it's only used as a fallback
+    for other layouts, such as `<prefix>/images/<pid>/...`.
+    """
+    base = f"{prefix.strip('/')}/" if prefix and prefix.strip("/") else ""
+    for list_prefix in (f"{base}{pid}/", base):
+        keys = [
+            str(obj.key)
+            for obj in bucket.objects.filter(Prefix=list_prefix)
+            if not str(obj.key).endswith("/") and pid in str(obj.key).split("/")
+        ]
+        if keys:
+            return keys
+    return []
+
+
 def s3_copy(source, pid, prefix=None):
     """Copy S3 objects to ingest
 
@@ -193,15 +214,7 @@ def s3_copy(source, pid, prefix=None):
     destination_bucket = s3.Bucket(settings.INGEST_BUCKET)
     source_bucket = s3.Bucket(source)
 
-    # Keys are laid out as <prefix>/<pid>/images/... and <prefix>/<pid>/ocr/...
-    list_prefix = f"{prefix.strip('/')}/" if prefix is not None else ""
-    keys_to_copy = [
-        str(obj.key)
-        for obj in source_bucket.objects.filter(Prefix=list_prefix)
-        if pid in obj.key
-        and not str(obj.key).endswith("/")
-        and pid in obj.key.split("/")
-    ]
+    keys_to_copy = volume_keys(source_bucket, pid, prefix)
 
     ocr_directory = os.path.join(settings.INGEST_OCR_DIR, pid)
     os.makedirs(ocr_directory, exist_ok=True)

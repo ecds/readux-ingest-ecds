@@ -1,7 +1,9 @@
 from django.test import TestCase
 import os
+from unittest.mock import Mock
 import boto3
 from moto import mock_aws
+from django.core import mail
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from readux_ingest_ecds import tasks as tasks_module
@@ -9,13 +11,21 @@ from readux_ingest_ecds.locks import release_ingest_lock, try_acquire_ingest_loc
 from readux_ingest_ecds.models import Local
 from readux_ingest_ecds.tasks import (
     FinalTask,
-    ReleaseLocalLockOnFailure,
+    LocalPipelineTask,
+    S3IngestTask,
     TRANSIENT_EXCEPTIONS,
     local_ingest_task_ecds,
+    start_local_pipeline,
 )
 from shutil import rmtree
 from django.conf import settings
-from .factories import ImageServerFactory, LocalFactory, ManifestFactory
+from .factories import (
+    ImageServerFactory,
+    LocalFactory,
+    ManifestFactory,
+    S3IngestFactory,
+    UserFactory,
+)
 
 
 @mock_aws
@@ -112,15 +122,60 @@ class IngestLockReleaseTest(TestCase):
 
     def test_release_local_lock_on_failure_releases_lock(self):
         """The intermediate-stage hook (add_canvases_task,
-        local_ingest_task_ecds, retry_local_from_s3_task) that releases the
+        local_ingest_task_ecds, copy_volume_from_s3_task) that releases the
         lock if the pipeline fails before ever reaching add_ocr_task_local."""
-        try_acquire_ingest_lock("local", "some-ingest-id")
+        local = LocalFactory.create(manifest=ManifestFactory.create())
+        try_acquire_ingest_lock("local", str(local.id))
 
-        ReleaseLocalLockOnFailure().on_failure(
-            Exception("boom"), "task-id", ["some-ingest-id"], {}, None
+        LocalPipelineTask().on_failure(
+            Exception("boom"), "task-id", [str(local.id)], {}, None
         )
 
-        assert try_acquire_ingest_lock("local", "some-ingest-id") is True
+        assert try_acquire_ingest_lock("local", str(local.id)) is True
+
+    def test_local_pipeline_failure_emails_creator_and_keeps_local(self):
+        """An early-stage failure used to stop the pipeline silently. It now
+        emails the creator, and keeps the Local so the volume can be retried
+        by re-saving it in the admin."""
+        local = LocalFactory.create(
+            manifest=ManifestFactory.create(), creator=UserFactory.create()
+        )
+
+        LocalPipelineTask().on_failure(
+            ValueError("no images"), "task-id", [str(local.id)], {}, None
+        )
+
+        assert len(mail.outbox) == 1
+        assert "no images" in mail.outbox[0].body
+        assert mail.outbox[0].to == [local.creator.email]
+        assert Local.objects.filter(pk=local.pk).exists()
+
+    def test_s3_ingest_failure_emails_creator(self):
+        ingest = S3IngestFactory.create(
+            creator=UserFactory.create(),
+            metadata_spreadsheet=SimpleUploadedFile("volumes.csv", b"pid\nabc\n"),
+        )
+        self.addCleanup(ingest.metadata_spreadsheet.delete, save=False)
+
+        S3IngestTask().on_failure(
+            Exception("spreadsheet unreadable"), "task-id", [ingest.id], {}, None
+        )
+
+        assert len(mail.outbox) == 1
+        assert "volumes.csv" in mail.outbox[0].subject
+        assert "spreadsheet unreadable" in mail.outbox[0].body
+
+    def test_lock_is_not_reacquired_on_a_retry(self):
+        """A retry is the same run continuing, and still holds the lock its
+        first attempt took. Re-acquiring would fail against that lock, and
+        the retry would skip the work and return as a success."""
+        try_acquire_ingest_lock("local", "ingest-1")
+
+        first_attempt = Mock(request=Mock(retries=0))
+        retry_attempt = Mock(request=Mock(retries=1))
+
+        assert start_local_pipeline(first_attempt, "ingest-1") is False
+        assert start_local_pipeline(retry_attempt, "ingest-1") is True
 
 
 class RetryScopingTest(TestCase):

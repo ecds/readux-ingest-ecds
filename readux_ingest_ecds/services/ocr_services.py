@@ -160,32 +160,32 @@ def parse_alto_ocr(result):
     if result is None:
         return None
     ocr = []
-    unvalidated_root = etree.fromstring(result)
-    if "ns-v2" in unvalidated_root.tag:
-        schema_file = "xml_schema/alto-2-1.xsd"
-    elif "ns-v3" in unvalidated_root.tag:
-        schema_file = "xml_schema/alto-3-1.xsd"
-    elif "ns-v4" in unvalidated_root.tag:
-        schema_file = "xml_schema/alto-4-2.xsd"
-    else:
-        schema_file = "xml_schema/alto-1-4.xsd"
-    parser = etree.XMLParser(schema=etree.XMLSchema(file=schema_file))
-    # The following will raise etree.XMLSyntaxError if invalid
+    # Not validated against the ALTO schema: only String text and position
+    # are used, and checked below, so a file isn't rejected over attributes
+    # that are never read (e.g. WC written as 0-100 instead of 0-1).
+    parser = etree.XMLParser(resolve_entities=False, no_network=True)
     root = etree.fromstring(result, parser=parser)
     strings = root.findall(".//String")
     if not strings:
         strings = root.findall(".//{*}String")
     for string in strings:
         attrib = {k.lower(): v for k, v in string.attrib.items()}
-        ocr.append(
-            {
-                "content": attrib["content"],
-                "h": int(attrib["height"]),
-                "w": int(attrib["width"]),
-                "x": int(attrib["hpos"]),
-                "y": int(attrib["vpos"]),
-            }
-        )
+        try:
+            ocr.append(
+                {
+                    "content": attrib["content"],
+                    # ALTO allows decimal positions.
+                    "h": round(float(attrib["height"])),
+                    "w": round(float(attrib["width"])),
+                    "x": round(float(attrib["hpos"])),
+                    "y": round(float(attrib["vpos"])),
+                }
+            )
+        except (KeyError, ValueError) as error:
+            raise ValueError(
+                f"ALTO String {attrib.get('id', '(no ID)')} needs CONTENT and "
+                f"numeric HPOS, VPOS, WIDTH and HEIGHT: {error}"
+            ) from error
     if ocr:
         return ocr
     return None
@@ -605,6 +605,22 @@ def remove_duplicate_ocr(canvas):
 #                         anno.delete()
 
 
+MAX_WARNING_DETAIL = 300
+
+
+def canvas_warning(canvas, error):
+    """One canvas's line in the ingest warnings report.
+
+    Detail is capped (the full error is in the worker log) and " | " is
+    replaced, since warnings are joined with it and split back apart when
+    the report email is built.
+    """
+    detail = f"{error.__class__.__name__}: {error}".replace(" | ", " / ")
+    if len(detail) > MAX_WARNING_DETAIL:
+        detail = f"{detail[:MAX_WARNING_DETAIL]}…"
+    return f"Canvas {canvas.pid} - {detail}"
+
+
 def add_ocr_to_canvases(manifest):
     OCR = get_iiif_models()["OCR"]
     warnings = []
@@ -617,7 +633,7 @@ def add_ocr_to_canvases(manifest):
         try:
             ocr = get_ocr(canvas)
             if isinstance(ocr, etree.XMLSyntaxError):
-                warnings.append(f"Canvas {canvas.pid} - {ocr.__class__.__name__}: {ocr}")
+                warnings.append(canvas_warning(canvas, ocr))
                 continue
             if ocr is None:
                 warnings.append(f"Canvas {canvas.pid} - No OCR")
@@ -645,7 +661,7 @@ def add_ocr_to_canvases(manifest):
             # canvas's already-committed OCR from the record and leaving
             # no way to resume.
             LOGGER.warning(f"Canvas {canvas.pid} - {exc.__class__.__name__}: {exc}")
-            warnings.append(f"Canvas {canvas.pid} - {exc.__class__.__name__}: {exc}")
+            warnings.append(canvas_warning(canvas, exc))
 
     return warnings
 

@@ -10,7 +10,7 @@ from .tasks import (
     local_ingest_task_ecds,
     bulk_ingest_task_ecds,
     s3_ingest_task,
-    retry_local_from_s3_task,
+    copy_volume_from_s3_task,
     remote_task,
 )
 from .forms import BulkVolumeUploadForm
@@ -52,7 +52,7 @@ class LocalAdmin(admin.ModelAdmin):
             if is_adding or obj.from_s3 is False:
                 transaction.on_commit(lambda: local_ingest_task_ecds.apply_async(args=[obj.id]))
             else:
-                transaction.on_commit(lambda: retry_local_from_s3_task.apply_async(args=[obj.id]))
+                transaction.on_commit(lambda: copy_volume_from_s3_task.apply_async(args=[obj.id]))
         else:
             local_ingest_task_ecds(obj.id)
 

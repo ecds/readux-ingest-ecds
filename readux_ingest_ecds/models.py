@@ -112,7 +112,7 @@ class Local(IngestAbstractModel):
     )
 
     bundle_path = models.CharField(blank=True, max_length=1000)
-    warnings = models.CharField(blank=True, max_length=10000)
+    warnings = models.TextField(blank=True)
     prefix = models.CharField(
         null=True,
         blank=True,
@@ -230,12 +230,44 @@ class Local(IngestAbstractModel):
 
         self.metadata = metadata_from_file(metadata_file)[0]
 
+    def copy_from_s3(self):
+        """Copy this volume's images and OCR from its source bucket and write
+        the image list create_canvases() reads."""
+        os.makedirs(os.path.dirname(self.trigger_file), exist_ok=True)
+        image_files, _ = s3_copy(
+            self.source_bucket, self.manifest.pid, prefix=self.prefix
+        )
+        if not image_files:
+            raise ValueError(
+                f"No images found for {self.manifest.pid} in {self.source_bucket} "
+                f"bucket with the prefix {self.prefix}"
+            )
+        # Written in one step only once every file is copied, so an
+        # interrupted copy never leaves a partial or empty image list behind.
+        tmp_path = f"{self.trigger_file}.tmp"
+        with open(tmp_path, "w", encoding="utf-8") as t_file:
+            t_file.write("".join(f"{image}\n" for image in image_files))
+        os.replace(tmp_path, self.trigger_file)
+
     def create_canvases(self):
         CanvasModel = get_iiif_models()["Canvas"]
         new_canvases = []
-        images = None
-        with open(self.trigger_file, "r") as t_file:
-            images = t_file.read().splitlines()
+        retry_hint = (
+            "For an S3 ingest, re-save this Local ingest in the admin to copy "
+            "the files again."
+        )
+        if not os.path.exists(self.trigger_file):
+            raise ValueError(
+                f"No image list for {self.manifest.pid} at {self.trigger_file}. "
+                f"{retry_hint}"
+            )
+        with open(self.trigger_file, "r", encoding="utf-8") as t_file:
+            images = [line for line in t_file.read().splitlines() if line.strip()]
+        if not images:
+            raise ValueError(
+                f"The image list for {self.manifest.pid} ({self.trigger_file}) "
+                f"is empty. {retry_hint}"
+            )
         images.sort()
 
         for index, image in enumerate(images):
@@ -532,48 +564,23 @@ class S3Ingest(models.Model):
                 source_bucket=self.s3_bucket,
             )
 
-            if created:
-                trigger_file = os.path.join(
-                    settings.INGEST_TMP_DIR, str(local_ingest.id), f"{pid}.txt"
-                )
-
-                os.makedirs(
-                    os.path.join(settings.INGEST_TMP_DIR, str(local_ingest.id)),
-                    exist_ok=True,
-                )
-
-                os.makedirs(
-                    os.path.join(settings.INGEST_OCR_DIR, str(pid)),
-                    exist_ok=True,
-                )
-
-                os.makedirs(
-                    os.path.join(settings.INGEST_OCR_DIR, str(pid)),
-                    exist_ok=True,
-                )
-
-                open(trigger_file, "a", encoding="utf-8").close()
-
-                image_files, _ = s3_copy(self.s3_bucket, pid, prefix=self.prefix)
-
-                for image_file in image_files:
-                    with open(trigger_file, "a", encoding="utf-8") as t_file:
-                        t_file.write(f"{image_file}\n")
-
-                if len(image_files) == 0:
-                    message = f"No images found for {manifest.pid} in {self.s3_bucket} bucket with the prefix {self.prefix}"
-                    LOGGER.error(message)
-                    raise ValueError(message)
-
-                from .tasks import add_canvases_task
-
-                if os.environ["DJANGO_ENV"] == "test":
-                    add_canvases_task(str(local_ingest.id), manifest.pid)
-                else:
-                    add_canvases_task.delay(str(local_ingest.id), manifest.pid)
-
-            else:
+            if not created:
                 LOGGER.warning(f"Ingest for {manifest.pid} already exists.")
+                continue
+
+            # pylint: disable=import-outside-toplevel
+            from .tasks import copy_volume_from_s3_task
+
+            # pylint: enable=import-outside-toplevel
+
+            # One task per volume: copying is the slow part, and a failure
+            # or a restarted worker should only affect that one volume.
+            if os.environ["DJANGO_ENV"] == "test":
+                # apply() runs inline but, like a worker, contains the task's
+                # failure and runs its on_failure handler.
+                copy_volume_from_s3_task.apply(args=[str(local_ingest.id)])
+            else:
+                copy_volume_from_s3_task.delay(str(local_ingest.id))
 
         self.delete()
 

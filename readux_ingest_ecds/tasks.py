@@ -10,13 +10,13 @@ from django.conf import settings
 from django.db.utils import OperationalError
 from .helpers import get_iiif_models
 from .locks import try_acquire_ingest_lock, release_ingest_lock
+from .mail import send_email_on_failure
 from .retry_exceptions import TRANSIENT_EXCEPTIONS
 from .services.ocr_services import (
     add_ocr_to_canvases,
     add_ocr_to_canvas,
     remove_duplicate_ocr,
 )
-from .services.file_services import s3_copy
 
 # Use `apps.get_model` to avoid circular import error. Because the parameters used to
 # create a background task have to be serializable, we can't just pass in the model object.
@@ -34,19 +34,53 @@ OCR = get_iiif_models()["OCR"]
 LOGGER = logging.getLogger(__name__)
 
 
-class ReleaseLocalLockOnFailure(Task):
-    """Releases the "local" ingest lock when a task in the Local pipeline
-    fails permanently (retries exhausted, or a non-retried exception).
+class LocalPipelineTask(Task):
+    """Base for the Local ingest tasks that run before the final OCR step.
 
-    Deliberately does NOT release on every raised exception -- Celery only
-    calls on_failure once a task gives up for good, so the lock stays held
-    across an individual task's own retry/backoff attempts, which is what
-    actually blocks a concurrent second dispatch (e.g. an admin resave)
-    from racing in while this pipeline is still working through retries.
+    When one fails permanently (retries exhausted, or a non-retried
+    exception), releases the "local" ingest lock and emails the ingest's
+    creator. Unlike FinalTask, the Local row is kept, so an S3 volume can be
+    retried by re-saving it in the admin.
+
+    Celery only calls on_failure once a task gives up for good, so the lock
+    stays held across a task's own retry attempts, which is what blocks a
+    concurrent second dispatch (e.g. an admin resave) from racing in.
     """
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         release_ingest_lock("local", args[0])
+        try:
+            ingest = Local.objects.get(pk=args[0])
+        except Local.DoesNotExist:
+            return
+        send_email_on_failure(
+            bundle=ingest.bundle.name if ingest.bundle else None,
+            creator=ingest.creator,
+            exception=str(exc),
+            manifest=ingest.manifest,
+        )
+
+
+class S3IngestTask(Task):
+    """Emails the creator if an S3 ingest fails before queueing its volumes."""
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        try:
+            ingest = S3Ingest.objects.get(pk=args[0])
+        except S3Ingest.DoesNotExist:
+            return
+        send_email_on_failure(
+            bundle=os.path.basename(ingest.metadata_spreadsheet.name),
+            creator=ingest.creator,
+            exception=str(exc),
+        )
+
+
+def start_local_pipeline(task, ingest_id):
+    """Acquire the "local" lock on a pipeline's first attempt. A Celery retry
+    is the same run continuing and already holds the lock, so it must not
+    try to acquire it again."""
+    return task.request.retries > 0 or try_acquire_ingest_lock("local", ingest_id)
 
 
 class FinalTask(Task):
@@ -106,20 +140,21 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 
 @app.task(
+    bind=True,
     name="local_ingest_task_ecds",
-    base=ReleaseLocalLockOnFailure,
+    base=LocalPipelineTask,
     autoretry_for=TRANSIENT_EXCEPTIONS,
     retry_backoff=True,
     max_retries=20,
 )
-def local_ingest_task_ecds(ingest_id):
+def local_ingest_task_ecds(self, ingest_id):
     """Background task to start ingest process.
 
     :param ingest_id: Primary key for .models.Local object
     :type ingest_id: UUID
 
     """
-    if not try_acquire_ingest_lock("local", ingest_id):
+    if not start_local_pipeline(self, ingest_id):
         return
     local_ingest = Local.objects.get(pk=ingest_id)
     local_ingest.ingest()
@@ -148,7 +183,7 @@ def bulk_ingest_task_ecds(ingest_id):
 
 @app.task(
     name="add_canvases_task",
-    base=ReleaseLocalLockOnFailure,
+    base=LocalPipelineTask,
     autoretry_for=TRANSIENT_EXCEPTIONS,
     retry_backoff=5,
 )
@@ -214,6 +249,7 @@ def nuke_dupe_ocr_task(manifest_pid, *args, **kwargs):
 
 @app.task(
     name="s3_ingest_task_ecds",
+    base=S3IngestTask,
     autoretry_for=TRANSIENT_EXCEPTIONS,
     retry_backoff=True,
     max_retries=20,
@@ -249,30 +285,25 @@ def add_ocr_to_canvas_task(canvas_pid, *args, **kwargs):
 
 
 @app.task(
-    name="retry_local_from_s3_task",
-    base=ReleaseLocalLockOnFailure,
+    bind=True,
+    name="copy_volume_from_s3_task",
+    base=LocalPipelineTask,
     autoretry_for=TRANSIENT_EXCEPTIONS,
     retry_backoff=True,
     max_retries=20,
 )
-def retry_local_from_s3_task(ingest_id, *args, **kwargs):
-    """Add OCR for Volume/Manifest via Manage Command"""
-    if not try_acquire_ingest_lock("local", ingest_id):
+def copy_volume_from_s3_task(self, ingest_id, *args, **kwargs):
+    """Copy one S3 volume's files, then queue canvas creation. Used for both
+    a new S3 ingest and re-saving a Local S3 ingest in the admin."""
+    if not start_local_pipeline(self, ingest_id):
         return
     ingest = Local.objects.get(id=ingest_id)
+    ingest.copy_from_s3()
 
-    # Create or clear the trigger file
-    open(ingest.trigger_file, "w", encoding="utf-8").close()
-
-    image_files, _ = s3_copy(
-        ingest.source_bucket, ingest.manifest.pid, prefix=ingest.prefix
-    )
-
-    for image_file in image_files:
-        with open(ingest.trigger_file, "a", encoding="utf-8") as t_file:
-            t_file.write(f"{image_file}\n")
-
-    add_canvases_task.delay(str(ingest.id), ingest.manifest.pid)
+    if os.environ["DJANGO_ENV"] == "test":
+        add_canvases_task(str(ingest.id), ingest.manifest.pid)
+    else:
+        add_canvases_task.delay(str(ingest.id), ingest.manifest.pid)
 
 
 @app.task(

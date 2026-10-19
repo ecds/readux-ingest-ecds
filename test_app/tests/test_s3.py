@@ -7,6 +7,7 @@ from faker import Faker
 from faker_file.providers.jpeg_file import JpegFileProvider
 from faker_file.storages.filesystem import FileSystemStorage
 from moto import mock_aws
+from django.core import mail
 from django.test import TestCase
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -299,3 +300,29 @@ class S3Test(TestCase):
             assert Manifest.objects.get(pid=pid).canvas_set.count() == 1
             assert len(ingested_images) == 1
             assert len(ingested_ocr) == 1
+
+    def test_one_volume_failing_does_not_stop_the_others(self):
+        """Each volume is copied in its own task, so a volume with no images
+        fails on its own -- with an email -- instead of ending the ingest
+        for every volume after it in the spreadsheet."""
+        pids, pid_file = self.create_pids(pid_count=2, image_count=2)
+        with open(pid_file, encoding="utf-8") as t_file:
+            lines = t_file.read().splitlines()
+        lines.insert(1, "missing-volume,No Images Here")
+        with open(pid_file, "w", encoding="utf-8") as t_file:
+            t_file.write("\n".join(lines) + "\n")
+
+        upload_file = SimpleUploadedFile(
+            name=os.path.basename(pid_file),
+            content=open(pid_file, "rb").read(),
+        )
+        ingest = S3IngestFactory(metadata_spreadsheet=upload_file)
+        s3_ingest_task(ingest.id)
+
+        for pid in pids:
+            assert Manifest.objects.get(pid=pid).canvas_set.count() == 2
+        assert Manifest.objects.get(pid="missing-volume").canvas_set.count() == 0
+        failures = [m for m in mail.outbox if "Failed" in m.subject]
+        assert len(failures) == 1
+        assert "missing-volume" in failures[0].subject
+        assert "No images found" in failures[0].body

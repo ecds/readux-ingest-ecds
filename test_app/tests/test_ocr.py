@@ -178,3 +178,73 @@ class OCRTest(TestCase):
         assert warnings == []
         assert OCR.objects.filter(canvas=canvas_one).count() == 178
         assert OCR.objects.filter(canvas=canvas_two).count() == 178
+
+
+ALTO4_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
+<alto xmlns="http://www.loc.gov/standards/alto/ns-v4#">
+  <Layout><Page ID="P1" PHYSICAL_IMG_NR="1" WIDTH="1279" HEIGHT="2029"><PrintSpace>
+    <TextBlock ID="TB1"><TextLine ID="TL1" HPOS="624" VPOS="214" WIDTH="216" HEIGHT="30">
+      {strings}
+    </TextLine></TextBlock>
+  </PrintSpace></Page></Layout>
+</alto>"""
+
+
+class ALTOParsingTest(TestCase):
+    """parse_alto_ocr() only reads String text and position, so it accepts
+    files the strict ALTO schema would reject over other attributes."""
+
+    def parse(self, strings):
+        return ocr_services.parse_alto_ocr(
+            ALTO4_TEMPLATE.format(strings=strings).encode("utf-8")
+        )
+
+    def test_word_confidence_out_of_schema_range_is_accepted(self):
+        """Seen in converted Textract output: WC as 0-100, where ALTO
+        requires 0-1. The schema used to reject every page over it."""
+        ocr = self.parse(
+            '<String ID="S1" HPOS="624" VPOS="214" WIDTH="204" HEIGHT="30" '
+            'CONTENT="ᏗᎧᏃᎩᏍᏗ" WC="93"/>'
+        )
+
+        assert ocr == [{"content": "ᏗᎧᏃᎩᏍᏗ", "h": 30, "w": 204, "x": 624, "y": 214}]
+
+    def test_decimal_positions_are_rounded(self):
+        ocr = self.parse(
+            '<String ID="S1" HPOS="10.6" VPOS="20.4" WIDTH="30.5" HEIGHT="40" '
+            'CONTENT="word"/>'
+        )
+
+        assert ocr == [{"content": "word", "h": 40, "w": 30, "x": 11, "y": 20}]
+
+    def test_missing_position_is_a_clear_error(self):
+        with self.assertRaisesRegex(ValueError, "ALTO String S1 needs CONTENT"):
+            self.parse('<String ID="S1" VPOS="20" WIDTH="30" HEIGHT="40" CONTENT="w"/>')
+
+
+class WarningsReportTest(TestCase):
+    def test_long_error_detail_is_capped(self):
+        canvas = CanvasFactory.create()
+
+        warning = ocr_services.canvas_warning(canvas, ValueError("x" * 5000))
+
+        assert warning.startswith(f"Canvas {canvas.pid} - ValueError: ")
+        assert len(warning) < ocr_services.MAX_WARNING_DETAIL + len(str(canvas.pid)) + 20
+
+    def test_separator_in_error_detail_is_replaced(self):
+        """The report splits warnings on " | ", so one inside an error
+        message would be counted as an extra canvas."""
+        canvas = CanvasFactory.create()
+
+        warning = ocr_services.canvas_warning(canvas, ValueError("a | b"))
+
+        assert " | " not in warning
+
+    def test_warnings_column_has_no_length_limit(self):
+        """Every page of a volume failing used to overflow the old
+        10,000-character column and crash the end of the OCR step. Checked
+        on the field because SQLite, used for these tests, doesn't enforce
+        column lengths, so the overflow itself can't be reproduced here."""
+        from readux_ingest_ecds.models import Local
+
+        assert Local._meta.get_field("warnings").max_length is None
